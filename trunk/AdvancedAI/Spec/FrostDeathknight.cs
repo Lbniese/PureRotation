@@ -7,6 +7,7 @@ using Styx.TreeSharp;
 using Styx.WoWInternals;
 using Styx.WoWInternals.WoWObjects;
 using AdvancedAI.Helpers;
+using AdvancedAI.Managers;
 
 using System;
 using System.Collections.Generic;
