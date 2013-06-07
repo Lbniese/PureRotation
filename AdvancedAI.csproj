@@ -66,6 +66,7 @@
     <Compile Include="Helpers\Extensions.cs" />
     <Compile Include="Helpers\Group.cs" />
     <Compile Include="Helpers\Item.cs" />
+    <Compile Include="Helpers\Party.cs" />
     <Compile Include="Helpers\Spell.cs" />
     <Compile Include="Helpers\Throttle.cs" />
     <Compile Include="Helpers\Unit.cs" />
@@ -75,6 +76,7 @@
     <Compile Include="Lists\SpellList.cs" />
     <Compile Include="Lists\SpellList.PurgeWhitelist.cs" />
     <Compile Include="Managers\HealerManager.cs" />
+    <Compile Include="Managers\SpellImmunityManager.cs" />
     <Compile Include="Managers\TalentManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Spec\ArmsWarrior.cs" />
