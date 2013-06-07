@@ -114,12 +114,13 @@ namespace AdvancedAI.Helpers
                 Gloves.Use();
         }
 
-        public static void UseBelt()
+        public static void UseWaist()
         {
-            WoWItem Waist = StyxWoW.Me.Inventory.Equipped.Waist;
-
-            if (Waist != null && CanUseEquippedItem(Waist))
-                Waist.Use();
+            var waist = StyxWoW.Me.Inventory.Equipped.Waist;
+            if (waist != null && CanUseEquippedItem(waist))
+                waist.Use();
+            var tpos = StyxWoW.Me.CurrentTarget.Location;
+            SpellManager.ClickRemoteLocation(tpos);
         }
 
         /// <summary>
