@@ -43,7 +43,7 @@ namespace AdvancedAI.Spec
                     new PrioritySelector(
                 //hands and trinks
                 //new Action(ret => { UseTrinkets(); return RunStatus.Failure; }),
-                new Action(ret => { Item.UseBelt(); return RunStatus.Failure; }),
+                new Action(ret => { Item.UseWaist(); return RunStatus.Failure; }),
                 new Action(ret => { Item.UseHands(); return RunStatus.Failure; }))),
 
 
