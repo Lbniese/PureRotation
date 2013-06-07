@@ -18,48 +18,19 @@ using System.Threading.Tasks;
 
 namespace AdvancedAI.Spec
 {
-    class ArmsWarrior
+    class ArmsWarrior : AdvancedAI
     {
-        /// <summary>
-        /// The name of this CombatRoutine
-        /// </summary>
-        /// <value>
-        /// The name.
-        /// </value>
-        public override string Name { get { return "Armed2"; } }
+        public override WoWClass Class { get { return WoWClass.Warrior; } }
         private static LocalPlayer Me { get { return StyxWoW.Me; } }
 
-        /// <summary>
-        /// The <see cref="T:Styx.WoWClass"/> to be used with this routine
-        /// </summary>
-        /// <value>
-        /// The class.
-        /// </value>
-        public override WoWClass Class { get { return WoWClass.Warrior; } }
 
-
-        private Composite _combat, _buffs;
-
-
-        public override Composite CombatBehavior { get { return _combat; } }
-        public override Composite PreCombatBuffBehavior { get { return _buffs; } }
-        public override Composite CombatBuffBehavior { get { return _buffs; } }
-
-
-        public override void Initialize()
+        protected override Composite CreateBuffs()
         {
-            _combat = CreateCombat();
-            _buffs = CreateBuffs();
+            return Spell.Cast("Battle Shout", ret => !Me.HasAura("Battle Shout"));
         }
 
 
-        Composite CreateBuffs()
-        {
-            return Cast("Battle Shout", ret => !Me.HasAura("Battle Shout"));
-        }
-
-
-        Composite CreateCombat()
+        protected override Composite CreateCombat()
         {
             return new PrioritySelector(
 
@@ -82,7 +53,7 @@ namespace AdvancedAI.Spec
 
                         Spell.Cast("Recklessness", ret => Me.CurrentTarget.IsBoss && Me.CurrentTarget.HasAuraExpired("Colossus Smash", 5)),
 
-                        Spell.Cast("Bloodbath", ret => Me.CurrentTarget.IsBoss && Me.HasAura("Recklessness") || Me.CurrentTarget.IsBoss && GetSpellCooldown("Recklessness").TotalSeconds > 3),
+                        Spell.Cast("Bloodbath", ret => Me.CurrentTarget.IsBoss && Me.HasAura("Recklessness") || Me.CurrentTarget.IsBoss && SpellManager.Spells["Recklessness"].CooldownTimeLeft.TotalSeconds > 3),
 
                         Spell.Cast("Avatar", ret => Me.CurrentTarget.IsBoss && Me.HasAura("Recklessness")),
 
@@ -90,8 +61,8 @@ namespace AdvancedAI.Spec
 
                 new Decorator(ret => Me.HasAura("Bloodbath"),
                     new PrioritySelector(
-                        new Action(ret => { UseHands(); return RunStatus.Failure; }),
-                        new Action(ret => { UseTrinkets(); return RunStatus.Failure; }))),
+                        new Action(ret => { Item.UseHands(); return RunStatus.Failure; }),
+                        new Action(ret => { Item.UseTrinkets(); return RunStatus.Failure; }))),
 
                         Spell.Cast("Berserker Rage", ret => !Me.ActiveAuras.ContainsKey("Enrage")),
 
@@ -131,11 +102,12 @@ namespace AdvancedAI.Spec
                         Spell.Cast("Heroic Throw"),
 
                        // Don't use this in execute range, unless we need the heal. Thanks!
-                        Cast("Impending Victory", ret => Me.CurrentTarget.HealthPercent > 20 || Me.HealthPercent < 50))
+                        Spell.Cast("Impending Victory", ret => Me.CurrentTarget.HealthPercent > 20 || Me.HealthPercent < 50))
                     )
                 );
         }
-        Composite CreateAoe()
+
+        private Composite CreateAoe()
         {
             return new PrioritySelector(
 
@@ -150,7 +122,8 @@ namespace AdvancedAI.Spec
 
                 );
         }
-        Composite CreateExecuteRange()
+
+        private Composite CreateExecuteRange()
         {
             return new PrioritySelector(
 
@@ -158,7 +131,7 @@ namespace AdvancedAI.Spec
         }
 
 
-        Composite HeroicLeap()
+        private Composite HeroicLeap()
         {
             return new Decorator(ret => StyxWoW.Me.CurrentTarget.HasAura("Colossus Smash") && SpellManager.CanCast("Heroic Leap"),
                 new Action(ret =>
@@ -167,96 +140,18 @@ namespace AdvancedAI.Spec
                     var trot = StyxWoW.Me.CurrentTarget.Rotation;
                     var leapRight = WoWMathHelper.CalculatePointAtSide(tpos, trot, 5, true);
                     var leapLeft = WoWMathHelper.CalculatePointAtSide(tpos, trot, 5, true);
-
-
                     var myPos = StyxWoW.Me.Location;
-
-
                     var leftDist = leapLeft.Distance(myPos);
                     var rightDist = leapRight.Distance(myPos);
-
-
                     var leapPos = WoWMathHelper.CalculatePointBehind(tpos, trot, 8);
-
-
                     if (leftDist > rightDist && leftDist <= 40 && leftDist >= 8)
                         leapPos = leapLeft;
                     else if (rightDist > leftDist && rightDist <= 40 && rightDist >= 8)
                         leapPos = leapLeft;
-
-
                     SpellManager.Cast("Heroic Leap");
                     SpellManager.ClickRemoteLocation(leapPos);
                     StyxWoW.Me.CurrentTarget.Face();
                 }));
         }
-
-        void UseHands()
-        {
-            var hands = StyxWoW.Me.Inventory.Equipped.Hands;
-
-            if (hands != null && CanUseEquippedItem(hands))
-                hands.Use();
-
-        }
-
-
-        void UseTrinkets()
-        {
-            var firstTrinket = StyxWoW.Me.Inventory.Equipped.Trinket1;
-            var secondTrinket = StyxWoW.Me.Inventory.Equipped.Trinket2;
-
-
-            if (firstTrinket != null && CanUseEquippedItem(firstTrinket))
-                firstTrinket.Use();
-
-
-            if (secondTrinket != null && CanUseEquippedItem(secondTrinket))
-                secondTrinket.Use();
-
-
-        }
-        private static bool CanUseEquippedItem(WoWItem item)
-        {
-            // Check for engineering tinkers!
-            string itemSpell = Lua.GetReturnVal<string>("return GetItemSpell(" + item.Entry + ")", 0);
-            if (string.IsNullOrEmpty(itemSpell))
-                return false;
-
-
-            return item.Usable && item.Cooldown <= 0;
-        }
-
-
-        IEnumerable<WoWUnit> UnfriendlyUnits
-        {
-            get { return ObjectManager.GetObjectsOfType<WoWUnit>(true, false).Where(u => !u.IsDead && u.CanSelect && u.Attackable && !u.IsFriendly && u.IsWithinMeleeRange); }
-        }
-
-
-        private delegate T Selection<out T>(object context);
-        Composite Cast(string spell, Selection<bool> reqs = null)
-        {
-            return
-                new Decorator(
-                    ret => ((reqs != null && reqs(ret)) || (reqs == null)) && SpellManager.CanCast(spell),
-                    new Action(ret => SpellManager.Cast(spell)));
-        }
-
-
-        public static TimeSpan GetSpellCooldown(string spell)
-        {
-            SpellFindResults results;
-            if (SpellManager.FindSpell(spell, out results))
-            {
-                if (results.Override != null)
-                    return results.Override.CooldownTimeLeft;
-                return results.Original.CooldownTimeLeft;
-            }
-
-
-            return TimeSpan.MaxValue;
-        }
-
     }
 }
