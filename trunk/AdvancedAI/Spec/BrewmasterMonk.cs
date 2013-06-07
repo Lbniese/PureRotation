@@ -82,8 +82,8 @@ namespace AdvancedAI.Spec
                     new PrioritySelector(
                 //hands and trinks
                 //new Action(ret => { UseTrinkets(); return RunStatus.Failure; }),
-                new Action(ret => { UseWaist(); return RunStatus.Failure; }),
-                new Action(ret => { UseHands(); return RunStatus.Failure; }))),
+                new Action(ret => { Item.UseBelt(); return RunStatus.Failure; }),
+                new Action(ret => { Item.UseHands(); return RunStatus.Failure; }))),
 
 
 
@@ -165,69 +165,7 @@ namespace AdvancedAI.Spec
         };
         #endregion
 
-        #region Hands and Trinks
 
-        void UseHands()
-        {
-            var hands = StyxWoW.Me.Inventory.Equipped.Hands;
-
-            if (hands != null && CanUseEquippedItem(hands))
-                hands.Use();
-
-        }
-
-
-        void UseTrinkets()
-        {
-            var firstTrinket = StyxWoW.Me.Inventory.Equipped.Trinket1;
-            var secondTrinket = StyxWoW.Me.Inventory.Equipped.Trinket2;
-
-
-            if (firstTrinket != null && CanUseEquippedItem(firstTrinket))
-                firstTrinket.Use();
-
-
-            if (secondTrinket != null && CanUseEquippedItem(secondTrinket))
-                secondTrinket.Use();
-
-
-        }
-
-        void UseWaist()
-        {
-            var waist = StyxWoW.Me.Inventory.Equipped.Waist;
-
-            if (waist != null && CanUseEquippedItem(waist))
-                waist.Use();
-
-            var tpos = StyxWoW.Me.CurrentTarget.Location;
-            var trot = StyxWoW.Me.CurrentTarget.Rotation;
-
-            var myPos = StyxWoW.Me.Location;
-
-            SpellManager.ClickRemoteLocation(tpos);
-        }
-
-        private static bool CanUseEquippedItem(WoWItem item)
-        {
-            // Check for engineering tinkers!
-            string itemSpell = Lua.GetReturnVal<string>("return GetItemSpell(" + item.Entry + ")", 0);
-            if (string.IsNullOrEmpty(itemSpell))
-                return false;
-
-
-            return item.Usable && item.Cooldown <= 0;
-        }
-        #endregion
-
-        #region IsGlobalCooldown
-        public static bool IsGlobalCooldown(bool faceDuring = false, bool allowLagTollerance = true)
-        {
-            uint latency = allowLagTollerance ? StyxWoW.WoWClient.Latency : 0;
-            TimeSpan gcdTimeLeft = SpellManager.GlobalCooldownLeft;
-            return gcdTimeLeft.TotalMilliseconds > latency;
-        }
-        #endregion
 
         #region Zen Heals
         public static WoWUnit _tanking
