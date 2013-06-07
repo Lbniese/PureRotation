@@ -45,6 +45,8 @@ namespace AdvancedAI.Helpers
         private static LocalPlayer Me { get { return StyxWoW.Me; } }
 
 
+        
+        
         public static WoWDynamicObject GetGroundEffectBySpellId(int spellId)
         {
             return ObjectManager.GetObjectsOfType<WoWDynamicObject>().FirstOrDefault(o => o.SpellId == spellId);
@@ -1546,6 +1548,7 @@ namespace AdvancedAI.Helpers
         /// <param name="requirements"></param>
         /// <param name="waitForSpell"></param>
         /// <returns></returns>
+        public delegate WoWPoint LocationRetriever(object context);
         public static Composite CastOnGround(string spell, UnitSelectionDelegate onUnit, SimpleBooleanDelegate requirements, bool waitForSpell = true)
         {
             return new Decorator(
@@ -1582,14 +1585,14 @@ namespace AdvancedAI.Helpers
                 new Decorator(
                     ret => requirements(ret)
                         && onLocation != null
-                        && Spell.CanCastHack(spell, null, skipWowCheck:true)
+                        && Spell.CanCastHack(spell, null, skipWowCheck: true)
                         && LocationInRange(spell, onLocation(ret))
                         && GameWorld.IsInLineOfSpellSight(StyxWoW.Me.GetTraceLinePos(), onLocation(ret)),
                     new Sequence(
                         new Action(ret => Logging.Write("Casting {0} {1}at location {2} at {3:F1} yds", spell, targetDesc == null ? "" : "on " + targetDesc(ret) + " ", onLocation(ret), onLocation(ret).Distance(StyxWoW.Me.Location))),
                             //Logger.Write("Casting {0} {1}at location {2} at {3:F1} yds", spell, targetDesc == null ? "" : "on " + targetDesc(ret) + " ", onLocation(ret), onLocation(ret).Distance(StyxWoW.Me.Location))),
 
-                        new Action(ret => { return SpellManager.Cast(spell) ? RunStatus.Success : RunStatus.Failure; } ),
+                        new Action(ret => { return SpellManager.Cast(spell) ? RunStatus.Success : RunStatus.Failure; }),
 
                         new DecoratorContinue(
                             ctx => waitForSpell,
@@ -1600,7 +1603,7 @@ namespace AdvancedAI.Helpers
                                     ),
                                 new Action(r =>
                                 {
-                                    Logging.Write("error: spell {0} not seen as pending on cursor after 1 second", spell);
+                                    Logging.WriteDiagnostic("error: spell {0} not seen as pending on cursor after 1 second", spell);
                                     //Logger.WriteDebug("error: spell {0} not seen as pending on cursor after 1 second", spell);
                                     return RunStatus.Failure;
                                 })
@@ -1625,12 +1628,13 @@ namespace AdvancedAI.Helpers
                             // otherwise cancel
                             new Action(ret =>
                             {
-                                Logging.Write("/cancel {0} - click {1} failed -OR- Pending Cursor Spell API broken -- distance={2:F1} yds, loss={3}, face={4}",
+                                Logging.WriteDiagnostic("/cancel {0} - click {1} failed -OR- Pending Cursor Spell API broken -- distance={2:F1} yds, loss={3}, face={4}",
                                     spell,
                                     onLocation(ret),
                                     StyxWoW.Me.Location.Distance(onLocation(ret)),
                                     GameWorld.IsInLineOfSpellSight(StyxWoW.Me.GetTraceLinePos(), onLocation(ret)),
-                                    StyxWoW.Me.IsSafelyFacing(onLocation(ret)));
+                                    StyxWoW.Me.IsSafelyFacing(onLocation(ret))
+                                    );
                                 //Logger.WriteDebug("/cancel {0} - click {1} failed -OR- Pending Cursor Spell API broken -- distance={2:F1} yds, loss={3}, face={4}",
                                 //    spell,
                                 //    onLocation(ret),
@@ -1838,7 +1842,7 @@ namespace AdvancedAI.Helpers
         public static Composite Resurrect(string spellName)
         {
             return new PrioritySelector(ctx => Unit.ResurrectablePlayers.FirstOrDefault(u => !Blacklist.Contains(u, BlacklistFlags.Combat)),
-                new Decorator(ctx => ctx != null && SingularRoutine.CurrentWoWContext != WoWContext.Battlegrounds,
+                new Decorator(ctx => ctx != null,
                     new Sequence(Cast(spellName, ctx => (WoWPlayer)ctx),
                         new Action(ctx => Blacklist.Add((WoWPlayer)ctx, BlacklistFlags.Combat, TimeSpan.FromSeconds(30))))));
         }

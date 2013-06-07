@@ -67,6 +67,17 @@ namespace AdvancedAI.Helpers
             return false;
         }
 
+        public static IEnumerable<WoWUnit> UnfriendlyMeleeUnits { get { return UnfriendlyUnits.Where(u => u.IsWithinMeleeRange); } }
+        public static IEnumerable<WoWUnit> UnfriendlyUnits
+        {
+            get
+            {
+                return
+                    ObjectManager.GetObjectsOfType<WoWUnit>(true, false)
+                                 .Where(u => !u.IsDead && u.CanSelect && u.Attackable && !u.IsFriendly);
+            }
+        }
+
 
         /// <summary>
         /// List of WoWPlayer in your Group. Deals with Party / Raid in a list independent manner and does not restrict distance

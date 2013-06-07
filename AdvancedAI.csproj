@@ -60,8 +60,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AdvancedAI.cs" />
+    <Compile Include="Helpers\Common.cs" />
     <Compile Include="Helpers\Extensions.cs" />
     <Compile Include="Helpers\Group.cs" />
+    <Compile Include="Helpers\Item.cs" />
     <Compile Include="Helpers\Spell.cs" />
     <Compile Include="Helpers\Throttle.cs" />
     <Compile Include="Helpers\Unit.cs" />
