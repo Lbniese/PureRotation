@@ -18,55 +18,16 @@ using System.Threading.Tasks;
 
 namespace AdvancedAI.Spec
 {
-    class BrewmasterMonk
+    class BrewmasterMonk : AdvancedAI
     {
-        #region Initialize
-        /// <summary>
-        /// The name of this CombatRoutine
-        /// </summary>
-        /// <value>
-        /// The name.
-        /// </value>
-        public override string Name { get { return "The Truffle Shuffle by AI"; } }
+
         private static LocalPlayer Me { get { return StyxWoW.Me; } }
-
-
-
-
-        /// <summary>
-        /// The <see cref="T:Styx.WoWClass"/> to be used with this routine
-        /// </summary>
-        /// <value>
-        /// The class.
-        /// </value>
         public override WoWClass Class { get { return WoWClass.Monk; } }
-        private Composite _combat, _buffs, _pull;
-        public override Composite CombatBehavior { get { return _combat; } }
-        public override Composite PreCombatBuffBehavior { get { return _buffs; } }
-        public override Composite CombatBuffBehavior { get { return _buffs; } }
-        public override Composite PullBehavior { get { return _combat; } }
 
-        public override void Initialize()
-        {
-            _combat = CreateCombat();
-            _buffs = CreateBuffs();
-            _pull = CreateCombat();
-        }
-        #endregion
 
-        #region Buffs
-        Composite CreateBuffs()
-        {
-            return new Decorator(
-                    ret => !Spell.IsCasting() && !Spell.IsGlobalCooldown(),
-                    new PrioritySelector(
 
-                                        ));
-        }
-        #endregion
 
-        #region Combat
-        Composite CreateCombat()
+        protected override Composite CreateCombat()
         {
 
             return new PrioritySelector(
@@ -148,7 +109,6 @@ namespace AdvancedAI.Spec
                 Spell.Cast("Tiger Palm", ret => Me.CurrentChi <= 3 && Me.CurrentEnergy <= 75 && SpellManager.Spells["Keg Smash"].CooldownTimeLeft.TotalSeconds > 1)
                     );
         }
-        #endregion
 
         #region Target Tank Tracking
         // So, this code is just to track who the current tank is on the mob we're looking at.

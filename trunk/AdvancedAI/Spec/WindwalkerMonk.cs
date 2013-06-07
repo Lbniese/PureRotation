@@ -20,34 +20,9 @@ namespace AdvancedAI.Spec
 {
     class WindwalkerMonk
     {
-        #region Initialize
-        /// <summary>
-        /// The name of this CombatRoutine
-        /// </summary>
-        /// <value>
-        /// The name.
-        /// </value>
-        public override string Name { get { return "The Rising Sun by AI"; } }
+
         private static LocalPlayer Me { get { return StyxWoW.Me; } }
-
-
-
-
-
         public override WoWClass Class { get { return WoWClass.Monk; } }
-        private Composite _combat, _buffs, _pull;
-        public override Composite CombatBehavior { get { return _combat; } }
-        public override Composite PreCombatBuffBehavior { get { return _buffs; } }
-        public override Composite CombatBuffBehavior { get { return _buffs; } }
-        public override Composite PullBehavior { get { return _combat; } }
-
-        public override void Initialize()
-        {
-            _combat = CreateCombat();
-            _buffs = CreateBuffs();
-            _pull = CreateCombat();
-        }
-        #endregion
 
         #region Buffs
         Composite CreateBuffs()
