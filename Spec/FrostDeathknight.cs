@@ -15,36 +15,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Action = Styx.TreeSharp.Action;
-using System.Threading.Tasks;
 
 namespace AdvancedAI.Spec
 {
     class FrostDeathknight
     {
-        /// <summary>
-        /// The name of this CombatRoutine
-        /// </summary>
-        /// <value>
-        /// The name.
-        /// </value>
-        public override string Name { get { return "Freezing Fog"; } }
 
-
-        /// <summary>
-        /// The <see cref="T:Styx.WoWClass"/> to be used with this routine
-        /// </summary>
-        /// <value>
-        /// The class.
-        /// </value>
         public override WoWClass Class { get { return WoWClass.DeathKnight; } }
         private static LocalPlayer Me { get { return StyxWoW.Me; } }
 
-        private Composite _combat, _buffs;
 
-
-        public override Composite CombatBehavior { get { return _combat; } }
-        public override Composite PreCombatBuffBehavior { get { return _buffs; } }
-        public override Composite CombatBuffBehavior { get { return _buffs; } }
 
         internal static int BloodRuneSlotsActive { get { return Me.GetRuneCount(0) + Me.GetRuneCount(1); } }
         internal static int FrostRuneSlotsActive { get { return Me.GetRuneCount(2) + Me.GetRuneCount(3); } }
@@ -55,25 +35,16 @@ namespace AdvancedAI.Spec
             get { return Me.Inventory.Equipped.MainHand != null && Me.Inventory.Equipped.OffHand != null; }
         }
 
-        public override void Initialize()
+
+
+        protected override Composite CreateBuffs()
         {
-            _combat = CreateCombat();
-            _buffs = CreateBuffs();
+            return Spell.Cast("Horn of Winter", ret => !Me.HasAura("Horn of Winter"));
         }
+        
 
 
-        Composite CreateBuffs()
-        {
-            return new PrioritySelector(
-                Spell.BuffSelf("Horn of Winter")
-
-
-                );
-
-        }
-
-
-        Composite CreateCombat()
+        protected override Composite CreateCombat()
         {
             return new PrioritySelector(
 
@@ -109,8 +80,8 @@ namespace AdvancedAI.Spec
                           ret => Me.HealthPercent < 25 &&
                                  Me.HasAura("Lichborne")),
                 //Common with DW and 2H
-                    new Action(ret => { UseHands(); return RunStatus.Failure; }),
-                    new Action(ret => { UseTrinkets(); return RunStatus.Failure; }),
+                    new Action(ret => { Item.UseHands(); return RunStatus.Failure; }),
+                    new Action(ret => { Item.UseTrinkets(); return RunStatus.Failure; }),
 
                     Spell.Cast("Blood Tap",
                           ret => Me.HasAura("Blood Charge", 10) &&
@@ -265,74 +236,5 @@ namespace AdvancedAI.Spec
                 );
         }
 
-
-
-
-        void UseHands()
-        {
-            var hands = StyxWoW.Me.Inventory.Equipped.Hands;
-
-            if (hands != null && CanUseEquippedItem(hands))
-                hands.Use();
-
-        }
-
-
-        void UseTrinkets()
-        {
-            var firstTrinket = StyxWoW.Me.Inventory.Equipped.Trinket1;
-            var secondTrinket = StyxWoW.Me.Inventory.Equipped.Trinket2;
-
-
-            if (firstTrinket != null && CanUseEquippedItem(firstTrinket))
-                firstTrinket.Use();
-
-
-            if (secondTrinket != null && CanUseEquippedItem(secondTrinket))
-                secondTrinket.Use();
-
-
-        }
-        private static bool CanUseEquippedItem(WoWItem item)
-        {
-            // Check for engineering tinkers!
-            string itemSpell = Lua.GetReturnVal<string>("return GetItemSpell(" + item.Entry + ")", 0);
-            if (string.IsNullOrEmpty(itemSpell))
-                return false;
-
-
-            return item.Usable && item.Cooldown <= 0;
-        }
-
-
-        IEnumerable<WoWUnit> UnfriendlyUnits
-        {
-            get { return ObjectManager.GetObjectsOfType<WoWUnit>(true, false).Where(u => !u.IsDead && u.CanSelect && u.Attackable && !u.IsFriendly && u.IsWithinMeleeRange); }
-        }
-
-
-        private delegate T Selection<out T>(object context);
-        Composite Cast(string spell, Selection<bool> reqs = null)
-        {
-            return
-                new Decorator(
-                    ret => ((reqs != null && reqs(ret)) || (reqs == null)) && SpellManager.CanCast(spell),
-                    new Action(ret => SpellManager.Cast(spell)));
-        }
-
-
-        public static TimeSpan GetSpellCooldown(string spell)
-        {
-            SpellFindResults results;
-            if (SpellManager.FindSpell(spell, out results))
-            {
-                if (results.Override != null)
-                    return results.Override.CooldownTimeLeft;
-                return results.Original.CooldownTimeLeft;
-            }
-
-
-            return TimeSpan.MaxValue;
-        }
     }
 }

@@ -20,54 +20,12 @@ namespace AdvancedAI.Spec
 {
     class RetributionPaladin
     {
-        #region Initialize
-        /// <summary>
-        /// The name of this CombatRoutine
-        /// </summary>
-        /// <value>
-        /// The name.
-        /// </value>
-        public override string Name { get { return "Holy Avenger"; } }
+
         private static LocalPlayer Me { get { return StyxWoW.Me; } }
-
-
-
-
-        /// <summary>
-        /// The <see cref="T:Styx.WoWClass"/> to be used with this routine
-        /// </summary>
-        /// <value>
-        /// The class.
-        /// </value>
         public override WoWClass Class { get { return WoWClass.Paladin; } }
-        private Composite _combat, _buffs, _pull;
-        public override Composite CombatBehavior { get { return _combat; } }
-        public override Composite PreCombatBuffBehavior { get { return _buffs; } }
-        public override Composite CombatBuffBehavior { get { return _buffs; } }
-        public override Composite PullBehavior { get { return _combat; } }
-
-        public override void Initialize()
-        {
-            _combat = CreateCombat();
-            _buffs = CreateBuffs();
-            _pull = CreateCombat();
-        }
-        #endregion
-
-        #region Buffs
-        Composite CreateBuffs()
-        {
-            return new Decorator(
-                    ret => !Spell.IsCasting() && !Spell.IsGlobalCooldown(),
-                    new PrioritySelector(
 
 
-                                        ));
-        }
-        #endregion
-
-        #region Combat
-        Composite CreateCombat()
+        protected override Composite CreateCombat()
         {
             return new PrioritySelector(
 
@@ -84,8 +42,8 @@ namespace AdvancedAI.Spec
 
                 new Decorator(ret => Me.HasAura("Inquisition"),
                     new PrioritySelector(
-                        new Action(ret => { UseHands(); return RunStatus.Failure; }),
-                        new Action(ret => { UseTrinkets(); return RunStatus.Failure; }))),
+                        new Action(ret => { Item.UseHands(); return RunStatus.Failure; }),
+                        new Action(ret => { Item.UseTrinkets(); return RunStatus.Failure; }))),
 
             Spell.Cast("Execution Sentence", ret => Me.HasAura("Inquisition") && Me.CurrentTarget.IsBoss),
             Spell.Cast("Holy Prism", ret => Me.HasAura("Inquisition")),
@@ -119,54 +77,8 @@ namespace AdvancedAI.Spec
 
                     );
         }
-        #endregion
-
-        #region IsGlobalCooldown
-        public static bool IsGlobalCooldown(bool faceDuring = false, bool allowLagTollerance = true)
-        {
-            uint latency = allowLagTollerance ? StyxWoW.WoWClient.Latency : 0;
-            TimeSpan gcdTimeLeft = SpellManager.GlobalCooldownLeft;
-            return gcdTimeLeft.TotalMilliseconds > latency;
-        }
-        #endregion
-
-        #region Hands and Trinks
-        void UseHands()
-        {
-            var hands = StyxWoW.Me.Inventory.Equipped.Hands;
-
-            if (hands != null && CanUseEquippedItem(hands))
-                hands.Use();
-
-        }
 
 
-        void UseTrinkets()
-        {
-            var firstTrinket = StyxWoW.Me.Inventory.Equipped.Trinket1;
-            var secondTrinket = StyxWoW.Me.Inventory.Equipped.Trinket2;
-
-
-            if (firstTrinket != null && CanUseEquippedItem(firstTrinket))
-                firstTrinket.Use();
-
-
-            if (secondTrinket != null && CanUseEquippedItem(secondTrinket))
-                secondTrinket.Use();
-
-
-        }
-        private static bool CanUseEquippedItem(WoWItem item)
-        {
-            // Check for engineering tinkers!
-            string itemSpell = Lua.GetReturnVal<string>("return GetItemSpell(" + item.Entry + ")", 0);
-            if (string.IsNullOrEmpty(itemSpell))
-                return false;
-
-
-            return item.Usable && item.Cooldown <= 0;
-        }
-        #endregion
 
         #region SecTar
         public static WoWUnit SecTar
