@@ -114,6 +114,14 @@ namespace AdvancedAI.Helpers
                 Gloves.Use();
         }
 
+        public static void UseBelt()
+        {
+            WoWItem Waist = StyxWoW.Me.Inventory.Equipped.Waist;
+
+            if (Waist != null && CanUseEquippedItem(Waist))
+                Waist.Use();
+        }
+
         /// <summary>
         ///  Creates a behavior to use an item, in your bags or paperdoll.
         /// </summary>
