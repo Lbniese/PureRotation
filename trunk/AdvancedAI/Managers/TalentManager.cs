@@ -2,12 +2,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AdvancedAI.Helpers;
 
 using Styx;
 using Styx.WoWInternals;
 using System.Drawing;
 using Styx.CommonBot;
 using Styx.Common.Helpers;
+using Styx.Common;
 
 namespace AdvancedAI.Managers
 {
@@ -84,7 +86,8 @@ namespace AdvancedAI.Managers
             if (CurrentSpec != oldSpec)
             {
                 RebuildNeeded = true;
-                Logger.Write( Color.White, "TalentManager: Your spec has been changed.");
+                Logging.Write("TalentManager: Your spec has been changed.");
+                //Logger.Write( Color.White, "TalentManager: Your spec has been changed.");
             }
 
             int i;
@@ -93,7 +96,8 @@ namespace AdvancedAI.Managers
                 if (oldTalent[i] != TalentId[i])
                 {
                     RebuildNeeded = true;
-                    Logger.Write(Color.White, "TalentManager: Your talents have changed.");
+                    Logging.Write("TalentManager: Your talents have changed.");
+                    //Logger.Write(Color.White, "TalentManager: Your talents have changed.");
                     break;
                 }
             }
@@ -103,7 +107,8 @@ namespace AdvancedAI.Managers
                 if (oldGlyph[i] != GlyphId[i])
                 {
                     RebuildNeeded = true;
-                    Logger.Write(Color.White, "TalentManager: Your glyphs have changed.");
+                    Logging.Write("TalentManager: Your glyphs have changed.");
+                    //Logger.Write(Color.White, "TalentManager: Your glyphs have changed.");
                     break;
                 }
             }
@@ -159,8 +164,9 @@ namespace AdvancedAI.Managers
             if (EventRebuildTimer.IsFinished && RebuildNeeded)
             {
                 RebuildNeeded = false;
-                Logger.Write(Color.White, "TalentManager: Rebuilding behaviors due to changes detected.");
-                SingularRoutine.Instance.RebuildBehaviors();
+                Logging.Write("TalentManager: Rebuilding behaviors due to changes detected.");
+                //Logger.Write(Color.White, "TalentManager: Rebuilding behaviors due to changes detected.");
+                //SingularRoutine.Instance.RebuildBehaviors();
                 return true;
             }
 

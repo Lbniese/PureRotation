@@ -82,6 +82,12 @@ namespace AdvancedAI
                 "Root composite for AdvancedAI buffs. Rotations will be plugged into this hook.",
                 new ActionAlwaysFail());
         }
+        Composite CreateRootCombat()
+        {
+            return new HookExecutor("Ares_Combat_Root",
+                "Root composite for Ares combat. Rotations will be plugged into this hook.",
+                new ActionAlwaysFail());
+        }
         #endregion
     }
 }
