@@ -18,7 +18,7 @@ using Action = Styx.TreeSharp.Action;
 
 namespace AdvancedAI.Spec
 {
-    class FrostDeathknight
+    class FrostDeathknight : AdvancedAI
     {
 
         public override WoWClass Class { get { return WoWClass.DeathKnight; } }

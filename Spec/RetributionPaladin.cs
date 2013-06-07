@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 
 namespace AdvancedAI.Spec
 {
-    class RetributionPaladin
+    class RetributionPaladin : AdvancedAI
     {
 
         private static LocalPlayer Me { get { return StyxWoW.Me; } }
