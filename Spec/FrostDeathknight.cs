@@ -22,7 +22,7 @@ namespace AdvancedAI.Spec
     {
 
         public override WoWClass Class { get { return WoWClass.DeathKnight; } }
-        private static LocalPlayer Me { get { return StyxWoW.Me; } }
+        static LocalPlayer Me { get { return StyxWoW.Me; } }
 
 
 

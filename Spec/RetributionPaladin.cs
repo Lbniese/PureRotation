@@ -19,10 +19,9 @@ using System.Threading.Tasks;
 namespace AdvancedAI.Spec
 {
     class RetributionPaladin : AdvancedAI
-    {
-
-        private static LocalPlayer Me { get { return StyxWoW.Me; } }
+    {        
         public override WoWClass Class { get { return WoWClass.Paladin; } }
+        static LocalPlayer Me { get { return StyxWoW.Me; } }
 
 
         protected override Composite CreateCombat()

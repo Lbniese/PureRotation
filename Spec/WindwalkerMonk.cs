@@ -19,10 +19,9 @@ using System.Threading.Tasks;
 namespace AdvancedAI.Spec
 {
     class WindwalkerMonk : AdvancedAI
-    {
-
-        private static LocalPlayer Me { get { return StyxWoW.Me; } }
+    {        
         public override WoWClass Class { get { return WoWClass.Monk; } }
+        LocalPlayer Me { get { return StyxWoW.Me; } }
 
         #region Buffs
         Composite CreateBuffs()

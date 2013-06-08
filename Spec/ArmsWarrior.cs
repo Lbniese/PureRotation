@@ -21,7 +21,7 @@ namespace AdvancedAI.Spec
     class ArmsWarrior : AdvancedAI
     {
         public override WoWClass Class { get { return WoWClass.Warrior; } }
-        private static LocalPlayer Me { get { return StyxWoW.Me; } }
+        LocalPlayer Me { get { return StyxWoW.Me; } }
 
 
         protected override Composite CreateBuffs()
