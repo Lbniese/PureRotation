@@ -14,12 +14,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Action = Styx.TreeSharp.Action;
-
 namespace AdvancedAI.Spec
 {
-    class BloodDeathknight : AdvancedAI
+    class GuardianDruid : AdvancedAI
     {
-        public override WoWClass Class { get { return WoWClass.DeathKnight; } }
+        public override WoWClass Class { get { return WoWClass.Druid; } }
         LocalPlayer Me { get { return StyxWoW.Me; } }
     }
 }
