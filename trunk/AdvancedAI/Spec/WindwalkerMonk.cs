@@ -23,19 +23,9 @@ namespace AdvancedAI.Spec
         public override WoWClass Class { get { return WoWClass.Monk; } }
         LocalPlayer Me { get { return StyxWoW.Me; } }
 
-        #region Buffs
-        Composite CreateBuffs()
-        {
-            return new Decorator(
-                    ret => !Spell.IsCasting() && !Spell.IsGlobalCooldown(),
-                    new PrioritySelector(
 
-                                        ));
-        }
-        #endregion
 
-        #region Combat
-        Composite CreateCombat()
+        protected override Composite CreateCombat()
         {
             return new PrioritySelector(
                 /*Things to fix
@@ -44,6 +34,8 @@ namespace AdvancedAI.Spec
                  * chi capping? need to do more checking
                 */
                 Spell.Cast("Spear Hand Strike", ret => StyxWoW.Me.CurrentTarget.IsCasting && StyxWoW.Me.CurrentTarget.CanInterruptCurrentSpellCast),
+
+                Spell.WaitForCastOrChannel(),
 
                 //Healing Spheres need to work on
                 //Spell.CastOnGround("Healing Sphere", on => Me.Location, ret => Me.HealthPercent <= 50),
@@ -95,16 +87,7 @@ namespace AdvancedAI.Spec
 
                     );
         }
-        #endregion
 
 
-        #region IsGlobalCooldown
-        public static bool IsGlobalCooldown(bool faceDuring = false, bool allowLagTollerance = true)
-        {
-            uint latency = allowLagTollerance ? StyxWoW.WoWClient.Latency : 0;
-            TimeSpan gcdTimeLeft = SpellManager.GlobalCooldownLeft;
-            return gcdTimeLeft.TotalMilliseconds > latency;
-        }
-        #endregion
     }
 }
