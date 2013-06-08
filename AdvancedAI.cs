@@ -22,20 +22,11 @@ namespace AdvancedAI
         #region init
         public override sealed string Name { get { return "AdvancedAI [" + GetType().Name + "]"; } }
         private Composite _combat, _buffs;
-        public sealed override Composite CombatBehavior
-        {
-            get
-            {
-                return _combat ?? (_combat =
+        public sealed override Composite CombatBehavior { get { return _combat ?? (_combat =
                                    new PrioritySelector(
                                        new Action(ret => { CacheAuras(); return RunStatus.Failure; }),
-                                       CreateCombat()));
-            }
-        }
-        public sealed override Composite PreCombatBuffBehavior
-        {
-            get { return _buffs ?? (_buffs = CreateBuffs()); }
-        }
+                                       CreateCombat())); } }
+        public sealed override Composite PreCombatBuffBehavior { get { return _buffs ?? (_buffs = CreateBuffs()); } }
         #endregion
 
         #region Overrides
@@ -60,12 +51,10 @@ namespace AdvancedAI
         void CacheAuras()
         {
             LocalPlayerAuras = StyxWoW.Me.GetAllAuras();
-
             if (StyxWoW.Me.GotTarget)
             {
                 TargetAuras = StyxWoW.Me.CurrentTarget.GetAllAuras();
             }
-
         }
         #endregion
 
@@ -84,8 +73,8 @@ namespace AdvancedAI
         }
         Composite CreateRootCombat()
         {
-            return new HookExecutor("Ares_Combat_Root",
-                "Root composite for Ares combat. Rotations will be plugged into this hook.",
+            return new HookExecutor("AdvancedAI_Combat_Root",
+                "Root composite for AdvancedAI combat. Rotations will be plugged into this hook.",
                 new ActionAlwaysFail());
         }
         #endregion

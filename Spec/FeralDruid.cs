@@ -20,10 +20,10 @@ using System.Threading.Tasks;
 namespace AdvancedAI.Spec
 {
     class FeralDruid : AdvancedAI
-    {
-
-        private static LocalPlayer Me { get { return StyxWoW.Me; } }
+    {        
         public override WoWClass Class { get { return WoWClass.Druid; } }
+        LocalPlayer Me { get { return StyxWoW.Me; } }
+
 
         /*Had some issues here and had to use spell ids... so heres the id and the spell
          * 132158 = Nature's Swiftness
@@ -149,7 +149,6 @@ namespace AdvancedAI.Spec
             }
             return 0;
         }
-
 
     }
 }
