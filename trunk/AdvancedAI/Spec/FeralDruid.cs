@@ -61,7 +61,7 @@ namespace AdvancedAI.Spec
                           ret => StyxWoW.Me.CurrentTarget != null 
                           && StyxWoW.Me.CurrentTarget.Distance < 40),
 
-        Spell.Cast(5185, ret => Me.HasAura("Predatory Swiftness") && Me.GetAuraTimeLeft("Predatory Swiftness", true).TotalSeconds > 1.5 && !Me.HasAura(108381)),
+        Spell.Cast(5185, ret => Me.HasAura("Predatory Swiftness") && Me.GetAuraTimeLeft("Predatory Swiftness", true).TotalSeconds <= 1.5 && !Me.HasAura(108381)),
 
 
 
@@ -73,7 +73,7 @@ namespace AdvancedAI.Spec
 
         Spell.Cast(5185, ret => Me.HasAura("Nature's Swiftness")),
 //use_item,name=eternal_blossom_grips,sync=tigers_fury
-                new Decorator(ret => Me.HasAura("Tigers Fury"),
+                new Decorator(ret => Me.HasAura("Tiger's Fury"),
                     new PrioritySelector(
 
                         new Action(ret => { Item.UseHands(); return RunStatus.Failure; }),
@@ -85,35 +85,35 @@ namespace AdvancedAI.Spec
 
         Spell.Cast("Ferocious Bite", ret => Me.ComboPoints >= 1 && Me.CurrentTarget.HasAura("Rip") && (Me.CurrentTarget.GetAuraTimeLeft("Rip", true).TotalSeconds <= 3 && Me.CurrentTarget.HealthPercent <= 25)),
 
-        Spell.Cast("Thrash", ret => Me.CurrentTarget.TimeToDeath() >= 6 && Me.ActiveAuras.ContainsKey("Clearcasting") && StyxWoW.Me.CurrentTarget.GetAuraTimeLeft("Thrash", true).TotalSeconds <= 3),
+        Spell.Cast("Thrash", ret => Me.CurrentTarget.TimeToDeath() >= 6 && Me.ActiveAuras.ContainsKey("Clearcasting") && Me.CurrentTarget.GetAuraTimeLeft("Thrash", true).TotalSeconds <= 3),
 
-        Spell.Cast("Ferocious Bite", ret => Me.ComboPoints >= 5 && Me.CurrentTarget.TimeToDeath() <= 4 || Me.CurrentTarget.TimeToDeath() <= 1 && StyxWoW.Me.ComboPoints >= 3),
+        Spell.Cast("Ferocious Bite", ret => Me.ComboPoints >= 5 && Me.CurrentTarget.TimeToDeath() <= 4 || Me.CurrentTarget.TimeToDeath() <= 1 && Me.ComboPoints >= 3),
 
         Spell.Cast("Savage Roar", ret => Me.HasAuraExpired("Savage Roar", 3) && Me.ComboPoints == 0 && Me.CurrentTarget.HealthPercent <= 25),
 
         Spell.Cast(132158, ret => !Me.HasAura(108381) && !Me.HasAura("Predatory Swiftness") && Me.ComboPoints >= 4 && Me.CurrentTarget.HealthPercent <= 25),
 
-        //pots if i want to add it go here
-
-        Spell.Cast("Rip", ret => Me.ComboPoints >= 5 && Me.HasAura(108381) && Me.CurrentTarget.HealthPercent <= 25 && Me.CurrentTarget.TimeToDeath() >= 30),
+        Spell.Cast("Rip", ret => Me.ComboPoints == 5 && Me.HasAura(108381) && Me.CurrentTarget.HealthPercent <= 25 && Me.CurrentTarget.TimeToDeath() >= 30),
 //pool_resource,wait=0.25,if=combo_points>=5&dot.rip.ticking&target.health.pct<=25&((energy<50&buff.berserk.down)|(energy<25&buff.berserk.remains>1))
         //PoolinResources(),
 
+       // Spell.Cast("Rip", ret => Me.ComboPoints == 5 && !Me.CurrentTarget.HasMyAura("Rip")),
+
         Spell.Cast("Ferocius Bite", ret => Me.ComboPoints >= 5 && Me.CurrentTarget.HasMyAura("Rip") && Me.CurrentTarget.HealthPercent <= 25 && (Me.ComboPoints >= 5 && Me.CurrentTarget.HasMyAura("Rip") && Me.CurrentTarget.HealthPercent <= 25 && ((Me.CurrentEnergy < 50 && !Me.HasAura("Berserk")) || (Me.CurrentEnergy < 25 && Me.GetAuraTimeLeft("Berserk").TotalSeconds > 1)))),
 
-        Spell.Cast("Rip", ret => Me.ComboPoints == 5 && Me.CurrentTarget.GetAuraTimeLeft("Rip", true).TotalSeconds <= 3 && Me.HasAura(108381)),
+        Spell.Cast("Rip", ret => Me.ComboPoints == 5 && (Me.CurrentTarget.HasMyAura("Rip") && Me.CurrentTarget.GetAuraTimeLeft("Rip", true).TotalSeconds <= 3 || !Me.CurrentTarget.HasMyAura("Rip")) && Me.HasAura(108381)),
 
         Spell.Cast(132158, ret => !Me.HasAura(108381) && !Me.HasAura("Predatory Swiftness") && Me.ComboPoints >= 4 && Me.CurrentTarget.GetAuraTimeLeft("Rip", true).TotalSeconds <= 3),
 
-        Spell.Cast("Rip", ret => Me.ComboPoints == 5 && Me.CurrentTarget.TimeToDeath() >= 6 && Me.CurrentTarget.HasAuraExpired("Rip", 2) && (Me.HasAura("Berserk") || Me.CurrentTarget.GetAuraTimeLeft("Rip", true).TotalSeconds + 1.9 <= SpellManager.Spells["Tigers Fury"].CooldownTimeLeft.TotalSeconds)),
+        Spell.Cast("Rip", ret => Me.ComboPoints == 5 && Me.CurrentTarget.TimeToDeath() >= 6 && Me.CurrentTarget.HasAuraExpired("Rip", 2) && (Me.HasAura("Berserk") || Me.CurrentTarget.GetAuraTimeLeft("Rip", true).TotalSeconds + 1.9 <= SpellManager.Spells["Tiger's Fury"].CooldownTimeLeft.TotalSeconds)),
 
         Spell.Cast("Savage Roar", ret => Me.HasAuraExpired("Savage Roar", 3) && Me.ComboPoints == 0 && Me.GetAuraTimeLeft("Savage Roar", true).TotalSeconds + 2 <= Me.CurrentTarget.GetAuraTimeLeft("Rip", true).TotalSeconds),
 
-        Spell.Cast(52610, ret => Me.HasAuraExpired("Savage Roar", 6) && Me.ComboPoints >= 5 && Me.GetAuraTimeLeft("Savage Roar", true).TotalSeconds + 2 <= Me.CurrentTarget.GetAuraTimeLeft("Rip", true).TotalSeconds),
+        Spell.Cast("Savage Roar", ret => Me.HasAuraExpired("Savage Roar", 6) && Me.ComboPoints >= 5 && Me.GetAuraTimeLeft("Savage Roar", true).TotalSeconds + 2 <= Me.CurrentTarget.GetAuraTimeLeft("Rip", true).TotalSeconds),
 //pool_resource,wait=0.25,if=combo_points>=5&((energy<50&buff.berserk.down)|(energy<25&buff.berserk.remains>1))&dot.rip.remains>=6.5
         //PoolResources(),
 
-        Spell.Cast("Ferocious Bite", ret => Me.ComboPoints >= 5 && StyxWoW.Me.CurrentTarget.GetAuraTimeLeft("Rip", true).TotalSeconds >= 6 && (Me.ComboPoints >= 5 && ((Me.CurrentEnergy < 50 && !Me.HasAura("Berserk")) || (Me.CurrentEnergy < 25 && Me.GetAuraTimeLeft("Berserk").TotalSeconds > 1)) && Me.CurrentTarget.GetAuraTimeLeft("Rip", true).TotalSeconds >= 6.5)),
+        Spell.Cast("Ferocious Bite", ret => Me.ComboPoints >= 5 && Me.CurrentTarget.GetAuraTimeLeft("Rip", true).TotalSeconds >= 6 && (Me.ComboPoints >= 5 && ((Me.CurrentEnergy < 50 && !Me.HasAura("Berserk")) || (Me.CurrentEnergy < 25 && Me.GetAuraTimeLeft("Berserk").TotalSeconds > 1)) && Me.CurrentTarget.GetAuraTimeLeft("Rip", true).TotalSeconds >= 6.5)),
 
         Spell.Cast("Rake", ret => Me.CurrentTarget.GetAuraTimeLeft("Rake", true).TotalSeconds <= 9 && Me.HasAura(108381)),
 
@@ -123,7 +123,7 @@ namespace AdvancedAI.Spec
 
         Spell.Cast("Thrash", ret => Me.CurrentTarget.GetAuraTimeLeft("Rake", true).TotalSeconds <= 3 && Me.CurrentTarget.TimeToDeath() >= 6 && (Me.CurrentTarget.GetAuraTimeLeft("Rake", true).TotalSeconds >= 4 || Me.HasAura("Berserk"))),
 
-        Spell.Cast("Thrash", ret => Me.CurrentTarget.GetAuraTimeLeft("Rake", true).TotalSeconds <= 3 && Me.CurrentTarget.TimeToDeath() >= 6 && Me.ComboPoints >= 5),
+        Spell.Cast("Thrash", ret => Me.CurrentTarget.GetAuraTimeLeft("Rake", true).TotalSeconds <= 3 && Me.CurrentTarget.TimeToDeath() >= 6 && Me.ComboPoints == 5),
 
         Spell.Cast("Shred", ret => Me.ActiveAuras.ContainsKey("Clearcasting") && Me.CurrentTarget.MeIsSafelyBehind || Me.ActiveAuras.ContainsKey("Clearcasting") && Me.HasAnyAura("Tiger's Fury", "Berserk")),
 
