@@ -35,7 +35,7 @@ namespace AdvancedAI.Spec
         }
 
         #region Buffs
-        Composite CreateBuffs()
+        protected override Composite CreateBuffs()
         {
             return new Decorator(
                     ret => !Spell.IsCasting() && !Spell.IsGlobalCooldown(),
@@ -50,7 +50,7 @@ namespace AdvancedAI.Spec
         #endregion
 
         #region Combat
-        Composite CreateCombat()
+        protected override Composite CreateCombat()
         {
             return new PrioritySelector(
 
