@@ -46,9 +46,6 @@ namespace AdvancedAI.Spec
                 new Action(ret => { Item.UseWaist(); return RunStatus.Failure; }),
                 new Action(ret => { Item.UseHands(); return RunStatus.Failure; }))),
 
-
-
-
                 // Execute if we can
                 Spell.Cast("Touch of Death", ret => Me.CurrentChi >= 3 && Me.HasAura("Death Note")),
 
@@ -64,7 +61,7 @@ namespace AdvancedAI.Spec
                 Spell.Cast("Purifying Brew", ret => Me.CurrentChi > 0 && Me.HasAura("Moderate Stagger") && Me.HealthPercent <= 70 && (Me.GetAuraTimeLeft("Shuffle").TotalSeconds >= 6 || Me.CurrentChi > 2)),
                 Spell.Cast("Purifying Brew", ret => Me.CurrentChi > 0 && Me.HasAura("Light Stagger") && Me.HealthPercent <= 40 && (Me.GetAuraTimeLeft("Shuffle").TotalSeconds >= 6 || Me.CurrentChi > 2)),
 
-                //Elusive Brew will made autoit at lower stacks when I can keep up 80 to 90% up time this is just to keep from capping
+                //Elusive Brew will made auto at lower stacks when I can keep up 80 to 90% up time this is just to keep from capping
                 Spell.Cast("Elusive Brew", ret => Me.HasAura("Elusive Brew", 12)),
                 //Guard
                 Spell.Cast("Guard", ret => Me.CurrentChi >= 2 && Me.HasAura("Power Guard") && IsCurrentTank()),
@@ -72,21 +69,20 @@ namespace AdvancedAI.Spec
                 //Blackout Kick might have to add guard back but i think its better to open with BK and get shuffle to build AP for Guard
                 Spell.Cast("Blackout Kick", ret => Me.CurrentChi >= 2 && !Me.HasAura("Shuffle")),
 
-                Spell.Cast("Expel Harm", ret => Me.HealthPercent <= 35),
-
                 Spell.Cast("Tiger Palm", ret => Me.CurrentChi >= 2 && !Me.HasAura("Power Guard")),
 
-                Spell.Cast("Breath of Fire", ret => Me.CurrentChi >= 3 && Me.HasAura("Shuffle") && Me.GetAuraTimeLeft("Shuffle").TotalSeconds >= 6 && Me.CurrentTarget.HasMyAura("Dizzying Haze")),
+                Spell.Cast("Expel Harm", ret => Me.HealthPercent <= 35),
+
+                Spell.Cast("Breath of Fire", ret => Me.CurrentChi >= 3 && Me.HasAura("Shuffle") && Me.GetAuraTimeLeft("Shuffle").TotalSeconds > 6.5 && Me.CurrentTarget.HasMyAura("Dizzying Haze")),
 
                 //Detox
                 Spell.Cast("Detox", on => Me, ret => Dispelling.CanDispel(Me, DispelCapabilities.Disease) || Dispelling.CanDispel(Me, DispelCapabilities.Poison)),
 
                 Spell.Cast("Blackout Kick", ret => Me.CurrentChi >= 3),
 
-                // apply the Weakened Blows debuff. Keg Smash also generates allot of threat 
                 Spell.Cast("Keg Smash", ctx => Me.CurrentChi <= 2),
 
-                Spell.Cast("Jab", ret => Me.CurrentEnergy >= 76 && Me.HealthPercent >= 35 && Me.CurrentChi <= 3),
+                Spell.Cast("Jab", ret => Me.CurrentEnergy >= 76 && Me.CurrentChi <= 3),
 
                 //Chi Talents
                 //need to do math here and make it use 2 if im going to use it
@@ -106,7 +102,7 @@ namespace AdvancedAI.Spec
                 //dont like using this in auto to many probs with it
                 //Spell.Cast("Invoke Xuen, the White Tiger", ret => Me.CurrentTarget.IsBoss && IsCurrentTank()),
 
-                Spell.Cast("Tiger Palm", ret => Me.CurrentChi <= 3 && Me.CurrentEnergy <= 75 && SpellManager.Spells["Keg Smash"].CooldownTimeLeft.TotalSeconds > 1)
+                Spell.Cast("Tiger Palm", ret => SpellManager.Spells["Keg Smash"].CooldownTimeLeft.TotalSeconds > 1)
                     );
         }
 
@@ -124,8 +120,6 @@ namespace AdvancedAI.Spec
 
         };
         #endregion
-
-
 
         #region Zen Heals
         public static WoWUnit _tanking
