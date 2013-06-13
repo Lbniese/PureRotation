@@ -221,20 +221,15 @@ namespace AdvancedAI.Spec
 
                 );
         }
-        Composite CreateAoe()
-        {
-            return new PrioritySelector(
+        //protected override Composite CreateAoe()
+        //{
+        //    return new PrioritySelector(
 
 
 
-                );
-        }
-        Composite CreateExecuteRange()
-        {
-            return new PrioritySelector(
+        //        );
+        //}
 
-                );
-        }
 
     }
 }
