@@ -14,6 +14,8 @@ using Styx.WoWInternals;
 using Styx.WoWInternals.WoWObjects;
 using Action = Styx.TreeSharp.Action;
 using CommonBehaviors.Actions;
+using AdvancedAI.Managers;
+using AdvancedAI.Helpers;
 
 namespace AdvancedAI
 {
@@ -21,15 +23,22 @@ namespace AdvancedAI
     {       
         #region init
         public override sealed string Name { get { return "AdvancedAI [" + GetType().Name + "]"; } }
+        //public WoWSpec Spec { get { return TalentManager.CurrentSpec; } }
         private Composite _combat, _buffs;
         public sealed override Composite CombatBehavior { get { return _combat ?? (_combat =
                                    new PrioritySelector(
                                        new Action(ret => { CacheAuras(); return RunStatus.Failure; }),
                                        CreateCombat())); } }
-        public sealed override Composite PreCombatBuffBehavior { get { return _buffs ?? (_buffs = CreateBuffs()); } }
+        public sealed override Composite PreCombatBuffBehavior { get { return _buffs ?? (_buffs = CreateBuffs()); } }        
         #endregion
 
         #region Overrides
+        public sealed override void Initialize()
+        {
+            MovementManager.Init();
+            Dispelling.Init();
+ 	        base.Initialize();
+        }
         public sealed override void Combat() { base.Combat(); }
         public sealed override void CombatBuff() { base.CombatBuff(); }
         public sealed override void Death() { base.Death(); }
