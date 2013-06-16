@@ -710,6 +710,105 @@ namespace AdvancedAI.Helpers
             return Cast(name, ret => true, onUnit, requirements);
         }
 
+        public static Composite CastLikeMonk(string name, UnitSelectionDelegate onUnit, SimpleBooleanDelegate requirements)
+        {
+            return new PrioritySelector(
+                new Decorator(ret => requirements != null && onUnit != null && requirements(ret) && onUnit(ret) != null && name != null && CanCastLikeMonk(name, onUnit(ret)),
+                    new PrioritySelector(
+                        new Sequence(
+                // cast the spell
+                            new Action(ret =>
+                            {
+                                wasMonkSpellQueued = (Spell.GcdActive || Me.IsCasting || Me.ChanneledSpell != null);
+                                Logging.Write(string.Format("*{0} on {1} at {2:F1} yds at {3:F1}%", name, onUnit(ret).SafeName(), onUnit(ret).Distance, onUnit(ret).HealthPercent));
+                                //Singular.Logger.Write(Color.Aquamarine, string.Format("*{0} on {1} at {2:F1} yds at {3:F1}%", name, onUnit(ret).SafeName(), onUnit(ret).Distance, onUnit(ret).HealthPercent));
+                                SpellManager.Cast(name, onUnit(ret));
+                            }),
+                // if spell was in progress before cast (we queued this one) then wait in progress one to finish
+                            new WaitContinue(
+                                new TimeSpan(0, 0, 0, 0, (int)StyxWoW.WoWClient.Latency << 1),
+                                ret => !wasMonkSpellQueued || !(Spell.GcdActive || Me.IsCasting || Me.ChanneledSpell != null),
+                                new ActionAlwaysSucceed()
+                                ),
+                // wait for this cast to appear on the GCD or Spell Casting indicators
+                            new WaitContinue(
+                                new TimeSpan(0, 0, 0, 0, (int)StyxWoW.WoWClient.Latency << 1),
+                                ret => Spell.GcdActive || Me.IsCasting || Me.ChanneledSpell != null,
+                                new ActionAlwaysSucceed()
+                                )
+                            )
+                        )
+                    )
+                );
+        }
+
+        private static bool wasMonkSpellQueued = false;
+
+        public static bool CanCastLikeMonk(string name, WoWUnit unit)
+        {
+            WoWSpell spell;
+            if (!SpellManager.Spells.TryGetValue(name, out spell))
+            {
+                return false;
+            }
+
+            uint latency = StyxWoW.WoWClient.Latency * 2;
+            TimeSpan cooldownLeft = spell.CooldownTimeLeft;
+            if (cooldownLeft != TimeSpan.Zero && cooldownLeft.TotalMilliseconds >= latency)
+                return false;
+
+            if (spell.IsMeleeSpell)
+            {
+                if (!unit.IsWithinMeleeRange)
+                {
+                    Logging.WriteDiagnostic("CanCastSpell: cannot cast wowSpell {0} @ {1:F1} yds", spell.Name, unit.Distance);
+                    //Singular.Logger.WriteDebug("CanCastSpell: cannot cast wowSpell {0} @ {1:F1} yds", spell.Name, unit.Distance);
+                    return false;
+                }
+            }
+            else if (spell.IsSelfOnlySpell)
+            {
+                ;
+            }
+            else if (spell.HasRange)
+            {
+                if (unit == null)
+                {
+                    return false;
+                }
+
+                if (unit.Distance < spell.MinRange)
+                {
+                    Logging.WriteDiagnostic("SpellCast: cannot cast wowSpell {0} @ {1:F1} yds - minimum range is {2:F1}", spell.Name, unit.Distance, spell.MinRange);
+                    //Singular.Logger.WriteDebug("SpellCast: cannot cast wowSpell {0} @ {1:F1} yds - minimum range is {2:F1}", spell.Name, unit.Distance, spell.MinRange);
+                    return false;
+                }
+
+                if (unit.Distance >= spell.MaxRange)
+                {
+                    Logging.WriteDiagnostic("SpellCast: cannot cast wowSpell {0} @ {1:F1} yds - maximum range is {2:F1}", spell.Name, unit.Distance, spell.MaxRange);
+                    //Singular.Logger.WriteDebug("SpellCast: cannot cast wowSpell {0} @ {1:F1} yds - maximum range is {2:F1}", spell.Name, unit.Distance, spell.MaxRange);
+                    return false;
+                }
+            }
+
+            if (Me.CurrentPower < spell.PowerCost)
+            {
+                Logging.WriteDiagnostic("CanCastSpell: wowSpell {0} requires {1} power but only {2} available", spell.Name, spell.PowerCost, Me.CurrentMana);
+                //Singular.Logger.WriteDebug("CanCastSpell: wowSpell {0} requires {1} power but only {2} available", spell.Name, spell.PowerCost, Me.CurrentMana);
+                return false;
+            }
+
+            if (Me.IsMoving && spell.CastTime > 0)
+            {
+                Logging.WriteDiagnostic("CanCastSpell: wowSpell {0} is not instant ({1} ms cast time) and we are moving", spell.Name, spell.CastTime);
+                //Singular.Logger.WriteDebug("CanCastSpell: wowSpell {0} is not instant ({1} ms cast time) and we are moving", spell.Name, spell.CastTime);
+                return false;
+            }
+
+            return true;
+        }
+
 
         #endregion
 
