@@ -32,6 +32,33 @@ namespace AdvancedAI.Helpers
                     || unit.CreatureType == WoWCreatureType.Demon;
         }
 
+        public static bool IsFrozen(this WoWUnit unit)
+        {
+            return unit.GetAllAuras().Any(a => a.Spell.Mechanic == WoWSpellMechanic.Frozen || (a.Spell.School == WoWSpellSchool.Frost && a.Spell.SpellEffects.Any(e => e.AuraType == WoWApplyAuraType.ModRoot)));
+        }
+
+        public static bool IsStunned(this WoWUnit unit)
+        {
+            return unit.HasAuraWithMechanic(WoWSpellMechanic.Stunned, WoWSpellMechanic.Incapacitated);
+        }
+
+        public static bool IsRooted(this WoWUnit unit)
+        {
+            return unit.HasAuraWithMechanic(WoWSpellMechanic.Rooted, WoWSpellMechanic.Shackled);
+        }
+
+        public static bool IsSilenced(WoWUnit unit)
+        {
+            return unit.GetAllAuras().Any(a => a.IsHarmful &&
+                (a.Spell.Mechanic == WoWSpellMechanic.Interrupted ||
+                a.Spell.Mechanic == WoWSpellMechanic.Silenced));
+        }
+
+        public static bool IsSlowed(this WoWUnit unit)
+        {
+            return unit.GetAllAuras().Any(a => a.Spell.SpellEffects.Any(e => e.AuraType == WoWApplyAuraType.ModDecreaseSpeed));
+        }
+
         public static bool IsMelee(this WoWUnit unit)
         {
             if (unit.Class == WoWClass.DeathKnight
@@ -293,6 +320,14 @@ namespace AdvancedAI.Helpers
         {
             var dist = distance * distance;
             var curTarLocation = StyxWoW.Me.CurrentTarget.Location;
+            return NearbyUnfriendlyUnits.Where(
+                        p => ValidUnit(p) && p.Location.DistanceSqr(curTarLocation) <= dist).ToList();
+        }
+
+        public static IEnumerable<WoWUnit> UnfriendlyNearTarget(float distance, WoWPlayer tar)
+        {
+            var dist = distance * distance;
+            var curTarLocation = tar.Location;
             return NearbyUnfriendlyUnits.Where(
                         p => ValidUnit(p) && p.Location.DistanceSqr(curTarLocation) <= dist).ToList();
         }
