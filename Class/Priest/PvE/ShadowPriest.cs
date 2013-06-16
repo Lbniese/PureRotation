@@ -22,41 +22,58 @@ namespace AdvancedAI.Spec
         public override WoWClass Class { get { return WoWClass.Priest; } }
         //public override WoWSpec Spec { get { return WoWSpec.PriestShadow; } }
         static LocalPlayer Me { get { return StyxWoW.Me; } }
+        private const int MindFlay = 15407;
         private static uint Orbs { get { return Me.GetCurrentPower(WoWPowerType.ShadowOrbs); } }
 
         protected override Composite CreateCombat()
         {
             return new PrioritySelector(
-                new Decorator(ret => Unit.UnfriendlyMeleeUnits.Count() > 2,
+                new Decorator(ret => Me.IsCasting && (Me.ChanneledSpell == null || Me.ChanneledSpell.Id != MindFlay), new Action(ret => { return RunStatus.Success; })),
+                Spell.Cast("Shadowfiend", ret => Me.CurrentTarget.IsBoss),
+                Spell.Cast("Mindbender", ret => Me.CurrentTarget.IsBoss),
+                Spell.Cast("Power Infusion", ret => Me.CurrentTarget.IsBoss),
+                Spell.Cast("Void Shift", on => VoidTank),
+                new Decorator(ret => Unit.UnfriendlyUnitsNearTarget(10f).Count() > 2,
                     CreateAOE()),
 
-                Spell.BuffSelf("Shadowform"),
-                Spell.BuffSelf("Inner Fire"),
                 Spell.Cast("Devouring Plague", ret => Orbs == 3),
                 Spell.Cast("Mind Blast", ret => Orbs < 3),
-                new Throttle(1,
+                new Throttle(1, 2,
                     new PrioritySelector(
                         Spell.Cast("Shadow Word: Death", ret => Orbs < 3))),
                 Spell.Cast("Mind Flay", ret => Me.CurrentTarget.HasAura("Devouring Plague")),
-                Spell.Buff("Shadow Word: Pain", ret => Me.CurrentTarget.HasAuraExpired("Shadow Word: Pain", 2, true)),
-                Spell.Buff("Vampiric Touch", ret => Me.CurrentTarget.HasAuraExpired("Vampiric Touch", 2, true)),
-                Spell.Cast("Mind Flay"),
+                Spell.Cast("Shadow Word: Pain", ret => !Me.CurrentTarget.HasAura("Shadow Word: Pain") || Me.CurrentTarget.HasAuraExpired("Shadow Word: Pain", 2, true)),
+                new Throttle(1, 2,
+                    new PrioritySelector(
+                        Spell.Cast("Vampiric Touch", ret => !Me.CurrentTarget.HasAura("Vampiric Touch") || Me.CurrentTarget.HasAuraExpired("Vampiric Touch", 2, true)))),
+                Spell.Cast("Mind Flay", on => Me.CurrentTarget, ret => Me.CurrentTarget.HasAura("Shadow Word: Pain") && Me.CurrentTarget.HasAura("Vampiric Touch") && Me.ChanneledCastingSpellId != MindFlay),
                 Spell.Cast("Shadow Word: Death", ret => Me.IsMoving),
                 Spell.Cast("Shadow Word: Pain", ret => Me.IsMoving)
 
                 );
         }
 
+        protected override Composite CreateBuffs()
+        {
+            return new PrioritySelector(
+                PartyBuff.BuffGroup("Power Word: Fortitude"),
+                Spell.Cast("Shadowform", ret => !Me.HasAura("Shadowform")),
+                Spell.Cast("Inner Fire", ret => !Me.HasAura("Inner Fire")));
+        }
+
         private Composite CreateAOE()
         {
             return new PrioritySelector(
                 Spell.Cast("Mind Sear", on => SearTarget),
+                Spell.Cast("Cascade"),
+                Spell.Cast("Divine Star"),
+                Spell.Cast("Halo", ret => Me.CurrentTarget.Distance < 30),
                 Spell.Cast("Shadow Word: Pain", on => PainMobs),
                 Spell.Cast("Vampiric Touch", on => TouchMobs),
                 Spell.Cast("Mind Flay", ret => Me.CurrentTarget.HasAura("Devouring Plague")),
                 Spell.Cast("Mind Blast", ret => Orbs < 3),
                 Spell.Cast("Devouring Plague", ret => Orbs == 3),
-                Spell.Cast("Mind Flay"));
+                Spell.Cast("Mind Flay", on => Me.CurrentTarget, ret => Me.CurrentTarget.HasAura("Shadow Word: Pain") && Me.CurrentTarget.HasAura("Vampiric Touch") && Me.ChanneledCastingSpellId != MindFlay));
         }
 
 
@@ -106,6 +123,22 @@ namespace AdvancedAI.Spec
                                 where Clusters.GetClusterCount(Me.CurrentTarget, Unit.NearbyUnfriendlyUnits, ClusterType.Radius, 10f) >= 4
                                 select unit).FirstOrDefault();
                 return SearMob;
+            }
+        }
+
+        public static WoWUnit VoidTank
+        {
+            get
+            {
+                var VoidOn = (from unit in ObjectManager.GetObjectsOfType<WoWPlayer>(false)
+                                where unit.IsAlive
+                                where Group.Tanks.Any()
+                                where unit.HealthPercent <= 30 && Me.HealthPercent > 70
+                                where unit.IsPlayer
+                                where !unit.IsHostile
+                                where unit.InLineOfSight
+                                select unit).FirstOrDefault();
+                return VoidOn;
             }
         }
 
