@@ -60,6 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AdvancedAI.cs" />
+    <Compile Include="Class\Deathknight\PvP\UnholyDeathknightPvP.cs" />
     <Compile Include="Class\Mage\PvE\FireMage.cs" />
     <Compile Include="Class\Warrior\PvP\FuryWarriorPvP.cs" />
     <Compile Include="Helpers\Clusters.cs" />
@@ -124,7 +125,6 @@
     <Compile Include="Utilities\EventHandlers.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Class\Deathknight\PvP\" />
     <Folder Include="Class\Druid\PvP\" />
     <Folder Include="Class\Hunter\PvP\" />
     <Folder Include="Class\Mage\PvP\" />
