@@ -17,10 +17,14 @@ using Action = Styx.TreeSharp.Action;
 
 namespace AdvancedAI.Spec
 {
-    class RestorationShaman : AdvancedAI
+    class RestorationShaman// : AdvancedAI
     {
-        public override WoWClass Class { get { return WoWClass.Shaman; } }
+        //public override WoWClass Class { get { return WoWClass.Shaman; } }
         //public override WoWSpec Spec { get { return WoWSpec.ShamanRestoration; } }
-        LocalPlayer Me { get { return StyxWoW.Me; } }  
+        LocalPlayer Me { get { return StyxWoW.Me; } }
+
+        public static Composite CreateRSCombat { get; set; }
+
+        public static Composite CreateRSBuffs { get; set; }
     }
 }

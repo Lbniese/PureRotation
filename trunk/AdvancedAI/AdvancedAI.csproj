@@ -102,7 +102,6 @@
     <Compile Include="Class\Shaman\PvE\ElementalShaman.cs" />
     <Compile Include="Class\Shaman\PvE\EnhancementShaman.cs" />
     <Compile Include="Class\Druid\PvE\FeralDruid.cs" />
-    <Compile Include="Class\Mage\PvP\FireMagePvP.cs" />
     <Compile Include="Class\Deathknight\PvE\FrostDeathknight.cs" />
     <Compile Include="Class\Mage\PvE\FrostMage.cs" />
     <Compile Include="Class\Warrior\PvE\FuryWarrior.cs" />
@@ -128,6 +127,7 @@
     <Folder Include="Class\Deathknight\PvP\" />
     <Folder Include="Class\Druid\PvP\" />
     <Folder Include="Class\Hunter\PvP\" />
+    <Folder Include="Class\Mage\PvP\" />
     <Folder Include="Class\Monk\PvP\" />
     <Folder Include="Class\Paladin\PvP\" />
     <Folder Include="Class\Priest\PvP\" />

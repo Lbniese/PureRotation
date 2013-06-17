@@ -17,11 +17,11 @@ using Action = Styx.TreeSharp.Action;
 
 namespace AdvancedAI.Spec
 {
-    class EnhancementShaman : AdvancedAI
+    class EnhancementShaman// : AdvancedAI
     {
-        public override WoWClass Class { get { return WoWClass.Shaman; } }
+        //public override WoWClass Class { get { return WoWClass.Shaman; } }
         //public override WoWSpec Spec { get { return WoWSpec.ShamanEnhancement; } }
-        LocalPlayer Me { get { return StyxWoW.Me; } }
+        static LocalPlayer Me { get { return StyxWoW.Me; } }
 
         //Need to get imbues working to make life easier
         public enum Imbue
@@ -36,93 +36,99 @@ namespace AdvancedAI.Spec
         }
 
         #region Buffs
-        protected override Composite CreateBuffs()
+        public static Composite CreateESBuffs
         {
-            return new Decorator(
-                    ret => !Spell.IsCasting() && !Spell.IsGlobalCooldown(),
-                    new PrioritySelector(
+            get
+            {
+                return new Decorator(
+                        ret => !Spell.IsCasting() && !Spell.IsGlobalCooldown(),
+                        new PrioritySelector(
 
-                Spell.Cast("Lightning Shield", ret => !StyxWoW.Me.HasAura("Lightning Shield"))
-                //CreateShamanImbueMainHandBehavior(Imbue.Windfury, Imbue.Flametongue),
-                //CreateShamanImbueOffHandBehavior(Imbue.Flametongue)
+                    Spell.Cast("Lightning Shield", ret => !StyxWoW.Me.HasAura("Lightning Shield"))
+                    //CreateShamanImbueMainHandBehavior(Imbue.Windfury, Imbue.Flametongue),
+                    //CreateShamanImbueOffHandBehavior(Imbue.Flametongue)
 
-                                        ));
+                                            ));
+            }
         }
         #endregion
 
         #region Combat
-        protected override Composite CreateCombat()
+        public static Composite CreateESCombat
         {
-            return new PrioritySelector(
+            get
+            {
+                return new PrioritySelector(
 
 
-                //CreateShamanImbueMainHandBehavior(Imbue.Windfury, Imbue.Flametongue),
-                //CreateShamanImbueOffHandBehavior(Imbue.Flametongue),
+                    //CreateShamanImbueMainHandBehavior(Imbue.Windfury, Imbue.Flametongue),
+                    //CreateShamanImbueOffHandBehavior(Imbue.Flametongue),
 
-                Spell.Cast("Healing Stream Totem", ret => Me.HealthPercent < 80),
-                Spell.Cast("Stormlash Totem", ret => PartyBuff.WeHaveBloodlust && !Me.HasAura("Stormlash Totem")),
+                    Spell.Cast("Healing Stream Totem", ret => Me.HealthPercent < 80),
+                    Spell.Cast("Stormlash Totem", ret => PartyBuff.WeHaveBloodlust && !Me.HasAura("Stormlash Totem")),
 
-                Spell.Cast("Lightning Shield", ret => !Me.HasAura("Lightning Shield")),
+                    Spell.Cast("Lightning Shield", ret => !Me.HasAura("Lightning Shield")),
 
-                Spell.Cast("Fire Elemental Totem", ret => Me.CurrentTarget.IsBoss),
+                    Spell.Cast("Fire Elemental Totem", ret => Me.CurrentTarget.IsBoss),
 
-                Spell.Cast("Ascendance", ret => Me.CurrentTarget.IsBoss),
-                //this will have to be fixed Major Part of dps
-                //Spell.Cast("Searing Totem", ret => Me.GotTarget
-                //            && Me.CurrentTarget.SpellDistance() < GetTotemRange(WoWTotem.Searing) - 2f
-                //            && !Exist(WoWTotemType.Fire)),
-               
-                Spell.Cast("Unleash Elements"),
+                    Spell.Cast("Ascendance", ret => Me.CurrentTarget.IsBoss),
+                    //this will have to be fixed Major Part of dps
+                    //Spell.Cast("Searing Totem", ret => Me.GotTarget
+                    //            && Me.CurrentTarget.SpellDistance() < GetTotemRange(WoWTotem.Searing) - 2f
+                    //            && !Exist(WoWTotemType.Fire)),
 
-                new Decorator(ret => Me.HasAura("Maelstrom Weapon", 5),
-                    new PrioritySelector(
-                        Spell.Cast("Chain Lightning", ret => Unit.UnfriendlyUnitsNearTarget(10f).Count() >= 2),
-                        Spell.Cast("Lightning Bolt")
-                        )
-                    ),
+                    Spell.Cast("Unleash Elements"),
 
-
-                new Decorator(ret => (Me.HasAura("Ascendance") && !WoWSpell.FromId(115356).Cooldown),
-                    new Action(ret => Lua.DoString("RunMacroText('/cast Stormblast')"))),
+                    new Decorator(ret => Me.HasAura("Maelstrom Weapon", 5),
+                        new PrioritySelector(
+                            Spell.Cast("Chain Lightning", ret => Unit.UnfriendlyUnitsNearTarget(10f).Count() >= 2),
+                            Spell.Cast("Lightning Bolt")
+                            )
+                        ),
 
 
-                Spell.Cast("Stormstrike"),
+                    new Decorator(ret => (Me.HasAura("Ascendance") && !WoWSpell.FromId(115356).Cooldown),
+                        new Action(ret => Lua.DoString("RunMacroText('/cast Stormblast')"))),
 
-                Spell.Cast("Flame Shock", ret => Me.HasAura("Unleash Flame") && !Me.CurrentTarget.HasMyAura("Flame Shock")),
 
-                Spell.Cast("Lava Lash"),
+                    Spell.Cast("Stormstrike"),
 
-                Spell.Cast("Flame Shock", ret => Me.HasAura("Unleash Flame") ||
-                           !Me.HasAura("Unleash Flame") && !Me.CurrentTarget.HasMyAura("Flame Shock") && SpellManager.Spells["Unleashed Elements"].CooldownTimeLeft.TotalSeconds >= 5),
+                    Spell.Cast("Flame Shock", ret => Me.HasAura("Unleash Flame") && !Me.CurrentTarget.HasMyAura("Flame Shock")),
 
-                Spell.Cast("Unleash Elements"),
+                    Spell.Cast("Lava Lash"),
 
-                new Decorator(ret => Me.HasAura("Maelstrom Weapon", 3) && !Me.HasAura("Ascendance"),
-                    new PrioritySelector(
-                        Spell.Cast("Chain Lightning", ret => Unit.UnfriendlyUnitsNearTarget(10f).Count() >= 2),
-                        Spell.Cast("Lightning Bolt")
-                        )
-                    ),
-                // need to make it at <2
-                Spell.Cast("Ancestral Swiftness", ret => !Me.HasAura("Maelstrom Weapon")),
+                    Spell.Cast("Flame Shock", ret => Me.HasAura("Unleash Flame") ||
+                               !Me.HasAura("Unleash Flame") && !Me.CurrentTarget.HasMyAura("Flame Shock") && SpellManager.Spells["Unleashed Elements"].CooldownTimeLeft.TotalSeconds >= 5),
 
-                Spell.Cast("Lighting Bolt", ret => Me.HasAura("Ancestral Swiftness")),
+                    Spell.Cast("Unleash Elements"),
 
-                Spell.Cast("Earth Shock"),
+                    new Decorator(ret => Me.HasAura("Maelstrom Weapon", 3) && !Me.HasAura("Ascendance"),
+                        new PrioritySelector(
+                            Spell.Cast("Chain Lightning", ret => Unit.UnfriendlyUnitsNearTarget(10f).Count() >= 2),
+                            Spell.Cast("Lightning Bolt")
+                            )
+                        ),
+                    // need to make it at <2
+                    Spell.Cast("Ancestral Swiftness", ret => !Me.HasAura("Maelstrom Weapon")),
 
-                Spell.Cast("Feral Spirit"),
+                    Spell.Cast("Lighting Bolt", ret => Me.HasAura("Ancestral Swiftness")),
 
-                Spell.Cast("Earth Elemental Totem", ret => Me.CurrentTarget.IsBoss && SpellManager.Spells["Fire Elemental Totem"].CooldownTimeLeft.Seconds >= 50)
+                    Spell.Cast("Earth Shock"),
 
-                //need more gear
-                //new Decorator(ret => Me.HasAura("Maelstrom Weapon", 1) && !Me.HasAura("Ascendance"),
-                //    new PrioritySelector(
-                //        Spell.Cast("Chain Lightning", ret => Unit.UnfriendlyUnitsNearTarget(10f).Count() >= 2),
-                //        Spell.Cast("Lightning Bolt")
-                //        )
-                //    )
+                    Spell.Cast("Feral Spirit"),
 
-                    );
+                    Spell.Cast("Earth Elemental Totem", ret => Me.CurrentTarget.IsBoss && SpellManager.Spells["Fire Elemental Totem"].CooldownTimeLeft.Seconds >= 50)
+
+                    //need more gear
+                    //new Decorator(ret => Me.HasAura("Maelstrom Weapon", 1) && !Me.HasAura("Ascendance"),
+                    //    new PrioritySelector(
+                    //        Spell.Cast("Chain Lightning", ret => Unit.UnfriendlyUnitsNearTarget(10f).Count() >= 2),
+                    //        Spell.Cast("Lightning Bolt")
+                    //        )
+                    //    )
+
+                        );
+            }
         }
         #endregion
 

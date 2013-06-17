@@ -17,10 +17,14 @@ using Action = Styx.TreeSharp.Action;
 
 namespace AdvancedAI.Spec
 {
-    class SubtletyRogue : AdvancedAI
+    class SubtletyRogue// : AdvancedAI
     {
-        public override WoWClass Class { get { return WoWClass.Rogue; } }
+        //public override WoWClass Class { get { return WoWClass.Rogue; } }
         //public override WoWSpec Spec { get { return WoWSpec.RogueSubtlety; } }
         LocalPlayer Me { get { return StyxWoW.Me; } }
+
+        public static Composite CreateSRCombat { get; set; }
+
+        public static Composite CreateSRBuffs { get; set; }
     }
 }

@@ -17,10 +17,14 @@ using Action = Styx.TreeSharp.Action;
 
 namespace AdvancedAI.Spec
 {
-    class AfflictionWarlock : AdvancedAI
+    class AfflictionWarlock// : AdvancedAI
     {
-        public override WoWClass Class { get { return WoWClass.Warlock; } }
+        //public override WoWClass Class { get { return WoWClass.Warlock; } }
         //public override WoWSpec Spec { get { return WoWSpec.WarlockAffliction; } }
-        LocalPlayer Me { get { return StyxWoW.Me; } } 
+        LocalPlayer Me { get { return StyxWoW.Me; } }
+
+        public static Composite CreateAWCombat { get; set; }
+
+        public static Composite CreateAWBuffs { get; set; }
     }
 }
