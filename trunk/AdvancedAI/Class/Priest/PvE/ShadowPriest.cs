@@ -36,11 +36,11 @@ namespace AdvancedAI.Spec
                 Spell.Cast("Void Shift", on => VoidTank),
                 new Decorator(ret => Unit.UnfriendlyUnitsNearTarget(10f).Count() > 2,
                     CreateAOE()),
-                Spell.Cast("Shadow Word: Pain", ret => Orbs == 3 && Me.CurrentTarget.HasMyAura("Shadow Word: Pain") && Me.CurrentTarget.GetAuraTimeLeft("Shadow Word: Pain").TotalSeconds <= 6),
-                Spell.Cast("Vampiric Touch", ret => Orbs == 3 && Me.CurrentTarget.HasMyAura("Vampiric Touch") && Me.CurrentTarget.GetAuraTimeLeft("Shadow Word: Pain").TotalSeconds <= 6),
+                Spell.Cast("Shadow Word: Pain", ret => Orbs == 3 && Me.CurrentTarget.HasMyAura("Shadow Word: Pain") && Me.CurrentTarget.GetAuraTimeLeft("Shadow Word: Pain", true).TotalSeconds <= 6),
+                Spell.Cast("Vampiric Touch", ret => Orbs == 3 && Me.CurrentTarget.HasMyAura("Vampiric Touch") && Me.CurrentTarget.GetAuraTimeLeft("Shadow Word: Pain", true).TotalSeconds <= 6),
                 Spell.Cast("Devouring Plague", ret => Orbs == 3 &&
-                 Me.CurrentTarget.GetAuraTimeLeft("Shadow Word: Pain").TotalSeconds >= 6 &&
-                 Me.CurrentTarget.GetAuraTimeLeft("Vampiric Touch").TotalSeconds >= 6),
+                 Me.CurrentTarget.GetAuraTimeLeft("Shadow Word: Pain", true).TotalSeconds >= 6 &&
+                 Me.CurrentTarget.GetAuraTimeLeft("Vampiric Touch", true).TotalSeconds >= 6),
 
                 //Spell.Cast("Devouring Plague", ret => Orbs == 3),
                 Spell.Cast("Mind Blast", ret => Orbs < 3),
