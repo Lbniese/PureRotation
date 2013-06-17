@@ -35,6 +35,21 @@ namespace AdvancedAI
         #region Overrides
         public sealed override void Initialize()
         {
+            //switch (StyxWoW.Me.Specialization)
+            //{
+            //    case WoWSpec.WarriorArms:
+
+            //        break;
+            //    case WoWSpec.WarriorFury:
+
+            //        break;
+            //    case WoWSpec.WarriorProtection:
+
+            //        break;
+            //    default:
+
+            //        break;
+            //}
             MovementManager.Init();
             Dispelling.Init();
  	        base.Initialize();
