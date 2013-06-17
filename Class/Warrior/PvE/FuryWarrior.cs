@@ -20,11 +20,7 @@ namespace AdvancedAI.Spec
 {
     class FuryWarrior : AdvancedAI
     {
-        //public override WoWClass Class { get { return WoWClass.Warrior; } }
-        //public override WoWSpec Spec { get { return WoWSpec.WarriorFury; } }
         static LocalPlayer Me { get { return StyxWoW.Me; } }
-
-
         public static Composite CreateFWCombat
         {
             get
