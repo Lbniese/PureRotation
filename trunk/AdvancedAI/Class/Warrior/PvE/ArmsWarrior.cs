@@ -18,14 +18,11 @@ using System.Threading.Tasks;
 
 namespace AdvancedAI.Spec
 {
-    class ArmsWarrior// : AdvancedAI
+    class ArmsWarrior : AdvancedAI
     {
-        //public override WoWClass Class { get { return WoWClass.Warrior; } }
-        //public override WoWSpec Spec { get { return WoWSpec.WarriorArms; } }
         static LocalPlayer Me { get { return StyxWoW.Me; } }
 
-
-        internal static Composite CreateAWBuffs
+        public static Composite CreateAWBuffs
         {
             get
             {
@@ -34,14 +31,12 @@ namespace AdvancedAI.Spec
         }
 
 
-        internal static Composite CreateAWCombat
+        public static Composite CreateAWCombat
         {
             get
             {
 
                 return new PrioritySelector(
-
-
                     // Interrupt please.
                     Spell.Cast("Pummel", ret => Me.CurrentTarget.IsCasting && Me.CurrentTarget.CanInterruptCurrentSpellCast),
                     Spell.Cast("Impending Victory", ret => Me.HealthPercent <= 90 && Me.HasAura("Victorious")),
