@@ -17,10 +17,14 @@ using Action = Styx.TreeSharp.Action;
 
 namespace AdvancedAI.Spec
 {
-    class BallanceDruid : AdvancedAI
+    class BallanceDruid// : AdvancedAI
     {
-        public override WoWClass Class { get { return WoWClass.Druid; } }
+        //public override WoWClass Class { get { return WoWClass.Druid; } }
         //public override WoWSpec Spec { get { return WoWSpec.DruidBalance; } }
         LocalPlayer Me { get { return StyxWoW.Me; } }
+
+        public static Composite CreateBDCombat { get; set; }
+
+        public static Composite CreateBDBuffs { get; set; }
     }
 }

@@ -16,10 +16,14 @@ using System.Threading.Tasks;
 using Action = Styx.TreeSharp.Action;
 namespace AdvancedAI.Spec
 {
-    class MistweaverMonk : AdvancedAI
+    class MistweaverMonk// : AdvancedAI
     {
-        public override WoWClass Class { get { return WoWClass.Monk; } }
+        //public override WoWClass Class { get { return WoWClass.Monk; } }
         //public override WoWSpec Spec { get { return WoWSpec.MonkMistweaver; } }
         LocalPlayer Me { get { return StyxWoW.Me; } }
+
+        public static Composite CreateMMCombat { get; set; }
+
+        public static Composite CreateMMBuffs { get; set; }
     }
 }

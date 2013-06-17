@@ -17,10 +17,14 @@ using Action = Styx.TreeSharp.Action;
 
 namespace AdvancedAI.Spec
 {
-    class HolyPaladin : AdvancedAI
+    class HolyPaladin
     {
-        public override WoWClass Class { get { return WoWClass.Paladin; } }
+        //public override WoWClass Class { get { return WoWClass.Paladin; } }
         //public override WoWSpec Spec { get { return WoWSpec.PaladinHoly; } }
-        LocalPlayer Me { get { return StyxWoW.Me; } } 
+        LocalPlayer Me { get { return StyxWoW.Me; } }
+
+        public static Composite CreateHPCombat { get; set; }
+
+        public static Composite CreateHPBuffs { get; set; }
     }
 }

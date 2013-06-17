@@ -18,96 +18,103 @@ using System.Threading.Tasks;
 
 namespace AdvancedAI.Spec
 {
-    class ArmsWarrior : AdvancedAI
+    class ArmsWarrior// : AdvancedAI
     {
-        public override WoWClass Class { get { return WoWClass.Warrior; } }
+        //public override WoWClass Class { get { return WoWClass.Warrior; } }
         //public override WoWSpec Spec { get { return WoWSpec.WarriorArms; } }
-        LocalPlayer Me { get { return StyxWoW.Me; } }
+        static LocalPlayer Me { get { return StyxWoW.Me; } }
 
 
-        protected override Composite CreateBuffs()
+        internal static Composite CreateAWBuffs
         {
-            return Spell.Cast("Battle Shout", ret => !Me.HasAura("Battle Shout"));
+            get
+            {
+                return Spell.Cast("Battle Shout", ret => !Me.HasAura("Battle Shout"));
+            }
         }
 
 
-        protected override Composite CreateCombat()
+        internal static Composite CreateAWCombat
         {
-            return new PrioritySelector(
+            get
+            {
+
+                return new PrioritySelector(
 
 
-                // Interrupt please.
-                Spell.Cast("Pummel", ret => Me.CurrentTarget.IsCasting && Me.CurrentTarget.CanInterruptCurrentSpellCast),
-                Spell.Cast("Impending Victory", ret => Me.HealthPercent <= 90 && Me.HasAura("Victorious")),
+                    // Interrupt please.
+                    Spell.Cast("Pummel", ret => Me.CurrentTarget.IsCasting && Me.CurrentTarget.CanInterruptCurrentSpellCast),
+                    Spell.Cast("Impending Victory", ret => Me.HealthPercent <= 90 && Me.HasAura("Victorious")),
 
-                //Staying Alive
-                //Spell.Cast("Rallying Cry", ret => Me.HealthPercent <= 30),
-                Spell.Cast("Die by the Sword", ret => Me.HealthPercent <= 20),
+                    //Staying Alive
+                    //Spell.Cast("Rallying Cry", ret => Me.HealthPercent <= 30),
+                    Spell.Cast("Die by the Sword", ret => Me.HealthPercent <= 20),
 
-                // Kee SS up if we've got more than 2 mobs to get to killing.
-                new Decorator(ret => Unit.NearbyUnfriendlyUnits.Count(u => u.DistanceSqr <= 8 * 8) >= 4,
-                    CreateAoe()),
-
-
-                new Decorator(
-                    new PrioritySelector(
-
-                        Spell.Cast("Recklessness", ret => Me.CurrentTarget.IsBoss && Me.CurrentTarget.HasAuraExpired("Colossus Smash", 5)),
-
-                        Spell.Cast("Bloodbath"),
-
-                        //Spell.Cast("Avatar", ret => Me.CurrentTarget.IsBoss && Me.HasAura("Recklessness")),
-
-                        Spell.Cast("Skull Banner", ret => Me.CurrentTarget.IsBoss && Me.HasAura("Recklessness")),
+                    // Kee SS up if we've got more than 2 mobs to get to killing.
+                    new Decorator(ret => Unit.NearbyUnfriendlyUnits.Count(u => u.DistanceSqr <= 8 * 8) >= 4,
+                        CreateAoe()),
 
 
-                        new Action(ret => { Item.UseHands(); return RunStatus.Failure; }),
-                        //new Action(ret => { Item.UseTrinkets(); return RunStatus.Failure; }),
+                    new Decorator(
+                        new PrioritySelector(
 
-                        Spell.Cast("Berserker Rage", ret => !Me.ActiveAuras.ContainsKey("Enrage")),
+                            Spell.Cast("Recklessness", ret => Me.CurrentTarget.IsBoss && Me.CurrentTarget.HasAuraExpired("Colossus Smash", 5)),
 
-                        Spell.Cast("Sweeping Strikes", ret => Unit.NearbyUnfriendlyUnits.Count(u => u.DistanceSqr <= 5 * 5) >= 2),
+                            Spell.Cast("Bloodbath"),
 
-                        //caueses some probs dont really like it
-                        //HeroicLeap(),
+                            //Spell.Cast("Avatar", ret => Me.CurrentTarget.IsBoss && Me.HasAura("Recklessness")),
 
-                        Spell.Cast("Heroic Strike", ret => (Me.CurrentTarget.HasMyAura("Colossus Smash") && Me.CurrentRage >= 70) || Me.CurrentRage >= 95),
+                            Spell.Cast("Skull Banner", ret => Me.CurrentTarget.IsBoss && Me.HasAura("Recklessness")),
 
-                        Spell.Cast("Mortal Strike"),
 
-                        Spell.Cast("Dragon Roar", ret => !Me.CurrentTarget.HasMyAura("Colossus Smash") && Me.HasAura("Bloodbath") && Unit.NearbyUnfriendlyUnits.Count(u => u.DistanceSqr <= 8 * 8) >= 1),
+                            new Action(ret => { Item.UseHands(); return RunStatus.Failure; }),
+                    //new Action(ret => { Item.UseTrinkets(); return RunStatus.Failure; }),
 
-                        Spell.Cast("Colossus Smash", ret => Me.HasAuraExpired("Colossus Smash", 1)),
+                            Spell.Cast("Berserker Rage", ret => !Me.ActiveAuras.ContainsKey("Enrage")),
 
-                        Spell.Cast("Execute", ret => Me.CurrentTarget.HasMyAura("Colossus Smash") || Me.HasAura("Recklessness") || Me.CurrentRage >= 85),
+                            Spell.Cast("Sweeping Strikes", ret => Unit.NearbyUnfriendlyUnits.Count(u => u.DistanceSqr <= 5 * 5) >= 2),
 
-                        Spell.Cast("Dragon Roar", ret => (!Me.CurrentTarget.HasMyAura("Colossus Smash") && Me.CurrentTarget.HealthPercent < 20) || (Me.HasAura("Bloodbath") && Me.CurrentTarget.HealthPercent >= 20) && Unit.NearbyUnfriendlyUnits.Count(u => u.DistanceSqr <= 8 * 8) >= 1),
+                            //caueses some probs dont really like it
+                    //HeroicLeap(),
 
-                        Spell.Cast("Thunder Clap", ret => Unit.NearbyUnfriendlyUnits.Count(u => u.DistanceSqr <= 8 * 8) >= 2 && Clusters.GetCluster(Me, Unit.NearbyUnfriendlyUnits, ClusterType.Radius, 8).Any(u => !u.HasMyAura("Deep Wounds"))),
+                            Spell.Cast("Heroic Strike", ret => (Me.CurrentTarget.HasMyAura("Colossus Smash") && Me.CurrentRage >= 70) || Me.CurrentRage >= 95),
 
-                        Spell.Cast("Slam", ret => Me.CurrentTarget.HasMyAura("Colossus Smash") && (Me.CurrentTarget.GetAuraTimeLeft("Colossus Smash").TotalSeconds <= 1 || Me.HasAura("Recklessness")) && Me.CurrentTarget.HealthPercent >= 20),
+                            Spell.Cast("Mortal Strike"),
 
-                        Spell.Cast("Overpower", ret => Me.HasAura("Taste for Blood") && Me.Auras["Taste for Blood"].StackCount >= 3 && Me.CurrentTarget.HealthPercent >= 20),
+                            Spell.Cast("Dragon Roar", ret => !Me.CurrentTarget.HasMyAura("Colossus Smash") && Me.HasAura("Bloodbath") && Unit.NearbyUnfriendlyUnits.Count(u => u.DistanceSqr <= 8 * 8) >= 1),
 
-                        Spell.Cast("Slam", ret => Me.CurrentTarget.HasAura("Colossus Smash") && Me.CurrentTarget.GetAuraTimeLeft("Colossus Smash").TotalSeconds <= 2.5 && Me.CurrentTarget.HealthPercent >= 20),
+                            Spell.Cast("Colossus Smash", ret => Me.HasAuraExpired("Colossus Smash", 1)),
 
-                        Spell.Cast("Execute", ret => !Me.HasAura("Sudden Execute")),
+                            Spell.Cast("Execute", ret => Me.CurrentTarget.HasMyAura("Colossus Smash") || Me.HasAura("Recklessness") || Me.CurrentRage >= 85),
 
-                        Spell.Cast("Overpower", ret => Me.CurrentTarget.HealthPercent >= 20 || Me.HasAura("Sudden Execute")),
+                            Spell.Cast("Dragon Roar", ret => (!Me.CurrentTarget.HasMyAura("Colossus Smash") && Me.CurrentTarget.HealthPercent < 20) || (Me.HasAura("Bloodbath") && Me.CurrentTarget.HealthPercent >= 20) && Unit.NearbyUnfriendlyUnits.Count(u => u.DistanceSqr <= 8 * 8) >= 1),
 
-                        Spell.Cast("Slam", ret => Me.CurrentRage >= 40 && Me.CurrentTarget.HealthPercent >= 20),
+                            Spell.Cast("Thunder Clap", ret => Unit.NearbyUnfriendlyUnits.Count(u => u.DistanceSqr <= 8 * 8) >= 2 && Clusters.GetCluster(Me, Unit.NearbyUnfriendlyUnits, ClusterType.Radius, 8).Any(u => !u.HasMyAura("Deep Wounds"))),
 
-                        Spell.Cast("Battle Shout"),
+                            Spell.Cast("Slam", ret => Me.CurrentTarget.HasMyAura("Colossus Smash") && (Me.CurrentTarget.GetAuraTimeLeft("Colossus Smash").TotalSeconds <= 1 || Me.HasAura("Recklessness")) && Me.CurrentTarget.HealthPercent >= 20),
 
-                        Spell.Cast("Heroic Throw"),
+                            Spell.Cast("Overpower", ret => Me.HasAura("Taste for Blood") && Me.Auras["Taste for Blood"].StackCount >= 3 && Me.CurrentTarget.HealthPercent >= 20),
 
-                       // Don't use this in execute range, unless we need the heal. Thanks!
-                        Spell.Cast("Impending Victory", ret => Me.CurrentTarget.HealthPercent > 20 || Me.HealthPercent < 50))
-                    )
-                );
+                            Spell.Cast("Slam", ret => Me.CurrentTarget.HasAura("Colossus Smash") && Me.CurrentTarget.GetAuraTimeLeft("Colossus Smash").TotalSeconds <= 2.5 && Me.CurrentTarget.HealthPercent >= 20),
+
+                            Spell.Cast("Execute", ret => !Me.HasAura("Sudden Execute")),
+
+                            Spell.Cast("Overpower", ret => Me.CurrentTarget.HealthPercent >= 20 || Me.HasAura("Sudden Execute")),
+
+                            Spell.Cast("Slam", ret => Me.CurrentRage >= 40 && Me.CurrentTarget.HealthPercent >= 20),
+
+                            Spell.Cast("Battle Shout"),
+
+                            Spell.Cast("Heroic Throw"),
+
+                           // Don't use this in execute range, unless we need the heal. Thanks!
+                            Spell.Cast("Impending Victory", ret => Me.CurrentTarget.HealthPercent > 20 || Me.HealthPercent < 50))
+                        )
+                    );
+            }
         }
 
-        private Composite CreateAoe()
+        private static Composite CreateAoe()
         {
             return new PrioritySelector(
 

@@ -17,10 +17,14 @@ using Action = Styx.TreeSharp.Action;
 
 namespace AdvancedAI.Spec
 {
-    class UnholyDeathknight : AdvancedAI
+    class UnholyDeathknight// : AdvancedAI
     {
-        public override WoWClass Class { get { return WoWClass.DeathKnight; } }
+        //public override WoWClass Class { get { return WoWClass.DeathKnight; } }
         //public override WoWSpec Spec { get { return WoWSpec.DeathKnightUnholy; } }
         LocalPlayer Me { get { return StyxWoW.Me; } }
+
+        public static Composite CreateUDKCombat { get; set; }
+
+        public static Composite CreateUDKBuffs { get; set; }
     }
 }

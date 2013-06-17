@@ -17,10 +17,20 @@ using Action = Styx.TreeSharp.Action;
 
 namespace AdvancedAI.Spec
 {
-    class ProtectionWarrior : AdvancedAI
+    class ProtectionWarrior// : AdvancedAI
     {
-        public override WoWClass Class { get { return WoWClass.Warrior; } }
+        //public override WoWClass Class { get { return WoWClass.Warrior; } }
         //public override WoWSpec Spec { get { return WoWSpec.WarriorProtection; } }
         LocalPlayer Me { get { return StyxWoW.Me; } }
+
+        internal static Composite CreatePWCombat { get {
+            return new PrioritySelector(
+
+            );}}
+
+        internal static Composite CreatePWBuffs { get {
+            return new PrioritySelector(
+                
+                );}}
     }
 }

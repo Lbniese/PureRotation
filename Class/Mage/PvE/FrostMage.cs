@@ -17,10 +17,14 @@ using Action = Styx.TreeSharp.Action;
 
 namespace AdvancedAI.Spec
 {
-    class FrostMage : AdvancedAI
+    class FrostMage// : AdvancedAI
     {
-        public override WoWClass Class { get { return WoWClass.Mage; } }
+        //public override WoWClass Class { get { return WoWClass.Mage; } }
         //public override WoWSpec Spec { get { return WoWSpec.MageFrost; } }
         LocalPlayer Me { get { return StyxWoW.Me; } }
+
+        public static Composite CreateFMCombat { get; set; }
+
+        public static Composite CreateFMBuffs { get; set; }
     }
 }

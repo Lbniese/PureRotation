@@ -17,10 +17,14 @@ using Action = Styx.TreeSharp.Action;
 
 namespace AdvancedAI.Spec
 {
-    class BeastmasterHunter : AdvancedAI
+    class BeastmasterHunter// : AdvancedAI
     {
-        public override WoWClass Class { get { return WoWClass.Hunter; } }
+        //public override WoWClass Class { get { return WoWClass.Hunter; } }
         //public override WoWSpec Spec { get { return WoWSpec.HunterBeastMastery; } }
         LocalPlayer Me { get { return StyxWoW.Me; } }
+
+        public static Composite CreateBMHCombat { get; set; }
+
+        public static Composite CreateBMHBuffs { get; set; }
     }
 }
