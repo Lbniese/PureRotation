@@ -18,7 +18,7 @@ using System.Windows.Forms;
 
 namespace AdvancedAI.Spec
 {
-    class UnholyDeathknight : AdvancedAI
+    class UnholyDeathknight// : AdvancedAI
     {
         //public override WoWClass Class { get { return WoWClass.DeathKnight; } }
         //public override WoWSpec Spec { get { return WoWSpec.DeathKnightUnholy; } }
@@ -28,10 +28,12 @@ namespace AdvancedAI.Spec
         {
             get
             {
-                return new Decorator(ret => PvPRot,
-                    new PrioritySelector(
-                        Spec.UnholyDeathknightPvP.CreateBDKPvPCombat
-                        ));
+                if (AdvancedAI.PvPRot)
+                    return UnholyDeathknightPvP.CreateBDKPvPCombat;
+                else
+                    return new PrioritySelector(
+
+                        );
             }
         }
 
