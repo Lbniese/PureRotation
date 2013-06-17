@@ -17,7 +17,7 @@ using Action = Styx.TreeSharp.Action;
 
 namespace AdvancedAI.Spec
 {
-    class FuryWarrior// : AdvancedAI
+    class FuryWarrior : AdvancedAI
     {
         //public override WoWClass Class { get { return WoWClass.Warrior; } }
         //public override WoWSpec Spec { get { return WoWSpec.WarriorFury; } }
@@ -28,13 +28,9 @@ namespace AdvancedAI.Spec
         {
             get
             {
-                return new PrioritySelector(
-                    // Don't do anything if we have no target, nothing in melee range, or we're casting. (Includes vortex!)
-                    //new Decorator(
-                    //    ret =>
-                    //    !StyxWoW.Me.GotTarget || StyxWoW.Me.IsCasting ||
-                    //    StyxWoW.Me.CurrentPendingCursorSpell != null,
-                    //    new ActionAlwaysSucceed()),
+                return new PrioritySelector(                    
+                    new Decorator(ret => PvPRot,
+                        FuryWarriorPvP.CreateFWPvPCombat),
                     // Interrupt please.
                     Spell.Cast("Pummel",
                         ret =>
@@ -50,13 +46,13 @@ namespace AdvancedAI.Spec
                         new PrioritySelector(
                             Item.UsePotionAndHealthstone(40),
                             Spell.Cast("Blood Fury", ret => StyxWoW.Me.CurrentTarget.IsBoss),
-                    // Stack our crit CDs for the most efficiency.
+                            // Stack our crit CDs for the most efficiency.
                              Spell.Cast("Recklessness",
                                 ret => StyxWoW.Me.CurrentTarget.IsBoss && StyxWoW.Me.HasAura("Skull Banner")),
                             Spell.Cast("Avatar", ret => StyxWoW.Me.CurrentTarget.IsBoss && StyxWoW.Me.HasAura("Skull Banner")),
                             Spell.Cast("Skull Banner", ret => StyxWoW.Me.CurrentTarget.IsBoss),
                             new Action(ret => { Item.UseHands(); return RunStatus.Failure; }),
-                    // Only drop DC if we need to use HS for TFB. This lets us avoid breaking HS as a rage dump, when we don't want it to be one.
+                            // Only drop DC if we need to use HS for TFB. This lets us avoid breaking HS as a rage dump, when we don't want it to be one.
                             Spell.Cast("Heroic Strike", ret => Me.CurrentRage >= 80),
                             Spell.Cast("Bloodbath", ret => StyxWoW.Me.CurrentTarget.IsBoss),
                             Spell.Cast("Berserker Rage", ret => !StyxWoW.Me.HasAura("Enraged")),
@@ -65,10 +61,10 @@ namespace AdvancedAI.Spec
                             Spell.Cast("Raging Blow"),
                             Spell.Cast("Wild Strike", ret => StyxWoW.Me.HasAura("Bloodsurge", 1)),
                             Spell.Cast("Dragon Roar"),
-                    //Cast("Storm Bolt"),
+                            //Cast("Storm Bolt"),
                             Spell.Cast("Battle Shout", ret => StyxWoW.Me.RagePercent < 30),
                             Spell.Cast("Heroic Throw"),
-                    // Don't use this in execute range, unless we need the heal. Thanks!
+                            // Don't use this in execute range, unless we need the heal. Thanks!
                             Spell.Cast("Impending Victory",
                                 ret => StyxWoW.Me.CurrentTarget.HealthPercent > 20 || StyxWoW.Me.HealthPercent < 50))
                         )
@@ -80,7 +76,10 @@ namespace AdvancedAI.Spec
         {
             get
             {
-                return Spell.Cast("Battle Shout", ret => !StyxWoW.Me.HasAura("Battle Shout"));
+                return new PrioritySelector(
+                    new Decorator( ret => PvPRot,
+                        FuryWarriorPvP.CreateFWPvPBuffs),
+                        Spell.Cast("Battle Shout", ret => !StyxWoW.Me.HasAura("Battle Shout")));
             }
         }
 
