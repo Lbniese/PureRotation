@@ -22,5 +22,26 @@ namespace AdvancedAI.Spec
         public override WoWClass Class { get { return WoWClass.Mage; } }
         //public override WoWSpec Spec { get { return WoWSpec.MageArcane; } }
         LocalPlayer Me { get { return StyxWoW.Me; } }
+
+        protected override Composite CreateCombat()
+        {
+            return new PrioritySelector(
+                Spell.Cast("Arcane Missles", ret => Me.HasAura("Arcane Charge", 4)),
+                Spell.Cast("Arcane Barrage", ret => Me.HasAura("Arcane Charge", 4)),
+                Spell.Cast("Living Bomb", ret => !Me.CurrentTarget.HasAura("Living Bomb")),
+                Spell.Cast("Arcane Blast"),
+                Spell.Cast("Arcane Barrage", ret => Me.IsMoving),
+                Spell.Cast("Arcane Explosion", ret => Me.CurrentTarget.Distance < 10 && Me.IsMoving),
+                Spell.Cast("Fire Blast", ret => Me.CurrentTarget.Distance >= 10 && Me.IsMoving)
+                );
+        }
+
+        protected override Composite CreateBuffs()
+        {
+            return new PrioritySelector(
+                PartyBuff.BuffGroup("Arcane Brilliance"),
+                Spell.Cast("Mage Armor", ret => !Me.HasAura("Mage Armor"))
+                );
+        }
     }
 }

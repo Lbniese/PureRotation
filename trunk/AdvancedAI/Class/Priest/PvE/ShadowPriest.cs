@@ -23,30 +23,40 @@ namespace AdvancedAI.Spec
         //public override WoWSpec Spec { get { return WoWSpec.PriestShadow; } }
         static LocalPlayer Me { get { return StyxWoW.Me; } }
         private const int MindFlay = 15407;
+        private const int Insanity = 129197;
         private static uint Orbs { get { return Me.GetCurrentPower(WoWPowerType.ShadowOrbs); } }
 
         protected override Composite CreateCombat()
         {
             return new PrioritySelector(
-                new Decorator(ret => Me.IsCasting && (Me.ChanneledSpell == null || Me.ChanneledSpell.Id != MindFlay), new Action(ret => { return RunStatus.Success; })),
+                //new Decorator(ret => Me.IsCasting && (Me.ChanneledSpell == null || Me.ChanneledSpell.Id != MindFlay), new Action(ret => { return RunStatus.Success; })),
                 Spell.Cast("Shadowfiend", ret => Me.CurrentTarget.IsBoss),
                 Spell.Cast("Mindbender", ret => Me.CurrentTarget.IsBoss),
                 Spell.Cast("Power Infusion", ret => Me.CurrentTarget.IsBoss),
                 Spell.Cast("Void Shift", on => VoidTank),
                 new Decorator(ret => Unit.UnfriendlyUnitsNearTarget(10f).Count() > 2,
                     CreateAOE()),
+                Spell.Cast("Shadow Word: Pain", ret => Orbs == 3 && Me.CurrentTarget.HasMyAura("Shadow Word: Pain") && Me.CurrentTarget.GetAuraTimeLeft("Shadow Word: Pain").TotalSeconds <= 6),
+                Spell.Cast("Vampiric Touch", ret => Orbs == 3 && Me.CurrentTarget.HasMyAura("Vampiric Touch") && Me.CurrentTarget.GetAuraTimeLeft("Shadow Word: Pain").TotalSeconds <= 6),
+                Spell.Cast("Devouring Plague", ret => Orbs == 3 &&
+                 Me.CurrentTarget.GetAuraTimeLeft("Shadow Word: Pain").TotalSeconds >= 6 &&
+                 Me.CurrentTarget.GetAuraTimeLeft("Vampiric Touch").TotalSeconds >= 6),
 
-                Spell.Cast("Devouring Plague", ret => Orbs == 3),
+                //Spell.Cast("Devouring Plague", ret => Orbs == 3),
                 Spell.Cast("Mind Blast", ret => Orbs < 3),
                 new Throttle(1, 2,
                     new PrioritySelector(
                         Spell.Cast("Shadow Word: Death", ret => Orbs < 3))),
-                Spell.Cast("Mind Flay", ret => Me.CurrentTarget.HasAura("Devouring Plague")),
+                new Throttle(1, 3,
+                    new PrioritySelector(
+                        Spell.Cast("Mind Flay", ret => Me.CurrentTarget.HasAura("Devouring Plague")))),
                 Spell.Cast("Shadow Word: Pain", ret => !Me.CurrentTarget.HasAura("Shadow Word: Pain") || Me.CurrentTarget.HasAuraExpired("Shadow Word: Pain", 2, true)),
                 new Throttle(1, 2,
                     new PrioritySelector(
-                        Spell.Cast("Vampiric Touch", ret => !Me.CurrentTarget.HasAura("Vampiric Touch") || Me.CurrentTarget.HasAuraExpired("Vampiric Touch", 2, true)))),
-                Spell.Cast("Mind Flay", on => Me.CurrentTarget, ret => Me.CurrentTarget.HasAura("Shadow Word: Pain") && Me.CurrentTarget.HasAura("Vampiric Touch") && Me.ChanneledCastingSpellId != MindFlay),
+                        Spell.Cast("Vampiric Touch", ret => !Me.CurrentTarget.HasAura("Vampiric Touch") || Me.CurrentTarget.HasAuraExpired("Vampiric Touch", 4, true)))),
+                new Throttle(1, 2,
+                    new PrioritySelector(
+                        Spell.Cast("Mind Flay", on => Me.CurrentTarget, ret => Me.CurrentTarget.HasAura("Shadow Word: Pain") && Me.CurrentTarget.HasAura("Vampiric Touch")))),
                 Spell.Cast("Shadow Word: Death", ret => Me.IsMoving),
                 Spell.Cast("Shadow Word: Pain", ret => Me.IsMoving)
 
