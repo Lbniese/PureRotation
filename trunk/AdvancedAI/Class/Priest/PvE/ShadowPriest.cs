@@ -49,14 +49,14 @@ namespace AdvancedAI.Spec
                         Spell.Cast("Shadow Word: Death", ret => Orbs < 3))),
                 new Throttle(1, 3,
                     new PrioritySelector(
-                        Spell.Cast("Mind Flay", ret => Me.CurrentTarget.HasAura("Devouring Plague")))),
-                Spell.Cast("Shadow Word: Pain", ret => !Me.CurrentTarget.HasAura("Shadow Word: Pain") || Me.CurrentTarget.HasAuraExpired("Shadow Word: Pain", 2, true)),
+                        Spell.Cast("Mind Flay", ret => Me.CurrentTarget.HasMyAura("Devouring Plague")))),
+                Spell.Cast("Shadow Word: Pain", ret => !Me.CurrentTarget.HasMyAura("Shadow Word: Pain") || Me.CurrentTarget.HasAuraExpired("Shadow Word: Pain", 2, true)),
                 new Throttle(1, 2,
                     new PrioritySelector(
                         Spell.Cast("Vampiric Touch", ret => !Me.CurrentTarget.HasAura("Vampiric Touch") || Me.CurrentTarget.HasAuraExpired("Vampiric Touch", 4, true)))),
                 new Throttle(1, 2,
                     new PrioritySelector(
-                        Spell.Cast("Mind Flay", on => Me.CurrentTarget, ret => Me.CurrentTarget.HasAura("Shadow Word: Pain") && Me.CurrentTarget.HasAura("Vampiric Touch")))),
+                        Spell.Cast("Mind Flay", on => Me.CurrentTarget, ret => Me.CurrentTarget.HasMyAura("Shadow Word: Pain") && Me.CurrentTarget.HasMyAura("Vampiric Touch")))),
                 Spell.Cast("Shadow Word: Death", ret => Me.IsMoving),
                 Spell.Cast("Shadow Word: Pain", ret => Me.IsMoving)
 
