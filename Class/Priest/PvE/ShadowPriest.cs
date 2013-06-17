@@ -30,9 +30,9 @@ namespace AdvancedAI.Spec
         {
             return new PrioritySelector(
                 //new Decorator(ret => Me.IsCasting && (Me.ChanneledSpell == null || Me.ChanneledSpell.Id != MindFlay), new Action(ret => { return RunStatus.Success; })),
-                Spell.Cast("Shadowfiend", ret => Me.CurrentTarget.IsBoss),
+                Spell.Cast("Shadowfiend", ret => Me.CurrentTarget.IsBoss && SpellManager.HasSpell("Shadowfiend") && SpellManager.Spells["Shadowfiend"].CooldownTimeLeft.TotalMilliseconds < 10),
                 Spell.Cast("Mindbender", ret => Me.CurrentTarget.IsBoss),
-                Spell.Cast("Power Infusion", ret => Me.CurrentTarget.IsBoss),
+                Spell.Cast("Power Infusion", ret => Me.CurrentTarget.IsBoss && SpellManager.HasSpell("Power Infusion") && SpellManager.Spells["Power Infusion"].CooldownTimeLeft.TotalMilliseconds < 10),
                 Spell.Cast("Void Shift", on => VoidTank),
                 new Decorator(ret => Unit.UnfriendlyUnitsNearTarget(10f).Count() > 2,
                     CreateAOE()),
