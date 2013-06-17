@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 
 namespace AdvancedAI.Spec
 {
-    class ArmsWarrior : AdvancedAI
+    class ArmsWarrior// : AdvancedAI
     {
         static LocalPlayer Me { get { return StyxWoW.Me; } }
 
