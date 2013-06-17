@@ -54,6 +54,9 @@ namespace AdvancedAI.Spec
                 new Throttle(1, 2,
                     new PrioritySelector(
                         Spell.Cast("Vampiric Touch", ret => !Me.CurrentTarget.HasAura("Vampiric Touch") || Me.CurrentTarget.HasAuraExpired("Vampiric Touch", 4, true)))),
+                Spell.Cast("Halo", ret => Me.CurrentTarget.Distance < 30),
+                Spell.Cast("Cascade"),
+                Spell.Cast("Divine Star"),
                 new Throttle(1, 2,
                     new PrioritySelector(
                         Spell.Cast("Mind Flay", on => Me.CurrentTarget, ret => Me.CurrentTarget.HasMyAura("Shadow Word: Pain") && Me.CurrentTarget.HasMyAura("Vampiric Touch")))),
