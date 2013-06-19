@@ -1,21 +1,9 @@
-﻿using CommonBehaviors.Actions;
-using Styx;
-using Styx.Common;
-using Styx.CommonBot;
-using Styx.Helpers;
+﻿using Styx;
 using Styx.TreeSharp;
-using Styx.WoWInternals;
 using Styx.WoWInternals.WoWObjects;
 using AdvancedAI.Helpers;
-
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Action = Styx.TreeSharp.Action;
-using System.Threading.Tasks;
-using Styx.CommonBot.Routines;
 
 namespace AdvancedAI.Spec
 {
@@ -37,7 +25,7 @@ namespace AdvancedAI.Spec
             {
 
                 return new PrioritySelector(
-                    Spell.Cast("Pummel", ret => Me.CurrentTarget.IsCasting && Me.CurrentTarget.CanInterruptCurrentSpellCast && AdvancedAI.InterruptsEnabled),
+                    Spell.Cast("Pummel", ret => Me.CurrentTarget.IsCasting && Me.CurrentTarget.CanInterruptCurrentSpellCast),
                     Spell.Cast("Impending Victory", ret => Me.HealthPercent <= 90 && Me.HasAura("Victorious")),
                     Spell.Cast("Die by the Sword", ret => Me.HealthPercent <= 20),
                     new Decorator(ret => Unit.NearbyUnfriendlyUnits.Count(u => u.DistanceSqr <= 8 * 8) >= 4,

@@ -1,22 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
-using System.Threading.Tasks;
-
+﻿using System.Windows.Forms;
 using Styx;
 using Styx.Common;
-using Styx.CommonBot;
 using Styx.CommonBot.Routines;
 using Styx.TreeSharp;
 using Styx.WoWInternals;
-using Styx.WoWInternals.WoWObjects;
-using Action = Styx.TreeSharp.Action;
 using CommonBehaviors.Actions;
 using AdvancedAI.Managers;
 using AdvancedAI.Helpers;
-using AdvancedAI.Spec;
+
 
 namespace AdvancedAI
 {
@@ -192,8 +183,6 @@ namespace AdvancedAI
                     if (_combat == null) { _combat = Spec.ProtectionWarrior.CreatePWCombat; }
                     if (_buffs == null) { _buffs = Spec.ProtectionWarrior.CreatePWBuffs; }
                     break;
-                default:
-                    break;
             }
             return null;
         }
@@ -245,20 +234,6 @@ namespace AdvancedAI
             PvPRot = false;
         }
 
-
-
-        #region Aura Caching
-        public static WoWAuraCollection LocalPlayerAuras, TargetAuras;
-        void CacheAuras()
-        {
-            LocalPlayerAuras = StyxWoW.Me.GetAllAuras();
-            if (StyxWoW.Me.GotTarget)
-            {
-                TargetAuras = StyxWoW.Me.CurrentTarget.GetAllAuras();
-            }
-        }
-        #endregion
-
         #region Requirements
         protected virtual Composite CreateCombat()
         {
@@ -270,12 +245,6 @@ namespace AdvancedAI
         {
             return new HookExecutor("AdvancedAI_Buffs_Root",
                 "Root composite for AdvancedAI buffs. Rotations will be plugged into this hook.",
-                new ActionAlwaysFail());
-        }
-        Composite CreateRootCombat()
-        {
-            return new HookExecutor("AdvancedAI_Combat_Root",
-                "Root composite for AdvancedAI combat. Rotations will be plugged into this hook.",
                 new ActionAlwaysFail());
         }
         #endregion

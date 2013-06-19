@@ -1,19 +1,10 @@
 ﻿using CommonBehaviors.Actions;
 using Styx;
 using Styx.Common;
-using Styx.CommonBot;
-using Styx.Helpers;
 using Styx.TreeSharp;
-using Styx.WoWInternals;
 using Styx.WoWInternals.WoWObjects;
 using AdvancedAI.Helpers;
-using AdvancedAI;
-
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Action = Styx.TreeSharp.Action;
 
 namespace AdvancedAI.Spec
@@ -25,9 +16,9 @@ namespace AdvancedAI.Spec
         {
             get
             {
-                if (AdvancedAI.PvPRot == true)
+                if (PvPRot)
                     return FuryWarriorPvP.CreateFWPvPCombat;                           
-                if (AdvancedAI.PvPRot == false)
+                if (PvPRot == false)
                     return new PrioritySelector(
                         // Interrupt please.
                         Spell.Cast("Pummel",
@@ -74,7 +65,7 @@ namespace AdvancedAI.Spec
             get
             {
                 return new PrioritySelector(
-                    new Decorator( ret => AdvancedAI.PvPRot,
+                    new Decorator( ret => PvPRot,
                         FuryWarriorPvP.CreateFWPvPBuffs),
                         Spell.Cast("Battle Shout", ret => !StyxWoW.Me.HasAura("Battle Shout")));
             }
