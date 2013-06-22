@@ -1,21 +1,15 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Styx;
-
 using Styx.Common.Helpers;
 using Styx.CommonBot;
 using Styx.WoWInternals;
-using Styx.WoWInternals.WoWCache;
 using Styx.WoWInternals.WoWObjects;
-
 using AdvancedAI.Helpers;
 using Styx.TreeSharp;
-
 using Action = Styx.TreeSharp.Action;
 using Styx.Common;
-
 
 namespace AdvancedAI.Managers
 {

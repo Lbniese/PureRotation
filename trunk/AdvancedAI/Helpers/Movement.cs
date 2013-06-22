@@ -1,23 +1,14 @@
 ﻿
 using AdvancedAI.Lists;
-using AdvancedAI.Managers;
-
 using Styx;
 using Styx.Helpers;
 using Styx.Pathing;
 using Styx.TreeSharp;
 using Action = Styx.TreeSharp.Action;
 using System;
-using System.Linq;
-using Styx.WoWInternals.World;
 using Styx.WoWInternals.WoWObjects;
-
 using Styx.CommonBot.POI;
 using CommonBehaviors.Actions;
-using System.Diagnostics;
-
-using System.Drawing;
-using Styx.CommonBot;
 using Styx.Common;
 using AdvancedAI.Utilities;
 

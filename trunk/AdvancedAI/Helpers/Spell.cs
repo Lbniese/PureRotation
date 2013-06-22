@@ -1,6 +1,5 @@
 ﻿#define NO_LATENCY_ISSUES_WITH_GLOBAL_COOLDOWN
 //#define HONORBUDDY_GCD_IS_WORKING
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,9 +11,6 @@ using Styx.WoWInternals;
 using Styx.WoWInternals.WoWObjects;
 using Styx.WoWInternals.World;
 using Action = Styx.TreeSharp.Action;
-using Styx.Helpers;
-using System.Drawing;
-using Styx.Patchables;
 using Styx.Common;
 using AdvancedAI.Managers;
 

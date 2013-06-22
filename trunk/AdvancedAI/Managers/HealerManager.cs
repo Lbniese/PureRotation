@@ -1,9 +1,7 @@
 ﻿
 using System.Collections.Generic;
 using System.Linq;
-
 using AdvancedAI.Helpers;
-
 using Styx;
 using Styx.Common.Helpers;
 using Styx.CommonBot;
@@ -11,10 +9,6 @@ using Styx.WoWInternals;
 using Styx.WoWInternals.WoWObjects;
 using Styx.TreeSharp;
 using System;
-using System.Drawing;
-using CommonBehaviors.Actions;
-
-using Action = Styx.TreeSharp.Action;
 using Styx.Common;
 
 namespace AdvancedAI.Managers
