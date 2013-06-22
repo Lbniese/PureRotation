@@ -1,12 +1,5 @@
 ﻿using Styx;
-using Styx.CommonBot;
 using Styx.WoWInternals;
-using System;
-using System.Linq;
-using System.Drawing;
-using Styx.Common.Helpers;
-using System.Collections.Generic;
-using AdvancedAI.Helpers;
 using Styx.Pathing;
 using Styx.Common;
 

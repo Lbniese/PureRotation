@@ -1,20 +1,14 @@
-﻿
-using System;
+﻿using System;
 using System.Linq;
 using Styx;
 using AdvancedAI.Managers;
-using AdvancedAI.Helpers;
 using AdvancedAI.Lists;
-
 using Styx.WoWInternals;
 using Styx.WoWInternals.WoWObjects;
-using Styx.CommonBot;
 using Styx.TreeSharp;
 
 
 using Action = Styx.TreeSharp.Action;
-using CommonBehaviors.Actions;
-using Styx.Common;
 
 namespace AdvancedAI.Helpers
 {

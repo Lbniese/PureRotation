@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Linq;
-
-using AdvancedAI.Helpers;
-using AdvancedAI.Managers;
-
 using Styx;
 using Styx.CommonBot;
 using Styx.TreeSharp;
@@ -12,7 +8,6 @@ using Action = Styx.TreeSharp.Action;
 using System.Collections.Generic;
 using Styx.Pathing;
 using CommonBehaviors.Actions;
-using System.Drawing;
 using Styx.WoWInternals;
 using Styx.Helpers;
 using Styx.Common;

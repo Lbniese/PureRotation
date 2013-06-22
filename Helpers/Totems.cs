@@ -1,23 +1,15 @@
 ﻿//#define USE_ISFLEEING
 #define USE_MECHANIC
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
-
-using AdvancedAI.Helpers;
 using AdvancedAI.Managers;
-
 using Styx;
-
 using Styx.CommonBot;
 using Styx.WoWInternals;
 using Styx.WoWInternals.WoWObjects;
-
 using Styx.TreeSharp;
-using CommonBehaviors.Actions;
 using Action = Styx.TreeSharp.Action;
-using System.Drawing;
 using Styx.Common;
 
 namespace AdvancedAI.Helpers
@@ -44,7 +36,7 @@ namespace AdvancedAI.Helpers
                     if ( Me.CurrentTarget.IsMoving )
                         return false;
                     
-                    if (Me.SpellDistance(Me.CurrentTarget) > Totems.GetTotemRange(WoWTotem.Searing))
+                    if (Me.SpellDistance(Me.CurrentTarget) > GetTotemRange(WoWTotem.Searing))
                         return false;
                     
                     return true;
@@ -117,7 +109,7 @@ namespace AdvancedAI.Helpers
 
 
                 Spell.BuffSelf(WoWTotem.Tremor.ToSpellId(),
-                    ret => Unit.GroupMembers.Any(f => f.Fleeing && f.Distance < Totems.GetTotemRange(WoWTotem.Tremor))
+                    ret => Unit.GroupMembers.Any(f => f.Fleeing && f.Distance < GetTotemRange(WoWTotem.Tremor))
                         && !Exist(WoWTotem.StoneBulwark, WoWTotem.EarthElemental)),
 
                 new Decorator(
@@ -226,7 +218,7 @@ namespace AdvancedAI.Helpers
             return new PrioritySelector(
 
                 Spell.BuffSelf(WoWTotem.Tremor.ToSpellId(),
-                    ret => Unit.GroupMembers.Any(f => f.Fleeing && f.Distance < Totems.GetTotemRange(WoWTotem.Tremor))
+                    ret => Unit.GroupMembers.Any(f => f.Fleeing && f.Distance < GetTotemRange(WoWTotem.Tremor))
                         && !Exist(WoWTotem.StoneBulwark, WoWTotem.EarthElemental)),
 
                 new Decorator(
@@ -298,9 +290,9 @@ namespace AdvancedAI.Helpers
         public static Composite CreateRecallTotems()
         {
             return new Decorator(
-                ret => Totems.NeedToRecallTotems,
+                ret => NeedToRecallTotems,
                 new Throttle(
-                    new Styx.TreeSharp.Action( delegate
+                    new Action( delegate
                     {
                         Logging.Write("Recalling totems!");
                         //Logger.Write("Recalling totems!");
@@ -574,7 +566,7 @@ namespace AdvancedAI.Helpers
         }
 
 
-        static WoWTotem[] totemsWeDontRecall = new WoWTotem[] 
+        static readonly WoWTotem[] totemsWeDontRecall = new WoWTotem[] 
         {
             WoWTotem.FireElemental , 
             WoWTotem.EarthElemental  , 

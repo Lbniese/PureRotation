@@ -1,18 +1,10 @@
-﻿using CommonBehaviors.Actions;
-using Styx;
-using Styx.Common;
+﻿using Styx;
 using Styx.CommonBot;
-using Styx.Helpers;
 using Styx.TreeSharp;
 using Styx.WoWInternals;
 using Styx.WoWInternals.WoWObjects;
 using AdvancedAI.Helpers;
-
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Action = Styx.TreeSharp.Action;
 
 namespace AdvancedAI.Spec
@@ -47,7 +39,6 @@ namespace AdvancedAI.Spec
                     Spell.Cast("Lightning Shield", ret => !StyxWoW.Me.HasAura("Lightning Shield"))
                     //CreateShamanImbueMainHandBehavior(Imbue.Windfury, Imbue.Flametongue),
                     //CreateShamanImbueOffHandBehavior(Imbue.Flametongue)
-
                                             ));
             }
         }
@@ -126,82 +117,9 @@ namespace AdvancedAI.Spec
                     //        Spell.Cast("Lightning Bolt")
                     //        )
                     //    )
-
                         );
             }
         }
         #endregion
-
-
-        //#region totem junk
-        //public static float GetTotemRange(WoWTotem totem)
-        //{
-        //    switch (totem)
-        //    {
-        //        case WoWTotem.HealingStream:
-        //        case WoWTotem.Tremor:
-        //            return 30f;
-
-        //        case WoWTotem.Searing:
-        //            return 25f;
-
-        //        case WoWTotem.Earthbind:
-        //            return 10f;
-
-        //        case WoWTotem.Grounding:
-        //        case WoWTotem.Magma:
-        //            return 8f;
-
-        //        case WoWTotem.StoneBulwark:
-        //            // No idea, unlike former glyphed stoneclaw it has a 5 sec pluse shield component so range is more important
-        //            return 40f;
-
-        //        case WoWTotem.HealingTide:
-        //            return 40f;
-
-        //        case WoWTotem.Stormlash:
-        //            return 30f;
-
-        //    }
-
-        //    return 0f;
-        //}
-
-        //public static bool Exist(WoWTotemInfo ti)
-        //{
-        //    return IsRealTotem(ti.WoWTotem);
-        //}
-
-        //public static bool Exist(WoWTotemType type)
-        //{
-        //    WoWTotem wt = GetTotem(type).WoWTotem;
-        //    return IsRealTotem(wt);
-        //}
-
-        //public static WoWTotemInfo GetTotem(WoWTotem wt)
-        //{
-        //    return GetTotem(wt.ToType());
-        //}
-
-        //public static WoWTotemInfo GetTotem(WoWTotemType type)
-        //{
-        //    return StyxWoW.Me.Totems[(int)type - 1];
-        //}
-
-        //public static bool IsRealTotem(WoWTotem ti)
-        //{
-        //    return ti != WoWTotem.None
-        //        && ti != WoWTotem.DummyAir
-        //        && ti != WoWTotem.DummyEarth
-        //        && ti != WoWTotem.DummyFire
-        //        && ti != WoWTotem.DummyWater;
-        //}
-
-        //public static WoWTotemType ToType(this WoWTotem totem)
-        //{
-        //    return (WoWTotemType)((long)totem >> 32);
-        //}
-        //#endregion
-
     }
 }

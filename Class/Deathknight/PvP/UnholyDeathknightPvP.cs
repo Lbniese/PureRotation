@@ -1,18 +1,8 @@
-﻿using CommonBehaviors.Actions;
-using Styx;
-using Styx.Common;
+﻿using Styx;
 using Styx.CommonBot;
-using Styx.Helpers;
 using Styx.TreeSharp;
-using Styx.WoWInternals;
 using Styx.WoWInternals.WoWObjects;
 using AdvancedAI.Helpers;
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Action = Styx.TreeSharp.Action;
 
 namespace AdvancedAI.Spec
@@ -44,15 +34,11 @@ namespace AdvancedAI.Spec
             get
             {
                 return new PrioritySelector(
-
-
                     // Interrupt please.
                     //Spell.Cast("Mind Freeze", ret => StyxWoW.Me.CurrentTarget.IsCasting && StyxWoW.Me.CurrentTarget.CanInterruptCurrentSpellCast),
                     //Spell.Cast("Strangulate", ret => StyxWoW.Me.CurrentTarget.IsCasting && StyxWoW.Me.CurrentTarget.CanInterruptCurrentSpellCast),
 
                     //Staying Alive
-
-
                          //Item.CreateUsePotionAndHealthstone(60, 40),
 
                         Spell.Cast("Conversion",
@@ -178,23 +164,8 @@ namespace AdvancedAI.Spec
 
                             //Spell.Cast("Empower Rune Weapon",
                     //    ret => StyxWoW.Me.BloodRuneCount == 0 && StyxWoW.Me.FrostRuneCount == 0 && StyxWoW.Me.UnholyRuneCount == 0)
-
-
-
-
-
-
-
                     );
             }
-        }
-        Composite CreateAoe()
-        {
-            return new PrioritySelector(
-
-
-
-                );
         }
     }
 }

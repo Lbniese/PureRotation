@@ -1,19 +1,14 @@
-﻿
-using System.Linq;
+﻿using System.Linq;
 using System.Text;
 using Styx;
 using Styx.CommonBot;
-using Styx.WoWInternals;
 using Styx.WoWInternals.WoWObjects;
-using System.Collections.Generic;
 using Styx.Pathing;
-
 
 namespace AdvancedAI.Helpers
 {
     internal static class Extensions
     {
-
         public static bool Between(this double distance, double min, double max)
         {
             return distance >= min && distance <= max;
