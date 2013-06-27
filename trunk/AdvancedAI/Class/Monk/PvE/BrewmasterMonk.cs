@@ -52,7 +52,7 @@ namespace AdvancedAI.Spec
                     Spell.Cast("Purifying Brew", ret => Me.CurrentChi > 0 && Me.HasAura("Light Stagger") && Me.HealthPercent <= 40 && (Me.GetAuraTimeLeft("Shuffle").TotalSeconds >= 6 || Me.CurrentChi > 2)),
 
                     //Elusive Brew will made auto at lower stacks when I can keep up 80 to 90% up time this is just to keep from capping
-                    Spell.Cast("Elusive Brew", ret => Me.HasAura("Elusive Brew", 12)),
+                    Spell.Cast("Elusive Brew", ret => Me.HasAura("Elusive Brew", 12) && !Me.HasAura(115308)),
                     //Guard
                     Spell.Cast("Guard", ret => Me.CurrentChi >= 2 && Me.HasAura("Power Guard") && IsCurrentTank()),
 

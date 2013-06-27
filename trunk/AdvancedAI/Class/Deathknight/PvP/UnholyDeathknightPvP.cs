@@ -17,7 +17,7 @@ namespace AdvancedAI.Spec
         internal static int FrostRuneSlotsActive { get { return Me.GetRuneCount(2) + Me.GetRuneCount(3); } }
         internal static int UnholyRuneSlotsActive { get { return Me.GetRuneCount(4) + Me.GetRuneCount(5); } }
 
-        public static Composite CreateBDKPvPBuffs
+        public static Composite CreateUDKPvPBuffs
         {
             get
             {
@@ -29,7 +29,7 @@ namespace AdvancedAI.Spec
         }
 
 
-        public static Composite CreateBDKPvPCombat
+        public static Composite CreateUDKPvPCombat
         {
             get
             {
