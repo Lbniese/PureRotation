@@ -4,6 +4,7 @@ using Styx.Common;
 using Styx.TreeSharp;
 using Styx.WoWInternals.WoWObjects;
 using AdvancedAI.Helpers;
+using AdvancedAI;
 using System.Linq;
 using Action = Styx.TreeSharp.Action;
 
