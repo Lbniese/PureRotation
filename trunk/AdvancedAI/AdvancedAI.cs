@@ -206,6 +206,8 @@ namespace AdvancedAI
         public static bool InterruptsEnabled { get; set; }
         public static bool PvPRot { get; set; }
         public static bool PvPBurst { get; set; }
+        public static bool HexFocus { get; set; }
+
         protected virtual void UnregisterHotkeys()
         {
             HotkeysManager.Unregister("Ares Toggle Interrupt");
@@ -244,6 +246,17 @@ namespace AdvancedAI
                 Lua.DoString("print('PvP Burst Enabled: " + PvPBurst + "')");
             });
             PvPBurst = false;
+
+            HotkeysManager.Register("Hex Focus",
+            Keys.NumPad2,
+            ModifierKeys.Control,
+            o =>
+            {
+                HexFocus = !HexFocus;
+                Logging.Write("Hex Focus enabled: " + HexFocus);
+                Lua.DoString("print('Hex Focus Enabled: " + HexFocus + "')");
+            });
+            HexFocus = false;
         }
 
         #region Requirements

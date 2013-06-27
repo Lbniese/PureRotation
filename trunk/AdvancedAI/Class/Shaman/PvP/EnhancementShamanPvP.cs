@@ -1,26 +1,15 @@
-﻿using CommonBehaviors.Actions;
-using Styx;
-using Styx.Common;
+﻿using Styx;
 using Styx.CommonBot;
-using Styx.Helpers;
 using Styx.TreeSharp;
 using Styx.WoWInternals;
 using Styx.WoWInternals.WoWObjects;
 using AdvancedAI.Helpers;
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Action = Styx.TreeSharp.Action;
 
 namespace AdvancedAI.Spec
 {
-    class EnhancementShamanPvP// : AdvancedAI
+    internal class EnhancementShamanPvP // : AdvancedAI
     {
-        //public override WoWClass Class { get { return WoWClass.Shaman; } }
-        //public override WoWSpec Spec { get { return WoWSpec.ShamanEnhancement; } }
         static LocalPlayer Me { get { return StyxWoW.Me; } }
 
         //Need to get imbues working to make life easier
@@ -36,22 +25,25 @@ namespace AdvancedAI.Spec
         }
 
         #region Buffs
-        public static Composite CreateESBuffs
+
+        public static Composite CreateESPvPBuffs
         {
             get
             {
                 return new Decorator(
-                        ret => !Spell.IsCasting() && !Spell.IsGlobalCooldown(),
-                        new PrioritySelector(
+                    ret => !Spell.IsCasting() && !Spell.IsGlobalCooldown(),
+                    new PrioritySelector(
 
-                    Spell.Cast("Lightning Shield", ret => !StyxWoW.Me.HasAura("Lightning Shield"))
-                    //CreateShamanImbueMainHandBehavior(Imbue.Windfury, Imbue.Flametongue),
-                    //CreateShamanImbueOffHandBehavior(Imbue.Flametongue)
+                        Spell.Cast("Lightning Shield", ret => !StyxWoW.Me.HasAura("Lightning Shield"))
+                        //CreateShamanImbueMainHandBehavior(Imbue.Windfury, Imbue.Flametongue),
+                        //CreateShamanImbueOffHandBehavior(Imbue.Flametongue)
 
-                                            ));
+                        ));
             }
         }
+
         #endregion
+
 
         #region Combat
         public static Composite CreateESPvPCombat
@@ -68,20 +60,22 @@ namespace AdvancedAI.Spec
                     //Spell.Cast("Stormlash Totem", ret => PartyBuff.WeHaveBloodlust && !Me.HasAura("Stormlash Totem")),
 
                     //need hotkey here
-                    Spell.Cast("Stormlash Totem", ret => !Me.HasAura("Stormlash Totem")),
-
-                    Spell.Cast("Elemental Mastery", ret => Me.CurrentTarget.IsBoss),
-
-                    Spell.Cast("Fire Elemental Totem", ret => Me.CurrentTarget.IsBoss),
-
-                    Spell.Cast("Ascendance", ret => Me.CurrentTarget.IsBoss),
+                    new Decorator(ret => AdvancedAI.PvPBurst,
+                        new PrioritySelector(
+                            Spell.Cast("Stormlash Totem", ret => !Me.HasAura("Stormlash Totem")),
+                            Spell.Cast("Elemental Mastery", ret => Me.CurrentTarget.IsBoss),
+                            Spell.Cast("Fire Elemental Totem", ret => Me.CurrentTarget.IsBoss),
+                            Spell.Cast("Ascendance", ret => Me.CurrentTarget.IsBoss))),
                     //end hotkey
+
+                    // Needs Testing
+                    Spell.Cast("Hex", on => Me.FocusedUnit, ret => !Me.FocusedUnit.HasAura("Hex") && AdvancedAI.HexFocus),
 
                     Spell.Cast("Lightning Shield", ret => !Me.HasAura("Lightning Shield")),
                     //this will have to be fixed Major Part of dps
                     Spell.Cast("Searing Totem", ret => Me.GotTarget
-                               && Me.CurrentTarget.SpellDistance() < Helpers.Totems.GetTotemRange(WoWTotem.Searing) - 2f
-                                && !Helpers.Totems.Exist(WoWTotemType.Fire)),
+                               && Me.CurrentTarget.SpellDistance() < Totems.GetTotemRange(WoWTotem.Searing) - 2f
+                                && !Totems.Exist(WoWTotemType.Fire)),
                     
                     //Need to set up for talents
                     //Spell.Cast("Unleash Elements"),
@@ -134,8 +128,5 @@ namespace AdvancedAI.Spec
             }
         }
         #endregion
-
-
-
     }
 }
