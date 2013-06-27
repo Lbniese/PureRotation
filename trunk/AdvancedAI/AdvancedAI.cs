@@ -205,6 +205,7 @@ namespace AdvancedAI
 
         public static bool InterruptsEnabled { get; set; }
         public static bool PvPRot { get; set; }
+        public static bool PvPBurst { get; set; }
         protected virtual void UnregisterHotkeys()
         {
             HotkeysManager.Unregister("Ares Toggle Interrupt");
@@ -232,6 +233,17 @@ namespace AdvancedAI
                 Lua.DoString("print('PvP Enabled: " + PvPRot + "')");
             });
             PvPRot = false;
+
+            HotkeysManager.Register("PvP Burst",
+            Keys.NumPad1,
+            ModifierKeys.Control,
+            o =>
+            {
+                PvPBurst = !PvPBurst;
+                Logging.Write("PvP Burst enabled: " + PvPBurst);
+                Lua.DoString("print('PvP Burst Enabled: " + PvPBurst + "')");
+            });
+            PvPBurst = false;
         }
 
         #region Requirements

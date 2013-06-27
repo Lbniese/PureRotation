@@ -54,7 +54,7 @@ namespace AdvancedAI.Spec
         #endregion
 
         #region Combat
-        public static Composite CreateESCombat
+        public static Composite CreateESPvPCombat
         {
             get
             {
