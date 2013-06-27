@@ -124,9 +124,7 @@ namespace AdvancedAI.Spec
                     //        Spell.Cast("Lightning Bolt")
                     //        )
                     //    )
-                    new ActionAlwaysSucceed()
-
-                        );
+                    new ActionAlwaysSucceed());
             }
         }
         #endregion

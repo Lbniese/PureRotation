@@ -21,8 +21,7 @@ namespace AdvancedAI.Spec
             get
             {
                 return new PrioritySelector(
-
-                    new Action(ret => { new ActionAlwaysSucceed(); })
+                    new ActionAlwaysSucceed()
                     );
 
             }

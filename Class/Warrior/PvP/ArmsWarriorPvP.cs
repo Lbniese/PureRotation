@@ -86,7 +86,7 @@ namespace AdvancedAI.Spec
                     Spell.Cast("Battle Shout"),
                     Spell.Cast("Heroic Throw"),
                     Spell.Cast("Impending Victory", ret => Me.CurrentTarget.HealthPercent > 20 || Me.HealthPercent < 50),
-                    Movement.CreateMoveToMeleeBehavior(false));
+                    new ActionAlwaysSucceed());
             }
         }
 

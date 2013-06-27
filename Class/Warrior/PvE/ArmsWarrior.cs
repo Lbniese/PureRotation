@@ -2,9 +2,7 @@
 using Styx.TreeSharp;
 using Styx.WoWInternals.WoWObjects;
 using AdvancedAI.Helpers;
-using AdvancedAI;
 using System.Linq;
-using AdvancedAI.Spec;
 using Action = Styx.TreeSharp.Action;
 
 namespace AdvancedAI.Spec
@@ -25,10 +23,9 @@ namespace AdvancedAI.Spec
         {
             get
             {
-                if (AdvancedAI.PvPRot)
-                    return ArmsWarriorPvP.CreateAWPvPCombat;
-                if (AdvancedAI.PvPRot == false)
                 return new PrioritySelector(
+                    new Decorator(ret => AdvancedAI.PvPRot,
+                        ArmsWarriorPvP.CreateAWPvPCombat),
                     Spell.Cast("Pummel", ret => Me.CurrentTarget.IsCasting && Me.CurrentTarget.CanInterruptCurrentSpellCast),
                     Spell.Cast("Impending Victory", ret => Me.HealthPercent <= 90 && Me.HasAura("Victorious")),
                     Spell.Cast("Die by the Sword", ret => Me.HealthPercent <= 20),
@@ -58,7 +55,6 @@ namespace AdvancedAI.Spec
                         Spell.Cast("Battle Shout"),
                         Spell.Cast("Heroic Throw"),
                         Spell.Cast("Impending Victory", ret => Me.CurrentTarget.HealthPercent > 20 || Me.HealthPercent < 50)));
-                return null;
             }
         }
 
