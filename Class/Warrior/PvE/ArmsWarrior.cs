@@ -25,6 +25,8 @@ namespace AdvancedAI.Spec
             {
 
                 return new PrioritySelector(
+                    new Decorator(ret => Me.CurrentMap.IsBattleground,
+                        ArmsWarriorPvP.CreateAWPvPCombat),
                     Spell.Cast("Pummel", ret => Me.CurrentTarget.IsCasting && Me.CurrentTarget.CanInterruptCurrentSpellCast),
                     Spell.Cast("Impending Victory", ret => Me.HealthPercent <= 90 && Me.HasAura("Victorious")),
                     Spell.Cast("Die by the Sword", ret => Me.HealthPercent <= 20),
