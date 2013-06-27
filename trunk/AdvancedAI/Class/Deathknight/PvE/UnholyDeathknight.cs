@@ -25,9 +25,9 @@ namespace AdvancedAI.Spec
         {
             get
             {
-                if (AdvancedAI.PvPRot)
-                    return UnholyDeathknightPvP.CreateBDKPvPCombat;
                 return new PrioritySelector(
+                    new Decorator(ret => AdvancedAI.PvPRot,
+                        UnholyDeathknightPvP.CreateUDKPvPCombat)
                     //9	1.00	auto_attack
                     //A	3.33	blood_fury,if=time>=2
                     //B	1.00	mogu_power_potion,if=buff.dark_transformation.up&target.time_to_die<=35
