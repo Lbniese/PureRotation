@@ -4,7 +4,6 @@ using Styx.Common;
 using Styx.TreeSharp;
 using Styx.WoWInternals.WoWObjects;
 using AdvancedAI.Helpers;
-using AdvancedAI;
 using System.Linq;
 using Action = Styx.TreeSharp.Action;
 
@@ -17,10 +16,9 @@ namespace AdvancedAI.Spec
         {
             get
             {
-                if (PvPRot)
-                    return FuryWarriorPvP.CreateFWPvPCombat;                           
-                if (PvPRot == false)
-                    return new PrioritySelector(
+                return new PrioritySelector(
+                    new Decorator(ret => PvPRot,
+                        FuryWarriorPvP.CreateFWPvPCombat),
                         // Interrupt please.
                         Spell.Cast("Pummel",
                             ret =>
@@ -57,7 +55,6 @@ namespace AdvancedAI.Spec
                                 // Don't use this in execute range, unless we need the heal. Thanks!
                                 Spell.Cast("Impending Victory",
                                     ret => StyxWoW.Me.CurrentTarget.HealthPercent > 20 || StyxWoW.Me.HealthPercent < 50))));
-                return null;
             }
         }
 
