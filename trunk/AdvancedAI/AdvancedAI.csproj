@@ -62,6 +62,7 @@
     <Compile Include="AdvancedAI.cs" />
     <Compile Include="Class\Deathknight\PvP\UnholyDeathknightPvP.cs" />
     <Compile Include="Class\Mage\PvE\FireMage.cs" />
+    <Compile Include="Class\Shaman\PvP\EnhancementShamanPvP.cs" />
     <Compile Include="Class\Warrior\PvP\ArmsWarriorPvP.cs" />
     <Compile Include="Class\Warrior\PvP\FuryWarriorPvP.cs" />
     <Compile Include="Helpers\Clusters.cs" />
@@ -134,7 +135,6 @@
     <Folder Include="Class\Paladin\PvP\" />
     <Folder Include="Class\Priest\PvP\" />
     <Folder Include="Class\Rogue\PvP\" />
-    <Folder Include="Class\Shaman\PvP\" />
     <Folder Include="Class\Warlock\PvP\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
