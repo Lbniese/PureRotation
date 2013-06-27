@@ -4,6 +4,7 @@ using Styx.TreeSharp;
 using Styx.WoWInternals.WoWObjects;
 using AdvancedAI.Helpers;
 using Action = Styx.TreeSharp.Action;
+using CommonBehaviors.Actions;
 
 namespace AdvancedAI.Spec
 {
@@ -160,7 +161,8 @@ namespace AdvancedAI.Spec
                             Spell.Cast("Death Coil",
                                 ret => SpellManager.Spells["Lichborne"].CooldownTimeLeft.Seconds >= 4 && Me.CurrentRunicPower < 60 || !Me.HasAura("Conversion")), // || StyxWoW.Me.Auras["Shadow Infusion"].StackCount == 5),
 
-                            Spell.Cast("Horn of Winter")
+                            Spell.Cast("Horn of Winter"),
+                            new ActionAlwaysSucceed()
 
                             //Spell.Cast("Empower Rune Weapon",
                     //    ret => StyxWoW.Me.BloodRuneCount == 0 && StyxWoW.Me.FrostRuneCount == 0 && StyxWoW.Me.UnholyRuneCount == 0)
