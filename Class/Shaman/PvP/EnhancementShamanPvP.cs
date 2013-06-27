@@ -5,6 +5,7 @@ using Styx.WoWInternals;
 using Styx.WoWInternals.WoWObjects;
 using AdvancedAI.Helpers;
 using Action = Styx.TreeSharp.Action;
+using CommonBehaviors.Actions;
 
 namespace AdvancedAI.Spec
 {
@@ -114,7 +115,7 @@ namespace AdvancedAI.Spec
 
                     Spell.Cast("Feral Spirit"),
 
-                    Spell.Cast("Earth Elemental Totem", ret => Me.CurrentTarget.IsBoss && SpellManager.Spells["Fire Elemental Totem"].CooldownTimeLeft.Seconds >= 50)
+                    Spell.Cast("Earth Elemental Totem", ret => Me.CurrentTarget.IsBoss && SpellManager.Spells["Fire Elemental Totem"].CooldownTimeLeft.Seconds >= 50),
 
                     //need more gear
                     //new Decorator(ret => Me.HasAura("Maelstrom Weapon", 1) && !Me.HasAura("Ascendance"),
@@ -123,6 +124,7 @@ namespace AdvancedAI.Spec
                     //        Spell.Cast("Lightning Bolt")
                     //        )
                     //    )
+                    new ActionAlwaysSucceed()
 
                         );
             }
