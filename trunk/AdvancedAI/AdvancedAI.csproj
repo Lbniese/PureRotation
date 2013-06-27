@@ -62,6 +62,7 @@
     <Compile Include="AdvancedAI.cs" />
     <Compile Include="Class\Deathknight\PvP\UnholyDeathknightPvP.cs" />
     <Compile Include="Class\Mage\PvE\FireMage.cs" />
+    <Compile Include="Class\Warrior\PvP\ArmsWarriorPvP.cs" />
     <Compile Include="Class\Warrior\PvP\FuryWarriorPvP.cs" />
     <Compile Include="Helpers\Clusters.cs" />
     <Compile Include="Helpers\Common.cs" />
