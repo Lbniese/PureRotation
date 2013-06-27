@@ -49,10 +49,9 @@ namespace AdvancedAI.Spec
         {
             get
             {
-                if (AdvancedAI.PvPRot)
-                    return EnhancementShamanPvP.CreateESPvPCombat;
-                if (AdvancedAI.PvPRot == false)
                 return new PrioritySelector(
+                    new Decorator(ret => AdvancedAI.PvPRot,
+                        EnhancementShamanPvP.CreateESPvPCombat),
 
                     //CreateShamanImbueMainHandBehavior(Imbue.Windfury, Imbue.Flametongue),
                     //CreateShamanImbueOffHandBehavior(Imbue.Flametongue),

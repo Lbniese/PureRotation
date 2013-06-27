@@ -211,6 +211,9 @@ namespace AdvancedAI
         protected virtual void UnregisterHotkeys()
         {
             HotkeysManager.Unregister("Ares Toggle Interrupt");
+            HotkeysManager.Unregister("PvP Toggle");
+            HotkeysManager.Unregister("PvP Burst");
+            HotkeysManager.Unregister("Hex Focus");
         }
         protected virtual void RegisterHotkeys()
         {
