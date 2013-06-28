@@ -11,37 +11,68 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Action = Styx.TreeSharp.Action;
+using AdvancedAI.Managers;
+using Styx.CommonBot;
 
 namespace AdvancedAI.Spec
 {
     class ArmsWarriorPvP// : AdvancedAI
     {
         static LocalPlayer Me { get { return StyxWoW.Me; } }
+        #region Disarm
+        public static string[] Disarm = new[] { //Pally
+                                                 "Holy Avenger", "Avenging Wrath",
+                                                 //Warrior need to make so it want disarm a warr if it has die by the sword buff
+                                                 "Avatar", "Recklessness",
+                                                 //Rogue
+                                                 "Shadow Dance", "Shadow Blades",
+                                                 //Kitty
+                                                 "Berserk", "Incarnation", "Nature's Vigil",
+                                                 //Hunter
+                                                 "Rapid Fire","Bestial Wrath",
+                                                 //DK
+                                                 "Unholy Frenzy", "Pillar of Frost" };
+        #endregion
+        #region DontDisarm
+        public static string[] DontDisarm = new[] { //Warrior 
+                                                    "Die by the Sword", 
+                                                    // Rogue
+                                                    "Evasion", 
+                                                    // Hunter
+                                                    "Deterrence" };
+        #endregion
+
         public static Composite CreateAWPvPCombat
         {
             get
             {
                 return new PrioritySelector(
-                    Spell.Cast("Pummel",
-                               ret => Me.CurrentTarget.IsCasting && Me.CurrentTarget.CanInterruptCurrentSpellCast),
-                    Spell.Cast("Pummel",
-                               ret => Me.CurrentTarget.IsCasting && Me.CurrentTarget.CanInterruptCurrentSpellCast),
+                    new Decorator(ret => AdvancedAI.MovementEnabled,
+                        Movement.CreateFaceTargetBehavior(70f, false)),
+                    CreateChargeBehavior(),
+                    Spell.Cast("Rallying Cry", ret => Me.HealthPercent <= 30),
+                    CreateInterruptSpellCast(on => BestInterrupt),
                     Spell.Cast("Impending Victory", ret => Me.HealthPercent <= 90 && Me.HasAura("Victorious")),
-                    Spell.Cast("Hamstring", ret => !Me.CurrentTarget.HasAuraWithMechanic(WoWSpellMechanic.Slowed)),
-                    Spell.Cast("Die by the Sword", ret => Me.HealthPercent <= 20),
+                    ShatterBubbles(),
+                    Spell.Cast("Piercing Howl", ret => !Me.CurrentTarget.IsStunned() && !Me.CurrentTarget.IsCrowdControlled() && !Me.CurrentTarget.HasAuraWithEffect(WoWApplyAuraType.ModDecreaseSpeed) && !Me.CurrentTarget.HasAnyAura("Piercing Howl", "Hamsting")),
+                    Spell.Cast("Hamstring", ret => !Me.CurrentTarget.IsStunned() && !Me.CurrentTarget.IsCrowdControlled() && !Me.CurrentTarget.HasAuraWithEffect(WoWApplyAuraType.ModDecreaseSpeed) && !Me.CurrentTarget.HasAnyAura("Piercing Howl", "Hamsting")),
+                    DemoBanner(),
+                    MockingBanner(),
+                    Spell.Cast("Intervene", on => BestBanner),
+                    Spell.CastOnGround("Demoralizing Banner", on => Me.Location, ret => Me.HealthPercent < 40),
+                    Spell.Cast("Disarm", ret => Me.CurrentTarget.HasAnyAura(Disarm) && !Me.CurrentTarget.HasAnyAura(DontDisarm)),
+                    Spell.Cast("Die by the Sword", ret => Me.HealthPercent <= 20 && Me.CurrentTarget.IsMelee()),
                     Spell.Cast("Recklessness",
-                               ret => Me.CurrentTarget.IsBoss && Me.CurrentTarget.HasAuraExpired("Colossus Smash", 5)),
+                               ret => Me.CurrentTarget.HasAuraExpired("Colossus Smash", 5)),
                     Spell.Cast("Bloodbath"),
-                    Spell.Cast("Skull Banner", ret => Me.CurrentTarget.IsBoss && Me.HasAura("Recklessness")),
-                    new Action(ret =>
-                                   {
-                                       Item.UseHands();
-                                       return RunStatus.Failure;
-                                   }),
+                    Spell.Cast("Skull Banner", ret => Me.HasAura("Recklessness")),
+                    new Action(ret => { Item.UseHands(); return RunStatus.Failure; }),
                     //new Action(ret => { Item.UseTrinkets(); return RunStatus.Failure; }),
                     Spell.Cast("Berserker Rage", ret => !Me.ActiveAuras.ContainsKey("Enrage")),
                     Spell.Cast("Sweeping Strikes",
                                ret => Unit.NearbyUnfriendlyUnits.Count(u => u.IsWithinMeleeRange) >= 2),
+                    Spell.Cast("Intervene", on => BestInterveneTarget),
+                    Spell.Cast("Charge", on => ChargeInt),
                     Spell.Cast("Heroic Strike",
                                ret =>
                                (Me.CurrentTarget.HasMyAura("Colossus Smash") && Me.CurrentRage >= 70) ||
@@ -86,6 +117,8 @@ namespace AdvancedAI.Spec
                     Spell.Cast("Battle Shout"),
                     Spell.Cast("Heroic Throw"),
                     Spell.Cast("Impending Victory", ret => Me.CurrentTarget.HealthPercent > 20 || Me.HealthPercent < 50),
+                    new Decorator(ret => AdvancedAI.MovementEnabled,
+                        Movement.CreateMoveToMeleeBehavior(true)),
                     new ActionAlwaysSucceed());
             }
         }
@@ -95,9 +128,249 @@ namespace AdvancedAI.Spec
             get
             {
                 return new PrioritySelector(
-
+                    Spell.BuffSelf("Battle Shout")
                     );
             }
         }
+
+        #region Best Banner
+        public static WoWUnit BestBanner//WoWUnit
+        {
+            get
+            {
+                if (!StyxWoW.Me.GroupInfo.IsInParty)
+                    return null;
+                if (StyxWoW.Me.GroupInfo.IsInParty)
+                {
+                    var closePlayer = FriendlyUnitsNearTarget(6f).OrderBy(t => t.DistanceSqr).FirstOrDefault(t => t.IsAlive);
+                    if (closePlayer != null)
+                        return closePlayer;
+                    var bestBan = (from unit in ObjectManager.GetObjectsOfType<WoWUnit>(false)
+                                   //where (unit.Equals(59390) || unit.Equals(59398))
+                                   //where unit.Guid.Equals(59390) || unit.Guid.Equals(59398)
+                                   where unit.Entry.Equals(59390) || unit.Entry.Equals(59398)
+                                   //where (unit.Guid == 59390 || unit.Guid == 59398) 
+                                   where unit.InLineOfSight
+                                   select unit).FirstOrDefault();
+                    return bestBan;
+                }
+                return null;
+            }
+        }
+        #endregion
+
+        #region BestInterrupt
+        public static WoWUnit BestInterrupt
+        {
+            get
+            {
+                var bestInt = (from unit in ObjectManager.GetObjectsOfType<WoWPlayer>(false)
+                                where unit.IsAlive
+                                where unit.IsPlayer
+                                where unit.IsHostile
+                                where unit.InLineOfSight
+                                where unit.IsCasting
+                                where unit.CanInterruptCurrentSpellCast
+                                where unit.Distance <= 10
+                                select unit).FirstOrDefault();
+                return bestInt;
+            }
+        }
+        #endregion
+
+        #region Best Intervene
+        public static WoWUnit BestInterveneTarget
+        {
+            get
+            {
+                if (!StyxWoW.Me.GroupInfo.IsInParty)
+                    return null;
+                if (StyxWoW.Me.GroupInfo.IsInParty)
+                {
+                    var bestTank = Group.Tanks.OrderBy(t => t.DistanceSqr).FirstOrDefault(t => t.IsAlive);
+                    if (bestTank != null)
+                        return bestTank;
+                    var bestInt = (from unit in ObjectManager.GetObjectsOfType<WoWPlayer>(false)
+                                   where unit.IsAlive
+                                   where unit.HealthPercent <= 30
+                                   where unit.IsPlayer
+                                   where !unit.IsHostile
+                                   where unit.InLineOfSight
+                                   select unit).FirstOrDefault();
+                    return bestInt;
+                }
+                return null;
+            }
+        }
+        #endregion
+
+        #region ChargeInterupt
+        public static WoWUnit ChargeInt
+        {
+            get
+            {
+                if (!StyxWoW.Me.GroupInfo.IsInParty)
+                    return null;
+                if (StyxWoW.Me.GroupInfo.IsInParty)
+                {
+                    var bestInt = (from unit in ObjectManager.GetObjectsOfType<WoWPlayer>(false)
+                                   where unit.IsAlive
+                                   where unit.IsCasting
+                                   where unit.CanInterruptCurrentSpellCast
+                                   where unit.IsPlayer
+                                   where unit.IsHostile
+                                   where unit.InLineOfSight
+                                   where unit.Distance <= 25
+                                   where unit.Distance >= 8
+                                   select unit).FirstOrDefault();
+                    return bestInt;
+                }
+                return null;
+            }
+        }
+        #endregion
+
+        #region CreateChargeBehavior
+        static Composite CreateChargeBehavior()
+        {
+            return new Decorator(
+                    ret => StyxWoW.Me.CurrentTarget != null && !IsGlobalCooldown()/*&& PreventDoubleCharge*/,
+
+                    new PrioritySelector(
+                        Spell.Cast("Charge",
+                            ret => StyxWoW.Me.CurrentTarget.Distance >= 10 && StyxWoW.Me.CurrentTarget.Distance < (TalentManager.HasGlyph("Long Charge") ? 30f : 25f)),
+
+                        Spell.CastOnGround("Heroic Leap",
+                            ret => StyxWoW.Me.CurrentTarget.Location,
+                            ret => StyxWoW.Me.CurrentTarget.Distance > 13 && StyxWoW.Me.CurrentTarget.Distance < 40 && SpellManager.Spells["Charge"].Cooldown)
+                        )
+                );
+        }
+        #endregion
+
+        #region CreateInterruptSpellCast
+        public static Composite CreateInterruptSpellCast(UnitSelectionDelegate onUnit)
+        {
+            return new Decorator(
+                // If the target is casting, and can actually be interrupted, AND we've waited out the double-interrupt timer, then find something to interrupt with.
+                ret => onUnit != null && onUnit(ret) != null/*&& PreventDoubleInterrupt*/,
+                new PrioritySelector(
+                    Spell.Cast("Pummel", onUnit),
+                    // AOE interrupt
+                    Spell.Cast("Disrupting Shout", onUnit, ret => onUnit(ret).Distance < 10),
+                    Spell.Cast("Mass Spell Reflection", onUnit, ret => onUnit(ret).IsCasting),
+                    Spell.Cast("Shockwave", onUnit, ret => onUnit(ret).Distance < 10 && Me.IsFacing(onUnit(ret))),
+                    Spell.Cast("Indimidating Shout", onUnit, ret => onUnit(ret).Distance < 8),
+                    // Racials last.
+                    Spell.Cast("Arcane Torrent", onUnit),
+                    // Don't waste stomp on bosses. They can't be stunned 99% of the time!
+                    Spell.Cast("War Stomp", onUnit, ret => !onUnit(ret).IsBoss() && onUnit(ret).Distance < 8),
+                    Spell.Cast("Quaking Palm", onUnit)
+                    ));
+        }
+        #endregion
+
+        #region Demo Banner
+        private static Composite DemoBanner()
+        {
+            return new Decorator(ret => SpellManager.Spells["Charge"].Cooldown &&
+                                        SpellManager.Spells["Heroic Leap"].Cooldown &&
+                                       !SpellManager.Spells["Demoralizing Banner"].Cooldown &&
+                                       !SpellManager.Spells["Intervene"].Cooldown &&
+                                       !FriendlyUnitsNearTarget(6f).Any() &&
+                                        StyxWoW.Me.CurrentTarget.Distance >= 10 && StyxWoW.Me.CurrentTarget.Distance <= 25,
+                            new Action(ret =>
+                            {
+                                SpellManager.Cast("Demoralizing Banner");
+                                SpellManager.ClickRemoteLocation(StyxWoW.Me.CurrentTarget.Location);
+                            }));
+        }
+        #endregion
+
+        #region FriendlyUnitsNearTarget
+        public static IEnumerable<WoWUnit> FriendlyUnitsNearTarget(float distance)
+        {
+            var dist = distance * distance;
+            var curTarLocation = StyxWoW.Me.CurrentTarget.Location;
+            return ObjectManager.GetObjectsOfType<WoWUnit>(false, false).Where(
+                        p => ValidUnit(p) && p.IsFriendly && p.Location.DistanceSqr(curTarLocation) <= dist).ToList();
+        }
+        #endregion
+
+        #region IsGlobalCooldown
+        public static bool IsGlobalCooldown(bool faceDuring = false, bool allowLagTollerance = true)
+        {
+            uint latency = allowLagTollerance ? StyxWoW.WoWClient.Latency : 0;
+            TimeSpan gcdTimeLeft = SpellManager.GlobalCooldownLeft;
+            return gcdTimeLeft.TotalMilliseconds > latency;
+        }
+        #endregion
+
+        #region Mocking Banner
+        private static Composite MockingBanner()
+        {
+            return new Decorator(ret => SpellManager.Spells["Demoralizing Banner"].Cooldown &&
+                                        SpellManager.Spells["Demoralizing Banner"].CooldownTimeLeft.TotalSeconds <= 165 &&
+                                        SpellManager.Spells["Charge"].Cooldown &&
+                                        SpellManager.Spells["Heroic Leap"].Cooldown &&
+                                       !SpellManager.Spells["Mocking Banner"].Cooldown &&
+                                       !SpellManager.Spells["Intervene"].Cooldown &&
+                                       !FriendlyUnitsNearTarget(6f).Any() &&
+                                        StyxWoW.Me.CurrentTarget.Distance >= 10 && StyxWoW.Me.CurrentTarget.Distance <= 25,
+                            new Action(ret =>
+                            {
+                                SpellManager.Cast("Mocking Banner");
+                                SpellManager.ClickRemoteLocation(StyxWoW.Me.CurrentTarget.Location);
+                            }));
+        }
+        #endregion
+
+        #region ShatterBubbles
+        static Composite ShatterBubbles()
+        {
+            return new Decorator(
+                    ret => StyxWoW.Me.CurrentTarget.IsPlayer &&
+                          (StyxWoW.Me.CurrentTarget.ActiveAuras.ContainsKey("Ice Block") ||
+                           StyxWoW.Me.CurrentTarget.ActiveAuras.ContainsKey("Hand of Protection") ||
+                           StyxWoW.Me.CurrentTarget.ActiveAuras.ContainsKey("Divine Shield")),
+                    new PrioritySelector(
+                        Spell.WaitForCast(FaceDuring.Yes),
+                        Spell.Cast("Shattering Throw")));
+        }
+        #endregion
+
+        #region ValidUnit
+        public static bool ValidUnit(WoWUnit p)
+        {
+            // Ignore shit we can't select/attack
+            if (!p.CanSelect || !p.Attackable)
+                return false;
+
+            // Duh
+            if (p.IsDead)
+                return false;
+
+            // check for players
+            if (p.IsPlayer)
+                return true;
+
+            // Dummies/bosses are valid by default. Period.
+            if (p.IsTrainingDummy() || p.IsBoss())
+                return true;
+
+            // If its a pet, lets ignore it please.
+            if (p.IsPet || p.OwnedByRoot != null)
+                return false;
+
+            // And ignore critters/non-combat pets
+            if (p.IsNonCombatPet || p.IsCritter)
+                return false;
+
+            if (p.CreatedByUnitGuid != 0 || p.SummonedByUnitGuid != 0)
+                return false;
+
+            return true;
+        }
+        #endregion
     }
 }

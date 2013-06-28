@@ -60,11 +60,41 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AdvancedAI.cs" />
+    <Compile Include="Class\Deathknight\PvP\BloodDeathknightPvP.cs" />
+    <Compile Include="Class\Deathknight\PvP\FrostDeathknightPvP.cs" />
     <Compile Include="Class\Deathknight\PvP\UnholyDeathknightPvP.cs" />
+    <Compile Include="Class\Druid\PvP\BallanceDruidPvP.cs" />
+    <Compile Include="Class\Druid\PvP\FeralDruidPvP.cs" />
+    <Compile Include="Class\Druid\PvP\GuardianDruidPvP.cs" />
+    <Compile Include="Class\Druid\PvP\RestorationDruidPvP.cs" />
+    <Compile Include="Class\Hunter\PvP\BeastmasterHunterPvP.cs" />
+    <Compile Include="Class\Hunter\PvP\MarksmanHunterPvP.cs" />
+    <Compile Include="Class\Hunter\PvP\SurvivalHunterPvP.cs" />
     <Compile Include="Class\Mage\PvE\FireMage.cs" />
+    <Compile Include="Class\Mage\PvP\ArcaneMagePvP.cs" />
+    <Compile Include="Class\Mage\PvP\FireMagePvP.cs" />
+    <Compile Include="Class\Mage\PvP\FrostMagePvP.cs" />
+    <Compile Include="Class\Monk\PvP\BrewmasterMonkPvP.cs" />
+    <Compile Include="Class\Monk\PvP\MistweaverMonkPvP.cs" />
+    <Compile Include="Class\Monk\PvP\WindwalkerMonkPvP.cs" />
+    <Compile Include="Class\Paladin\PvP\HolyPaladinPvP.cs" />
+    <Compile Include="Class\Paladin\PvP\ProtectionPaladinPvP.cs" />
+    <Compile Include="Class\Paladin\PvP\RetributionPaladinPvP.cs" />
+    <Compile Include="Class\Priest\PvP\DisciplinePriestPvP.cs" />
+    <Compile Include="Class\Priest\PvP\HolyPriestPvP.cs" />
+    <Compile Include="Class\Priest\PvP\ShadowPriestPvP.cs" />
+    <Compile Include="Class\Rogue\PvP\AssassinationRoguePvP.cs" />
+    <Compile Include="Class\Rogue\PvP\CombatRoguePvP.cs" />
+    <Compile Include="Class\Rogue\PvP\SubletyRoguePvP.cs" />
+    <Compile Include="Class\Shaman\PvP\ElementalShamanPvP.cs" />
     <Compile Include="Class\Shaman\PvP\EnhancementShamanPvP.cs" />
+    <Compile Include="Class\Shaman\PvP\RestorationShamanPvP.cs" />
+    <Compile Include="Class\Warlock\PvP\AfflictionWarlockPvP.cs" />
+    <Compile Include="Class\Warlock\PvP\DemonologyWarlockPvP.cs" />
+    <Compile Include="Class\Warlock\PvP\DestructionWarlockPvP.cs" />
     <Compile Include="Class\Warrior\PvP\ArmsWarriorPvP.cs" />
     <Compile Include="Class\Warrior\PvP\FuryWarriorPvP.cs" />
+    <Compile Include="Class\Warrior\PvP\ProtectionWarriorPvP.cs" />
     <Compile Include="Helpers\Clusters.cs" />
     <Compile Include="Helpers\Common.cs" />
     <Compile Include="Helpers\Dispelling.cs" />
@@ -127,16 +157,7 @@
     <Compile Include="Utilities\Enumeration.cs" />
     <Compile Include="Utilities\EventHandlers.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Class\Druid\PvP\" />
-    <Folder Include="Class\Hunter\PvP\" />
-    <Folder Include="Class\Mage\PvP\" />
-    <Folder Include="Class\Monk\PvP\" />
-    <Folder Include="Class\Paladin\PvP\" />
-    <Folder Include="Class\Priest\PvP\" />
-    <Folder Include="Class\Rogue\PvP\" />
-    <Folder Include="Class\Warlock\PvP\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

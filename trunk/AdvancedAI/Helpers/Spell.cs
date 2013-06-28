@@ -466,9 +466,13 @@ namespace AdvancedAI.Helpers
         /// <param name = "faceDuring">Whether or not to face during casting</param>
         /// <param name = "allow">Whether or not to allow lag tollerance for spell queueing</param>
         /// <returns></returns>
-        public static Composite WaitForCast(LagTolerance allow = LagTolerance.Yes)
+        public static Composite WaitForCast(FaceDuring faceDuring = FaceDuring.No, LagTolerance allow = LagTolerance.Yes)
         {
             return new PrioritySelector(
+                new Decorator(
+                    ret => faceDuring == FaceDuring.Yes,
+                    Movement.CreateFaceTargetBehavior()
+                    ),
                 new Action(ret =>
                 {
                     if (IsCasting(allow))
