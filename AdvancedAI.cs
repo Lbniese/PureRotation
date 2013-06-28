@@ -207,6 +207,7 @@ namespace AdvancedAI
         public static bool PvPRot { get; set; }
         public static bool PvPBurst { get; set; }
         public static bool HexFocus { get; set; }
+        public static bool MovementEnabled { get; set; }
 
         protected virtual void UnregisterHotkeys()
         {
@@ -214,6 +215,7 @@ namespace AdvancedAI
             HotkeysManager.Unregister("PvP Toggle");
             HotkeysManager.Unregister("PvP Burst");
             HotkeysManager.Unregister("Hex Focus");
+            HotkeysManager.Unregister("Movement Enabled");
         }
         protected virtual void RegisterHotkeys()
         {
@@ -260,6 +262,17 @@ namespace AdvancedAI
                 Lua.DoString("print('Hex Focus Enabled: " + HexFocus + "')");
             });
             HexFocus = false;
+
+            HotkeysManager.Register("Movement Enabled",
+            Keys.NumPad2,
+            ModifierKeys.Control,
+            o =>
+            {
+                MovementEnabled = !MovementEnabled;
+                Logging.Write("Movement Enabled: " + MovementEnabled);
+                Lua.DoString("print('Movement Enabled: " + MovementEnabled + "')");
+            });
+            MovementEnabled = false;
         }
 
         #region Requirements
