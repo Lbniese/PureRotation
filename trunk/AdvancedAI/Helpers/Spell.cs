@@ -554,7 +554,7 @@ namespace AdvancedAI.Helpers
         public static Composite WaitForCastOrChannel(FaceDuring faceDuring = FaceDuring.No, LagTolerance allow = LagTolerance.Yes)
         {
             return new PrioritySelector(
-                WaitForCast(allow),
+                WaitForCast(faceDuring, allow),
                 WaitForChannel(allow)
                 );
         }
@@ -563,7 +563,7 @@ namespace AdvancedAI.Helpers
         {
             return new PrioritySelector(
                 WaitForGlobalCooldown(allow),
-                WaitForCast(allow),
+                WaitForCast(faceDuring, allow),
                 WaitForChannel(allow)
                 );
         }
