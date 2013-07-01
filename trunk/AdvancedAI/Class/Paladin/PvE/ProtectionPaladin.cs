@@ -82,7 +82,6 @@ namespace AdvancedAI.Spec
         private static Composite CreateAoe()
         {
             return new PrioritySelector(
-
                         Spell.Cast("Shield of the Righteous", ret => Me.CurrentHolyPower == 5 || Me.HasAura("Divine Purpose")),
                         Spell.Cast("Judgment", ret => SpellManager.HasSpell("Sanctified Wrath") && Me.HasAura("Avenging Wrath")),
                         Spell.Cast("Hammer of the Righteous"),
@@ -96,10 +95,7 @@ namespace AdvancedAI.Spec
                         Spell.Cast("Shield of the Righteous", ret => Me.CurrentHolyPower >= 3),
                         Spell.Cast("Consecration", ret => !Me.IsMoving),
                         Spell.Cast("Avenger's Shield"),
-                        Spell.Cast("Holy Wrath")
-
-
-                );
+                        Spell.Cast("Holy Wrath"));
         }
 
         public static Composite CreatePPBuffs { get; set; }

@@ -7,6 +7,7 @@ using AdvancedAI.Helpers;
 using System.Collections.Generic;
 using System.Linq;
 using Action = Styx.TreeSharp.Action;
+using Styx.WoWInternals;
 
 namespace AdvancedAI.Spec
 {

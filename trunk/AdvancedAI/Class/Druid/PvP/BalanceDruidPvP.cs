@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AdvancedAI.Class.Druid.PvP
 {
-    class BallanceDruidPvP
+    class BalanceDruidPvP
     {
     }
 }
