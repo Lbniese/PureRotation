@@ -46,7 +46,7 @@ namespace AdvancedAI.Spec
                 //Spell.Cast("Guardian of Ancient Kings", ret => StyxWoW.Me.HealthPercent <= 40),
                     Spell.Cast("Ardent Defender", ret => Me.HealthPercent <= 10 && Me.HasAura("Forbearance")),
                 //Nedd to work on this cause its only magic dmg that it stops unless glyphed
-                //Spell.BuffSelf("Divine Protection", ret => StyxWoW.Me.HealthPercent <= 80),
+                Spell.Cast("Divine Protection", ret => Me.HealthPercent <= 80 && !Me.HasAura("Shield of the Righteous") && TalentManager.HasGlyph("Divine Protection")),
                 //Spell.Cast("Holy Avenger", ret => StyxWoW.Me.HealthPercent <= 60),
 
                     Spell.Cast("Word of Glory", ret => Me.HealthPercent < 50 && (Me.CurrentHolyPower >= 3 || Me.HasAura("Divine Purpose"))),
