@@ -73,7 +73,7 @@ namespace AdvancedAI.Spec
 
                     Spell.Cast("Keg Smash", ctx => Me.CurrentChi <= 2),
 
-                    Spell.Cast("Jab", ret => Me.CurrentEnergy >= 76 && Me.CurrentChi <= 3),
+                    Spell.Cast("Jab", ret => Me.CurrentEnergy >= 76),
 
                     //Chi Talents
                     //need to do math here and make it use 2 if im going to use it
@@ -88,7 +88,7 @@ namespace AdvancedAI.Spec
 
                     Spell.Cast("Spinning Crane Kick", ret => Unit.NearbyUnfriendlyUnits.Count(u => u.DistanceSqr <= 8 * 8) >= 5 && SpellManager.Spells["Keg Smash"].CooldownTimeLeft.TotalSeconds > 2),
 
-                    Spell.Cast("Jab", ret => SpellManager.Spells["Keg Smash"].CooldownTimeLeft.TotalSeconds > 3 && Me.CurrentChi <= 3),
+                    Spell.Cast("Jab", ret => SpellManager.Spells["Keg Smash"].CooldownTimeLeft.TotalSeconds > 3),
 
                     //dont like using this in auto to many probs with it
                     //Spell.Cast("Invoke Xuen, the White Tiger", ret => Me.CurrentTarget.IsBoss && IsCurrentTank()),
