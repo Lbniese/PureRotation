@@ -65,7 +65,7 @@ namespace AdvancedAI.Spec
                   new Decorator(ret => Unit.NearbyUnfriendlyUnits.Count(u => u.DistanceSqr <= 8 * 8) >= 2,
                     CreateAoe()),
 
-                        Spell.Cast("Shield of the Righteous", ret => (Me.CurrentHolyPower == 5 || Me.HasAura("Divine Purpose")) && AdvancedAI.PvPBurst),//need hotkey 
+                        Spell.Cast("Shield of the Righteous", ret => (Me.CurrentHolyPower == 5 || Me.HasAura("Divine Purpose")) && AdvancedAI.Burst),//need hotkey 
                         Spell.Cast("Hammer of the Righteous", ret => !Me.CurrentTarget.ActiveAuras.ContainsKey("Weakened Blows")),
                         Spell.Cast("Judgment", ret => SpellManager.HasSpell("Sanctified Wrath") && Me.HasAura("Avenging Wrath")),
                         Spell.Cast("Avenger's Shield", ret => Me.ActiveAuras.ContainsKey("Grand Crusader")),
@@ -76,7 +76,7 @@ namespace AdvancedAI.Spec
                         Spell.Cast("Holy Prism"),
                         Spell.Cast("Execution Sentence"),
                         Spell.Cast("Hammer of Wrath"),
-                        Spell.Cast("Shield of the Righteous", ret => Me.CurrentHolyPower >= 3 && AdvancedAI.PvPBurst),//need hotkey 
+                        Spell.Cast("Shield of the Righteous", ret => Me.CurrentHolyPower >= 3 && AdvancedAI.Burst),//need hotkey 
                         Spell.Cast("Avenger's Shield"),
                         Spell.Cast("Consecration", ret => !Me.IsMoving),
                         Spell.Cast("Holy Wrath"));
@@ -85,7 +85,7 @@ namespace AdvancedAI.Spec
         private static Composite CreateAoe()
         {
             return new PrioritySelector(
-                        Spell.Cast("Shield of the Righteous", ret => (Me.CurrentHolyPower == 5 || Me.HasAura("Divine Purpose")) && AdvancedAI.PvPBurst),//need hotkey 
+                        Spell.Cast("Shield of the Righteous", ret => (Me.CurrentHolyPower == 5 || Me.HasAura("Divine Purpose")) && AdvancedAI.Burst),//need hotkey 
                         Spell.Cast("Judgment", ret => SpellManager.HasSpell("Sanctified Wrath") && Me.HasAura("Avenging Wrath")),
                         Spell.Cast("Hammer of the Righteous"),
                         Spell.Cast("Judgment"),
@@ -95,7 +95,7 @@ namespace AdvancedAI.Spec
                         Spell.Cast("Holy Prism", on => Me, ret => Me.HealthPercent <= 90),
                         Spell.Cast("Execution Sentence"),
                         Spell.Cast("Hammer of Wrath"),
-                        Spell.Cast("Shield of the Righteous", ret => Me.CurrentHolyPower >= 3 && AdvancedAI.PvPBurst),//need hotkey 
+                        Spell.Cast("Shield of the Righteous", ret => Me.CurrentHolyPower >= 3 && AdvancedAI.Burst),//need hotkey 
                         Spell.Cast("Consecration", ret => !Me.IsMoving),
                         Spell.Cast("Avenger's Shield"),
                         Spell.Cast("Holy Wrath"));
