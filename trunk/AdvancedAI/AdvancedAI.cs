@@ -32,7 +32,7 @@ namespace AdvancedAI
         public override Composite PullBehavior { get { return _pull; } }
         #endregion
 
-        #region Overrides            
+        #region Overrides
 
         internal Composite CombatandBuffSelection()
         {
@@ -245,7 +245,7 @@ namespace AdvancedAI
 
         public static bool InterruptsEnabled { get; set; }
         public static bool PvPRot { get; set; }
-        public static bool PvPBurst { get; set; }
+        public static bool Burst { get; set; }
         public static bool HexFocus { get; set; }
         public static bool MovementEnabled { get; set; }
         public static bool TierBouons { get; set; }
@@ -254,7 +254,7 @@ namespace AdvancedAI
         {
             HotkeysManager.Unregister("Ares Toggle Interrupt");
             HotkeysManager.Unregister("PvP Toggle");
-            HotkeysManager.Unregister("PvP Burst");
+            HotkeysManager.Unregister("Burst");
             HotkeysManager.Unregister("Hex Focus");
             HotkeysManager.Unregister("Movement Enabled");
         }
@@ -282,16 +282,16 @@ namespace AdvancedAI
             });
             PvPRot = false;
 
-            HotkeysManager.Register("PvP Burst",
+            HotkeysManager.Register("Burst",
             Keys.NumPad1,
             ModifierKeys.Control,
             o =>
             {
-                PvPBurst = !PvPBurst;
-                Logging.Write("PvP Burst enabled: " + PvPBurst);
-                Lua.DoString("print('PvP Burst Enabled: " + PvPBurst + "')");
+                Burst = !Burst;
+                Logging.Write("Burst enabled: " + Burst);
+                Lua.DoString("print('Burst Enabled: " + Burst + "')");
             });
-            PvPBurst = false;
+            Burst = false;
 
             HotkeysManager.Register("Hex Focus",
             Keys.NumPad2,

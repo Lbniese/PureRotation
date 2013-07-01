@@ -61,7 +61,7 @@ namespace AdvancedAI.Spec
                     //Spell.Cast("Stormlash Totem", ret => PartyBuff.WeHaveBloodlust && !Me.HasAura("Stormlash Totem")),
 
                     //need hotkey here
-                    new Decorator(ret => AdvancedAI.PvPBurst,
+                    new Decorator(ret => AdvancedAI.Burst,
                         new PrioritySelector(
                             Spell.Cast("Stormlash Totem", ret => !Me.HasAura("Stormlash Totem")),
                             Spell.Cast("Elemental Mastery", ret => Me.CurrentTarget.IsBoss),
