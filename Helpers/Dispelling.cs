@@ -207,6 +207,7 @@ namespace AdvancedAI.Helpers
                     prio.AddChild( Spell.Cast( "Cleanse", on => _unitDispel));
                     break;
 				case WoWClass.Monk:
+                    prio.AddChild( Spell.Cast( "Detox", on => StyxWoW.Me));
                     prio.AddChild( Spell.Cast( "Detox", on => _unitDispel));
                     break;
                 case WoWClass.Priest:
@@ -231,7 +232,11 @@ namespace AdvancedAI.Helpers
             }
 
             return new Sequence(
-                new Action(r => _unitDispel = HealerManager.Instance.TargetList.FirstOrDefault(u => u.IsAlive && CanDispel(u))),
+                new Action(r => _unitDispel = (from unit in ObjectManager.GetObjectsOfType<WoWPlayer>(false)
+                                               where unit.IsAlive
+                                               where CanDispel(unit)
+                                               select unit).OrderByDescending(u => u.HealthPercent).LastOrDefault()),
+                //HealerManager.Instance.TargetList.FirstOrDefault(u => u.IsAlive && CanDispel(u))),
                 prio
                 );
         }
