@@ -68,6 +68,7 @@ namespace AdvancedAI.Spec
                     Spell.Cast("Breath of Fire", ret => Me.CurrentChi >= 3 && Me.HasAura("Shuffle") && Me.GetAuraTimeLeft("Shuffle").TotalSeconds > 6.5 && Me.CurrentTarget.HasMyAura("Dizzying Haze")),
 
                     //Detox
+                    Spell.Cast("Detox", on => DispelMe),
                     Dispelling.CreateDispelBehavior(),
                     //Spell.Cast("Detox", on => Me, ret => Dispelling.CanDispel(Me, DispelCapabilities.Disease) || Dispelling.CanDispel(Me, DispelCapabilities.Poison)),
 
@@ -167,6 +168,22 @@ namespace AdvancedAI.Spec
                     return _time_to_max.Value;
                 }
                 return _time_to_max.Value;
+            }
+        }
+        #endregion
+
+        #region Dispel Me
+        public static WoWUnit DispelMe
+        {
+            get
+            {
+                var dispelMe = (from unit in ObjectManager.GetObjectsOfType<WoWPlayer>(false)
+                                where unit.IsAlive
+                                where unit.IsPlayer
+                                where unit.IsMe
+                                where Dispelling.CanDispel(unit)
+                                select unit).FirstOrDefault();
+                return dispelMe;
             }
         }
         #endregion

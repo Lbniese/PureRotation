@@ -207,7 +207,6 @@ namespace AdvancedAI.Helpers
                     prio.AddChild( Spell.Cast( "Cleanse", on => _unitDispel));
                     break;
 				case WoWClass.Monk:
-                    prio.AddChild( Spell.Cast( "Detox", on => StyxWoW.Me));
                     prio.AddChild( Spell.Cast( "Detox", on => _unitDispel));
                     break;
                 case WoWClass.Priest:
