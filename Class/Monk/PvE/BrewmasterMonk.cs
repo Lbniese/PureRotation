@@ -68,7 +68,7 @@ namespace AdvancedAI.Spec
                     Spell.Cast("Breath of Fire", ret => Me.CurrentChi >= 3 && Me.HasAura("Shuffle") && Me.GetAuraTimeLeft("Shuffle").TotalSeconds > 6.5 && Me.CurrentTarget.HasMyAura("Dizzying Haze")),
 
                     //Detox
-                    Spell.Cast("Detox", on => DispelMe),
+                    //Spell.Cast("Detox", on => DispelMe),
                     Dispelling.CreateDispelBehavior(),
                     //Spell.Cast("Detox", on => Me, ret => Dispelling.CanDispel(Me, DispelCapabilities.Disease) || Dispelling.CanDispel(Me, DispelCapabilities.Poison)),
 
