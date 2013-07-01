@@ -248,6 +248,7 @@ namespace AdvancedAI
         public static bool PvPBurst { get; set; }
         public static bool HexFocus { get; set; }
         public static bool MovementEnabled { get; set; }
+        public static bool TierBouons { get; set; }
 
         protected virtual void UnregisterHotkeys()
         {
@@ -313,6 +314,16 @@ namespace AdvancedAI
                 Lua.DoString("print('Movement Enabled: " + MovementEnabled + "')");
             });
             MovementEnabled = false;
+            HotkeysManager.Register("Tier Bouons",
+            Keys.NumPad3,
+            ModifierKeys.Control,
+            o =>
+            {
+                TierBouons = !TierBouons;
+                Logging.Write("Tier Bouons enabled: " + TierBouons);
+                Lua.DoString("print('Tier Bouons Enabled: " + TierBouons + "')");
+            });
+            TierBouons = false;
         }
 
         #region Requirements
