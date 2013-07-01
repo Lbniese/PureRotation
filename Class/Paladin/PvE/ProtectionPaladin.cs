@@ -42,7 +42,6 @@ namespace AdvancedAI.Spec
 
                 //Staying alive
                     Spell.Cast("Sacred Shield", ret => !Me.HasAura("Sacred Shield")),
-                    Spell.Cast("Avenging Wrath", ret => Me.CurrentHealth <= 50 && TalentManager.HasGlyph("Avenging Wrath")),
                     Spell.Cast("Lay on Hands", on => Me, ret => Me.HealthPercent <= 10 && !Me.HasAura("Forbearance")),
                 //Spell.Cast("Guardian of Ancient Kings", ret => StyxWoW.Me.HealthPercent <= 40),
                     Spell.Cast("Ardent Defender", ret => Me.HealthPercent <= 10 && Me.HasAura("Forbearance")),
@@ -54,15 +53,19 @@ namespace AdvancedAI.Spec
                     Spell.Cast("Word of Glory", ret => Me.HealthPercent < 25 && (Me.CurrentHolyPower >= 2 || Me.HasAura("Divine Purpose"))),
                     Spell.Cast("Word of Glory", ret => Me.HealthPercent < 15 && (Me.CurrentHolyPower >= 1 || Me.HasAura("Divine Purpose"))),
 
-                    //Prot 2pc
-                    //Spell.Cast("Word of Glory", ret => Me.HealthPercent < 90 && Me.CurrentHolyPower == 1 && !Me.HasAura("Shield of Glory")),
-                    //Spell.Cast("Word of Glory", ret => Me.HealthPercent < 75 && Me.CurrentHolyPower <= 2 && !Me.HasAura("Shield of Glory")),
-                    //Spell.Cast("Word of Glory", ret => Me.HealthPercent < 50 && (Me.CurrentHolyPower >= 3 || Me.HasAura("Divine Purpose")) && !Me.HasAura("Shield of Glory")),
+                    //Prot 2pc 
+                    new Decorator(ret => AdvancedAI.TierBouons,
+                        new PrioritySelector(
+                    Spell.Cast("Word of Glory", ret => Me.HealthPercent < 90 && Me.CurrentHolyPower == 1 && !Me.HasAura("Shield of Glory")),
+                    Spell.Cast("Word of Glory", ret => Me.HealthPercent < 75 && Me.CurrentHolyPower <= 2 && !Me.HasAura("Shield of Glory")),
+                    Spell.Cast("Word of Glory", ret => Me.HealthPercent < 50 && (Me.CurrentHolyPower >= 3 || Me.HasAura("Divine Purpose")) && !Me.HasAura("Shield of Glory")))),
+
+                    CreateDispelBehavior(),
 
                   new Decorator(ret => Unit.NearbyUnfriendlyUnits.Count(u => u.DistanceSqr <= 8 * 8) >= 2,
                     CreateAoe()),
 
-                        Spell.Cast("Shield of the Righteous", ret => Me.CurrentHolyPower == 5 || Me.HasAura("Divine Purpose")),
+                        Spell.Cast("Shield of the Righteous", ret => (Me.CurrentHolyPower == 5 || Me.HasAura("Divine Purpose")) && AdvancedAI.PvPBurst),//need hotkey 
                         Spell.Cast("Hammer of the Righteous", ret => !Me.CurrentTarget.ActiveAuras.ContainsKey("Weakened Blows")),
                         Spell.Cast("Judgment", ret => SpellManager.HasSpell("Sanctified Wrath") && Me.HasAura("Avenging Wrath")),
                         Spell.Cast("Avenger's Shield", ret => Me.ActiveAuras.ContainsKey("Grand Crusader")),
@@ -73,7 +76,7 @@ namespace AdvancedAI.Spec
                         Spell.Cast("Holy Prism"),
                         Spell.Cast("Execution Sentence"),
                         Spell.Cast("Hammer of Wrath"),
-                        Spell.Cast("Shield of the Righteous", ret => Me.CurrentHolyPower >= 3),
+                        Spell.Cast("Shield of the Righteous", ret => Me.CurrentHolyPower >= 3 && AdvancedAI.PvPBurst),//need hotkey 
                         Spell.Cast("Avenger's Shield"),
                         Spell.Cast("Consecration", ret => !Me.IsMoving),
                         Spell.Cast("Holy Wrath"));
@@ -82,7 +85,7 @@ namespace AdvancedAI.Spec
         private static Composite CreateAoe()
         {
             return new PrioritySelector(
-                        Spell.Cast("Shield of the Righteous", ret => Me.CurrentHolyPower == 5 || Me.HasAura("Divine Purpose")),
+                        Spell.Cast("Shield of the Righteous", ret => (Me.CurrentHolyPower == 5 || Me.HasAura("Divine Purpose")) && AdvancedAI.PvPBurst),//need hotkey 
                         Spell.Cast("Judgment", ret => SpellManager.HasSpell("Sanctified Wrath") && Me.HasAura("Avenging Wrath")),
                         Spell.Cast("Hammer of the Righteous"),
                         Spell.Cast("Judgment"),
@@ -92,12 +95,35 @@ namespace AdvancedAI.Spec
                         Spell.Cast("Holy Prism", on => Me, ret => Me.HealthPercent <= 90),
                         Spell.Cast("Execution Sentence"),
                         Spell.Cast("Hammer of Wrath"),
-                        Spell.Cast("Shield of the Righteous", ret => Me.CurrentHolyPower >= 3),
+                        Spell.Cast("Shield of the Righteous", ret => Me.CurrentHolyPower >= 3 && AdvancedAI.PvPBurst),//need hotkey 
                         Spell.Cast("Consecration", ret => !Me.IsMoving),
                         Spell.Cast("Avenger's Shield"),
                         Spell.Cast("Holy Wrath"));
         }
 
         public static Composite CreatePPBuffs { get; set; }
+
+        public static WoWUnit dispeltar
+        {
+            get
+            {
+                var dispelothers = (from unit in ObjectManager.GetObjectsOfType<WoWPlayer>(false)
+                                    where unit.IsAlive
+                                    where Dispelling.CanDispel(unit)
+                                    select unit).OrderByDescending(u => u.HealthPercent).LastOrDefault();
+                return dispelothers;
+            }
+        }
+
+        public static Composite CreateDispelBehavior()
+        {
+            return new Decorator(ret => Dispelling.CanDispel(Me),
+                new PrioritySelector(
+                Spell.Cast("Detox", on => Me),
+                Spell.Cast("Detox", on => Me, ret => Dispelling.CanDispel(Me, DispelCapabilities.Disease)),
+                    new Decorator(ret => Dispelling.CanDispel(dispeltar),
+                        new PrioritySelector(
+                            Spell.Cast("Detox", on => dispeltar)))));
+        }
     }
 }
