@@ -34,7 +34,7 @@
       <HintPath>..\..\..\fasmdll_managed.dll</HintPath>
     </Reference>
     <Reference Include="Honorbuddy">
-      <HintPath>..\..\..\Honorbuddy.exe</HintPath>
+      <HintPath>..\..\Honorbuddy.exe</HintPath>
     </Reference>
     <Reference Include="RemoteASMNative">
       <HintPath>..\..\..\RemoteASMNative.dll</HintPath>
@@ -55,7 +55,7 @@
       <HintPath>..\..\..\Tripper.RecastManaged.dll</HintPath>
     </Reference>
     <Reference Include="Tripper.Tools">
-      <HintPath>..\..\..\Tripper.Tools.dll</HintPath>
+      <HintPath>..\..\Tripper.Tools.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
