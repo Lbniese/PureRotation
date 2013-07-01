@@ -199,13 +199,9 @@ namespace AdvancedAI.Spec
 
         public static Composite CreateDispelBehavior()
         {
-            return new Decorator(ret => Dispelling.CanDispel(Me) || Dispelling.CanDispel(dispeltar),
-                new PrioritySelector(
-                Spell.Cast("Detox", on => Me),
-                Spell.Cast("Detox", on => Me, ret => Dispelling.CanDispel(Me, DispelCapabilities.Disease)),
-                    new Decorator(ret => Dispelling.CanDispel(dispeltar),
-                        new PrioritySelector(
-                            Spell.Cast("Detox", on => dispeltar)))));
+            return new PrioritySelector(
+                Spell.Cast("Detox", on => Me, ret => Dispelling.CanDispel(Me)),
+                Spell.Cast("Detox", on => dispeltar, ret => Dispelling.CanDispel(dispeltar)));
         }
 
         public static Composite CreateBMBuffs { get; set; }
