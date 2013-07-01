@@ -63,7 +63,7 @@
     <Compile Include="Class\Deathknight\PvP\BloodDeathknightPvP.cs" />
     <Compile Include="Class\Deathknight\PvP\FrostDeathknightPvP.cs" />
     <Compile Include="Class\Deathknight\PvP\UnholyDeathknightPvP.cs" />
-    <Compile Include="Class\Druid\PvP\BallanceDruidPvP.cs" />
+    <Compile Include="Class\Druid\PvP\BalanceDruidPvP.cs" />
     <Compile Include="Class\Druid\PvP\FeralDruidPvP.cs" />
     <Compile Include="Class\Druid\PvP\GuardianDruidPvP.cs" />
     <Compile Include="Class\Druid\PvP\RestorationDruidPvP.cs" />
@@ -125,7 +125,7 @@
     <Compile Include="Class\Mage\PvE\ArcaneMage.cs" />
     <Compile Include="Class\Warrior\PvE\ArmsWarrior.cs" />
     <Compile Include="Class\Rogue\PvE\AssassinationRogue.cs" />
-    <Compile Include="Class\Druid\PvE\BallanceDruid.cs" />
+    <Compile Include="Class\Druid\PvE\BalanceDruid.cs" />
     <Compile Include="Class\Hunter\PvE\BeastmasterHunter.cs" />
     <Compile Include="Class\Deathknight\PvE\BloodDeathknight.cs" />
     <Compile Include="Class\Monk\PvE\BrewmasterMonk.cs" />
