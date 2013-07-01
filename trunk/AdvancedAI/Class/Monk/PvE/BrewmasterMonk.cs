@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Action = Styx.TreeSharp.Action;
 using Styx.WoWInternals;
+using AdvancedAI.Managers;
 
 namespace AdvancedAI.Spec
 {
@@ -69,7 +70,8 @@ namespace AdvancedAI.Spec
 
                     //Detox
                     //Spell.Cast("Detox", on => DispelMe),
-                    Dispelling.CreateDispelBehavior(),
+                    //Dispelling.CreateDispelBehavior(),
+                    CreateDispelBehavior(),
                     //Spell.Cast("Detox", on => Me, ret => Dispelling.CanDispel(Me, DispelCapabilities.Disease) || Dispelling.CanDispel(Me, DispelCapabilities.Poison)),
 
                     Spell.Cast("Blackout Kick", ret => Me.CurrentChi >= 3),
@@ -172,21 +174,39 @@ namespace AdvancedAI.Spec
         }
         #endregion
 
-        #region Dispel Me
-        public static WoWUnit DispelMe
+        #region Dispell
+        public static WoWUnit _dispelMe
         {
             get
             {
-                var dispelMe = (from unit in ObjectManager.GetObjectsOfType<WoWPlayer>(false)
-                                where unit.IsAlive
-                                where unit.IsPlayer
-                                where unit.IsMe
-                                where Dispelling.CanDispel(unit)
-                                select unit).FirstOrDefault();
-                return dispelMe;
+                var _Dispel = HealerManager.Instance.TargetList.FirstOrDefault(u => u.IsMe && u.IsAlive && Dispelling.CanDispel(u));
+                return _Dispel;
             }
         }
         #endregion
+
+        public static  WoWUnit dispeltar
+        {
+            get
+            {
+                var dispelothers = (from unit in ObjectManager.GetObjectsOfType<WoWPlayer>(false)
+                                    where unit.IsAlive
+                                    where Dispelling.CanDispel(unit)
+                                    select unit).OrderByDescending(u => u.HealthPercent).LastOrDefault();
+                return dispelothers;
+            }
+        }
+
+        public static Composite CreateDispelBehavior()
+        {
+            return new Decorator(ret => Dispelling.CanDispel(Me),
+                new PrioritySelector(
+                Spell.Cast("Detox", on => Me),
+                Spell.Cast("Detox", on => Me, ret => Dispelling.CanDispel(Me, DispelCapabilities.Disease)),
+                    new Decorator(ret => Dispelling.CanDispel(dispeltar),
+                        new PrioritySelector(
+                            Spell.Cast("Detox", on => dispeltar)))));
+        }
 
         public static Composite CreateBMBuffs { get; set; }
     }
