@@ -96,7 +96,7 @@ namespace AdvancedAI.Spec
                     //dont like using this in auto to many probs with it
                     //Spell.Cast("Invoke Xuen, the White Tiger", ret => Me.CurrentTarget.IsBoss && IsCurrentTank()),
 
-                    Spell.Cast("Tiger Palm")
+                    Spell.Cast("Tiger Palm", ret => SpellManager.Spells["Keg Smash"].CooldownTimeLeft.TotalSeconds >= .9)
                         );
             }
         }
