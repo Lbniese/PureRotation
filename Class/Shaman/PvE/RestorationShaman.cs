@@ -19,12 +19,25 @@ namespace AdvancedAI.Spec
 {
     class RestorationShaman// : AdvancedAI
     {
-        //public override WoWClass Class { get { return WoWClass.Shaman; } }
-        //public override WoWSpec Spec { get { return WoWSpec.ShamanRestoration; } }
         LocalPlayer Me { get { return StyxWoW.Me; } }
+        public static Composite CreateRSCombat
+        {
+            get
+            {
+                return new PrioritySelector(
+                    new Decorator(ret => AdvancedAI.PvPRot,
+                        RestorationShamanPvP.CreateRSPvPCombat));
+            }
+        }
 
-        public static Composite CreateRSCombat { get; set; }
-
-        public static Composite CreateRSBuffs { get; set; }
+        public static Composite CreateRSBuffs
+        {
+            get
+            {
+                return new PrioritySelector(
+                    new Decorator(ret => AdvancedAI.PvPRot,
+                        RestorationShamanPvP.CreateRSPvPBuffs));
+            }
+        }
     }
 }

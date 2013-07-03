@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace AdvancedAI.Spec
 {
-    class ShadowPriest// : AdvancedAI
+    class ShadowPriest
     {
         static LocalPlayer Me { get { return StyxWoW.Me; } }
         private const int MindFlay = 15407;
@@ -20,6 +20,8 @@ namespace AdvancedAI.Spec
             get
             {
                 return new PrioritySelector(
+                    new Decorator(ret => AdvancedAI.PvPRot,
+                        ShadowPriestPvP.CreateSPPvPCombat),
                     //new Decorator(ret => Me.IsCasting && (Me.ChanneledSpell == null || Me.ChanneledSpell.Id != MindFlay), new Action(ret => { return RunStatus.Success; })),
                     Spell.Cast("Shadowfiend", ret => Me.CurrentTarget.IsBoss && SpellManager.HasSpell("Shadowfiend") && SpellManager.Spells["Shadowfiend"].CooldownTimeLeft.TotalMilliseconds < 10),
                     Spell.Cast("Mindbender", ret => Me.CurrentTarget.IsBoss),
@@ -62,6 +64,8 @@ namespace AdvancedAI.Spec
             get
             {
                 return new PrioritySelector(
+                    new Decorator(ret => AdvancedAI.PvPRot,
+                        ShadowPriestPvP.CreateSPPvPBuffs),
                     PartyBuff.BuffGroup("Power Word: Fortitude"),
                     Spell.Cast("Shadowform", ret => !Me.HasAura("Shadowform")),
                     Spell.Cast("Inner Fire", ret => !Me.HasAura("Inner Fire")));

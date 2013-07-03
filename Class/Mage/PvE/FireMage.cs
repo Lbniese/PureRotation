@@ -10,17 +10,16 @@ using System.Threading.Tasks;
 
 namespace AdvancedAI.Spec
 {
-    class FireMage// : AdvancedAI
+    class FireMage
     {
-        //public override WoWClass Class { get { return WoWClass.Mage; } }
-        //public override WoWSpec Spec { get { return WoWSpec.MageFire; } }
         static LocalPlayer Me { get { return StyxWoW.Me; } }
-
-        public static Composite CreateFMCombat
+        public static Composite CreateFiMCombat
         {
             get
             {
                 return new PrioritySelector(
+                    new Decorator(ret => AdvancedAI.PvPRot,
+                        FireMagePvP.CreateFiMPvPCombat),
                     Spell.Cast("Evocation", ret => !Me.HasAura("Invoker's Energy")),
                     Spell.Cast("Living Bomb", ret => !Me.CurrentTarget.HasAura("Living Bomb")),
                     Spell.Cast("Pyroblast", ret => Me.HasAura("Pyroblast!")),
@@ -32,11 +31,13 @@ namespace AdvancedAI.Spec
             }
         }
 
-        public static Composite CreateFMBuffs
+        public static Composite CreateFiMBuffs
         {
             get
             {
                 return new PrioritySelector(
+                    new Decorator(ret => AdvancedAI.PvPRot,
+                        FireMagePvP.CreateFiMPvPBuffs),
                     PartyBuff.BuffGroup("Arcane Brilliance"),
                     Spell.Cast("Molten Armor", ret => !Me.HasAura("Molten Armor"))
                     );

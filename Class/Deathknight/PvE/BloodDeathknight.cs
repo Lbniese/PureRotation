@@ -21,15 +21,15 @@ namespace AdvancedAI.Spec
     {
         //public override WoWClass Class { get { return WoWClass.DeathKnight; } }
         //public override WoWSpec Spec { get { return WoWSpec.DeathKnightBlood; } }
-        LocalPlayer Me { get { return StyxWoW.Me; } }
+        static LocalPlayer Me { get { return StyxWoW.Me; } }
 
         internal static Composite CreateBDKCombat
         {
             get
             {
                 return new PrioritySelector(
-
-                );
+                    new Decorator(ret => AdvancedAI.PvPRot,
+                        BloodDeathknightPvP.CreateBDKPvPCombat));
             }
         }
 
@@ -38,8 +38,8 @@ namespace AdvancedAI.Spec
             get
             {
                 return new PrioritySelector(
-
-                );
+                    new Decorator(ret => AdvancedAI.PvPRot,
+                        BloodDeathknightPvP.CreateBDKPvPBuffs));
             }
         }
     }

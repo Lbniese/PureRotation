@@ -20,11 +20,13 @@ namespace AdvancedAI.Spec
     class DemonologyWarlock// : AdvancedAI
     {
         LocalPlayer Me { get { return StyxWoW.Me; } }
-        public static Composite CreateDWCombat
+        public static Composite CreateDemWCombat
         {
             get
             {
                 return new PrioritySelector(
+                    new Decorator(ret => AdvancedAI.PvPRot,
+                        DemonologyWarlockPvP.CreateDemWPvPCombat)
                     //8	0.00	curse_of_the_elements,if=debuff.magic_vulnerability.down
                     //9	1.00	jade_serpent_potion,if=buff.bloodlust.react|target.health.pct<=20
                     //A	4.32	lifeblood
@@ -59,6 +61,15 @@ namespace AdvancedAI.Spec
             }
         }
 
-        public static Composite CreateDWBuffs { get; set; }
+        public static Composite CreateDemWBuffs
+        {
+            get
+            {
+                return new PrioritySelector(
+                    new Decorator(ret => AdvancedAI.PvPRot,
+                        DemonologyWarlockPvP.CreateDemWPvPBuffs)
+                    );
+            }
+        }
     }
 }

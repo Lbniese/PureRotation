@@ -23,8 +23,24 @@ namespace AdvancedAI.Spec
         //public override WoWSpec Spec { get { return WoWSpec.DruidRestoration; } }
         LocalPlayer Me { get { return StyxWoW.Me; } }
 
-        public static Composite CreateRDCombat { get; set; }
+        public static Composite CreateRDCombat
+        {
+            get
+            {
+                return new PrioritySelector(
+                    new Decorator(ret => AdvancedAI.PvPRot,
+                        RestorationDruidPvP.CreateRDPvPCombat));
+            }
+        }
 
-        public static Composite CreateRDBuffs { get; set; }
+        public static Composite CreateRDBuffs
+        {
+            get
+            {
+                return new PrioritySelector(
+                    new Decorator(ret => AdvancedAI.PvPRot,
+                        RestorationDruidPvP.CreateRDPvPBuffs));
+            }
+        }
     }
 }

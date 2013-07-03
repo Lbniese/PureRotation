@@ -25,6 +25,8 @@ namespace AdvancedAI.Spec
             get
             {
                 return new PrioritySelector(
+                    new Decorator(ret => AdvancedAI.PvPRot,
+                        SurvivalHunterPvP.CreateSHPvPCombat)
                     //8	1.00	virmens_bite_potion,if=buff.bloodlust.react|target.time_to_die<=60
                     //9	21.26	auto_shot
                     //A	0.00	explosive_trap,if=active_enemies>1
@@ -56,6 +58,14 @@ namespace AdvancedAI.Spec
             }
         }
 
-        public static Composite CreateSHBuffs { get; set; }
+        public static Composite CreateSHBuffs
+        {
+            get
+            {
+                return new PrioritySelector(
+                    new Decorator(ret => AdvancedAI.PvPRot,
+                        SurvivalHunterPvP.CreateSHPvPBuffs));
+            }
+        }
     }
 }

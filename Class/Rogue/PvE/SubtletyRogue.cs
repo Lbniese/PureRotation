@@ -19,15 +19,14 @@ namespace AdvancedAI.Spec
 {
     class SubtletyRogue// : AdvancedAI
     {
-        //public override WoWClass Class { get { return WoWClass.Rogue; } }
-        //public override WoWSpec Spec { get { return WoWSpec.RogueSubtlety; } }
         LocalPlayer Me { get { return StyxWoW.Me; } }
-
         public static Composite CreateSRCombat
         {
             get
             {
                 return new PrioritySelector(
+                    new Decorator(ret => AdvancedAI.PvPRot,
+                        SubletyRoguePvP.CreateSRPvPCombat)
                     //8	1.00	virmens_bite_potion,if=buff.bloodlust.react|target.time_to_die<40
                     //9	6.45	auto_attack
                     //A	0.00	kick
@@ -63,6 +62,14 @@ namespace AdvancedAI.Spec
             }
         }
 
-        public static Composite CreateSRBuffs { get; set; }
+        public static Composite CreateSRBuffs
+        {
+            get
+            {
+                return new PrioritySelector(
+                    new Decorator(ret => AdvancedAI.PvPRot,
+                        SubletyRoguePvP.CreateSRPvPBuffs));
+            }
+        }
     }
 }

@@ -24,7 +24,8 @@ namespace AdvancedAI.Spec
             {
                 return new PrioritySelector(
                 Spell.Cast("Raise Dead", ret => !StyxWoW.Me.GotAlivePet),
-                Spell.Cast("Horn of Winter", ret => !Me.HasAura("Horn of Winter"))
+                Spell.Cast("Horn of Winter", ret => !Me.HasAura("Horn of Winter")),
+                new ActionAlwaysSucceed()
                 );
             }
         }

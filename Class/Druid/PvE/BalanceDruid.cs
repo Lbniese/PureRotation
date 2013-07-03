@@ -25,6 +25,8 @@ namespace AdvancedAI.Spec
             get
             {
                 return new PrioritySelector(
+                    new Decorator(ret => AdvancedAI.PvPRot,
+                        BalanceDruidPvP.CreateBDPvPCombat)
                     //7	1.00	jade_serpent_potion,if=buff.bloodlust.react|target.time_to_die<=40|buff.celestial_alignment.up
                     //8	18.90	starfall,if=!buff.starfall.up
                     //9	0.00	treants,if=talent.force_of_nature.enabled
@@ -61,6 +63,14 @@ namespace AdvancedAI.Spec
             }
         }
 
-        public static Composite CreateBDBuffs { get; set; }
+        public static Composite CreateBDBuffs
+        {
+            get
+            {
+                return new PrioritySelector(
+                    new Decorator(ret => AdvancedAI.PvPRot,
+                        BalanceDruidPvP.CreateBDPvPBuffs));
+            }
+        }
     }
 }

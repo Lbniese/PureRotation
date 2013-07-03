@@ -18,6 +18,8 @@ namespace AdvancedAI.Spec
             get
             {
                 return new PrioritySelector(
+                    new Decorator(ret => AdvancedAI.PvPRot,
+                        WindwalkerMonkPvP.CreateWMPvPCombat),
                     /*Things to fix
                      * energy capping
                      * need to check healing spheres 
@@ -79,6 +81,14 @@ namespace AdvancedAI.Spec
             }
         }
 
-        public static Composite CreateWMBuffs { get; set; }
+        public static Composite CreateWMBuffs
+        {
+            get
+            {
+                return new PrioritySelector(
+                    new Decorator(ret => AdvancedAI.PvPRot,
+                        WindwalkerMonkPvP.CreateWMPvPBuffs));
+            }
+        }
     }
 }

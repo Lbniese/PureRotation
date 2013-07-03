@@ -16,7 +16,10 @@ namespace AdvancedAI.Spec
         {
             get
             {
-                return Spell.Cast("Battle Shout", ret => !Me.HasAura("Battle Shout"));
+                return new PrioritySelector(
+                    new Decorator(ret => AdvancedAI.PvPRot,
+                        ArmsWarriorPvP.CreateAWPvPBuffs),
+                    Spell.Cast("Battle Shout", ret => !Me.HasAura("Battle Shout")));
             }
         }
 
@@ -26,7 +29,7 @@ namespace AdvancedAI.Spec
             {
                 return new PrioritySelector(
                     new Decorator(ret => AdvancedAI.PvPRot,
-                                  ArmsWarriorPvP.CreateAWPvPCombat),
+                        ArmsWarriorPvP.CreateAWPvPCombat),
                     //Spell.Cast("Throw", on => PinkDino),
                     Spell.Cast("Pummel", ret => Me.CurrentTarget.IsCasting && Me.CurrentTarget.CanInterruptCurrentSpellCast),
                     Spell.Cast("Impending Victory", ret => Me.HealthPercent <= 90 && Me.HasAura("Victorious")),

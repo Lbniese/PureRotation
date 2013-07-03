@@ -25,6 +25,8 @@ namespace AdvancedAI.Spec
             get
             {
                 return new PrioritySelector(
+                    new Decorator(ret => AdvancedAI.PvPRot,
+                        AfflictionWarlockPvP.CreateAWPvPCombat)
                     //8	0.00	curse_of_the_elements,if=debuff.magic_vulnerability.down
                     //9	1.00	jade_serpent_potion,if=buff.bloodlust.react|target.health.pct<=20
                     //A	4.32	lifeblood
@@ -61,6 +63,15 @@ namespace AdvancedAI.Spec
             }
         }
 
-        public static Composite CreateAWBuffs { get; set; }
+        public static Composite CreateAWBuffs
+        {
+            get
+            {
+                return new PrioritySelector(
+                    new Decorator(ret => AdvancedAI.PvPRot,
+                        AfflictionWarlockPvP.CreateAWPvPBuffs)
+                    );
+            }
+        }
     }
 }

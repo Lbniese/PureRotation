@@ -20,11 +20,13 @@ namespace AdvancedAI.Spec
     class ElementalShaman// : AdvancedAI
     {
         LocalPlayer Me { get { return StyxWoW.Me; } }
-        public static Composite CreateESCombat
+        public static Composite CreateElSCombat
         {
             get
             {
                 return new PrioritySelector(
+                    new Decorator(ret => AdvancedAI.PvPRot,
+                        ElementalShamanPvP.CreateElSPvPCombat)
                     //6	0.00	wind_shear
                     //7	0.00	bloodlust,if=target.health.pct<25|time>5
                     //8	0.00	stormlash_totem,if=!active&!buff.stormlash.up&(buff.bloodlust.up|time>=60)
@@ -55,6 +57,14 @@ namespace AdvancedAI.Spec
             }
         }
 
-        public static Composite CreateESBuffs { get; set; }
+        public static Composite CreateElSBuffs
+        {
+            get
+            {
+                return new PrioritySelector(
+                    new Decorator(ret => AdvancedAI.PvPRot,
+                        ElementalShamanPvP.CreateElSPvPBuffs));
+            }
+        }
     }
 }
