@@ -46,7 +46,8 @@ namespace AdvancedAI.Spec
                 //Spell.Cast("Guardian of Ancient Kings", ret => StyxWoW.Me.HealthPercent <= 40),
                     Spell.Cast("Ardent Defender", ret => Me.HealthPercent <= 10 && Me.HasAura("Forbearance")),
                 //Nedd to work on this cause its only magic dmg that it stops unless glyphed
-                Spell.Cast("Divine Protection", ret => Me.HealthPercent <= 80 && !Me.HasAura("Shield of the Righteous") && TalentManager.HasGlyph("Divine Protection")),
+                    //Spell.Cast("Divine Protection", ret => Me.HealthPercent <= 80 && !Me.HasAura("Shield of the Righteous") && TalentManager.HasGlyph("Divine Protection")),
+                    Spell.Cast("Divine Protection", ret => Me.HealthPercent <= 80 && !Me.HasAura("Shield of the Righteous")),
                 //Spell.Cast("Holy Avenger", ret => StyxWoW.Me.HealthPercent <= 60),
 
                     Spell.Cast("Word of Glory", ret => Me.HealthPercent < 50 && (Me.CurrentHolyPower >= 3 || Me.HasAura("Divine Purpose"))),
@@ -78,8 +79,8 @@ namespace AdvancedAI.Spec
                         Spell.Cast("Hammer of Wrath"),
                         Spell.Cast("Shield of the Righteous", ret => Me.CurrentHolyPower >= 3 && AdvancedAI.Burst),//need hotkey 
                         Spell.Cast("Avenger's Shield"),
-                        Spell.Cast("Consecration", ret => !Me.IsMoving),
-                        Spell.Cast("Holy Wrath"));
+                        Spell.Cast("Consecration", ret => !Me.IsMoving && Unit.NearbyUnfriendlyUnits.Count(u => u.DistanceSqr <= 8 * 8) >= 1),
+                        Spell.Cast("Holy Wrath", ret => Unit.NearbyUnfriendlyUnits.Count(u => u.DistanceSqr <= 8 * 8) >= 1));
                 }
             }
         private static Composite CreateAoe()
