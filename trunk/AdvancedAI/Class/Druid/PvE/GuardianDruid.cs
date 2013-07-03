@@ -22,8 +22,24 @@ namespace AdvancedAI.Spec
         //public override WoWSpec Spec { get { return WoWSpec.DruidGuardian; } }
         LocalPlayer Me { get { return StyxWoW.Me; } }
 
-        public static Composite CreateGDCombat { get; set; }
+        public static Composite CreateGDCombat
+        {
+            get
+            {
+                return new PrioritySelector(
+                    new Decorator(ret => AdvancedAI.PvPRot,
+                        GuardianDruidPvP.CreateGDPvPCombat));
+            }
+        }
 
-        public static Composite CreateGDBuffs { get; set; }
+        public static Composite CreateGDBuffs
+        {
+            get
+            {
+                return new PrioritySelector(
+                    new Decorator(ret => AdvancedAI.PvPRot,
+                        GuardianDruidPvP.CreateGDPvPBuffs));
+            }
+        }
     }
 }

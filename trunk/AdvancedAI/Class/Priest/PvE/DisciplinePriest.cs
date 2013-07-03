@@ -17,14 +17,27 @@ using Action = Styx.TreeSharp.Action;
 
 namespace AdvancedAI.Spec
 {
-    class DisciplinePriest// : AdvancedAI
+    class DisciplinePriest
     {
-        //public override WoWClass Class { get { return WoWClass.Priest; } }
-        //public override WoWSpec Spec { get { return WoWSpec.PriestDiscipline; } }
         LocalPlayer Me { get { return StyxWoW.Me; } }
+        internal static Composite CreateDPCombat
+        {
+            get
+            {
+                return new PrioritySelector(
+                new Decorator(ret => AdvancedAI.PvPRot,
+                    DisciplinePriestPvP.CreateDPPvPCombat));
+            }
+        }
 
-        internal static Composite CreateDPCombat { get; set; }
-
-        internal static Composite CreateDPBuffs { get; set; }
+        internal static Composite CreateDPBuffs
+        {
+            get
+            {
+                return new PrioritySelector(
+                    new Decorator(ret => AdvancedAI.PvPRot,
+                        DisciplinePriestPvP.CreateDPPvPBuffs));
+            }
+        }
     }
 }

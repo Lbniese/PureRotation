@@ -19,12 +19,25 @@ namespace AdvancedAI.Spec
 {
     class HolyPaladin
     {
-        //public override WoWClass Class { get { return WoWClass.Paladin; } }
-        //public override WoWSpec Spec { get { return WoWSpec.PaladinHoly; } }
         LocalPlayer Me { get { return StyxWoW.Me; } }
+        public static Composite CreateHPaCombat
+        {
+            get
+            {
+                return new PrioritySelector(
+                    new Decorator(ret => AdvancedAI.PvPRot,
+                        HolyPaladinPvP.CreateHPaPvPCombat));
+            }
+        }
 
-        public static Composite CreateHPCombat { get; set; }
-
-        public static Composite CreateHPBuffs { get; set; }
+        public static Composite CreateHPaBuffs
+        {
+            get
+            {
+                return new PrioritySelector(
+                    new Decorator(ret => AdvancedAI.PvPRot,
+                        HolyPaladinPvP.CreateHPaPvPBuffs));
+            }
+        }
     }
 }

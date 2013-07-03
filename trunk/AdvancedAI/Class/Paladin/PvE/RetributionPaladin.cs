@@ -17,6 +17,8 @@ namespace AdvancedAI.Spec
             get
             {
                 return new PrioritySelector(
+                    new Decorator(ret => AdvancedAI.PvPRot,
+                        RetributionPaladinPvP.CreateRPPvPCombat),
                     Spell.Cast("Rebuke", ret => Me.CurrentTarget.IsCasting && Me.CurrentTarget.CanInterruptCurrentSpellCast),
                     Spell.Cast("Inquisition", ret => (!Me.HasAura("Inquisition") || Me.HasAuraExpired("Inquisition", 2)) && (Me.CurrentHolyPower >= 3 || Me.ActiveAuras.ContainsKey("Divine Purpose"))),
                     Spell.Cast("Avenging Wrath", ret => Me.HasAura("Inquisition") && Me.CurrentTarget.IsBoss),
@@ -67,6 +69,14 @@ namespace AdvancedAI.Spec
         }
         #endregion
 
-        public static Composite CreateRPBuffs { get; set; }
+        public static Composite CreateRPBuffs
+        {
+            get
+            {
+                return new PrioritySelector(
+                    new Decorator(ret => AdvancedAI.PvPRot,
+                        RetributionPaladinPvP.CreateRPPvPBuffs));
+            }
+        }
     }
 }

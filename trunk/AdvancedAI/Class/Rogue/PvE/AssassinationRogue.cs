@@ -25,6 +25,8 @@ namespace AdvancedAI.Spec
             get
             {
                 return new PrioritySelector(
+                    new Decorator(ret => AdvancedAI.PvPRot,
+                        AssassinationRoguePvP.CreateARPvPCombat)
                     //8	1.00	virmens_bite_potion,if=buff.bloodlust.react|target.time_to_die<40
                     //9	6.54	auto_attack
                     //A	0.00	kick
@@ -49,6 +51,14 @@ namespace AdvancedAI.Spec
             }
         }
 
-        public static Composite CreateARBuffs { get; set; }
+        public static Composite CreateARBuffs
+        {
+            get
+            {
+                return new PrioritySelector(
+                    new Decorator(ret => AdvancedAI.PvPRot,
+                        AssassinationRoguePvP.CreateARPvPBuffs));
+            }
+        }
     }
 }

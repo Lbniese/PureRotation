@@ -25,6 +25,8 @@ namespace AdvancedAI.Spec
             get
             {
                 return new PrioritySelector(
+                    new Decorator(ret => AdvancedAI.PvPRot,
+                        BeastmasterHunterPvP.CreateBMPvPCombat)
                     //8	1.00	virmens_bite_potion,if=buff.bloodlust.react|target.time_to_die<=60
                     //9	1.00	auto_shot
                     //A	0.00	explosive_trap,if=active_enemies>1
@@ -55,6 +57,14 @@ namespace AdvancedAI.Spec
             }
         }
 
-        public static Composite CreateBMHBuffs { get; set; }
+        public static Composite CreateBMHBuffs
+        {
+            get
+            {
+                return new PrioritySelector(
+                    new Decorator(ret => AdvancedAI.PvPRot,
+                        BeastmasterHunterPvP.CreateBMPvPBuffs));
+            }
+        }
     }
 }

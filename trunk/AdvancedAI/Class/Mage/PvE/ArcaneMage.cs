@@ -17,17 +17,16 @@ using Action = Styx.TreeSharp.Action;
 
 namespace AdvancedAI.Spec
 {
-    class ArcaneMage// : AdvancedAI
+    class ArcaneMage
     {
-        //public override WoWClass Class { get { return WoWClass.Mage; } }
-        //public override WoWSpec Spec { get { return WoWSpec.MageArcane; } }
         static LocalPlayer Me { get { return StyxWoW.Me; } }
-
         public static Composite CreateAMCombat
         {
             get
             {
                 return new PrioritySelector(
+                    new Decorator(ret => AdvancedAI.PvPRot,
+                        ArcaneMagePvP.CreateAMPvPCombat),
                     Spell.Cast("Arcane Missles", ret => Me.HasAura("Arcane Charge", 4)),
                     Spell.Cast("Arcane Barrage", ret => Me.HasAura("Arcane Charge", 4)),
                     Spell.Cast("Living Bomb", ret => !Me.CurrentTarget.HasAura("Living Bomb")),
@@ -44,6 +43,8 @@ namespace AdvancedAI.Spec
             get
             {
                 return new PrioritySelector(
+                    new Decorator(ret => AdvancedAI.PvPRot,
+                        ArcaneMagePvP.CreateAMPvPBuffs),
                     PartyBuff.BuffGroup("Arcane Brilliance"),
                     Spell.Cast("Mage Armor", ret => !Me.HasAura("Mage Armor"))
                     );

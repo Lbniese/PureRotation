@@ -26,6 +26,8 @@ namespace AdvancedAI.Spec
             get
             {
                 return new PrioritySelector(
+                    new Decorator(ret => AdvancedAI.PvPRot,
+                        BrewmasterMonkPvP.CreateBMPvPCombat),
                     /*Things to fix
                      * energy capping - fixed (stole alex's code)
                      * need to check healing spheres 
@@ -204,6 +206,14 @@ namespace AdvancedAI.Spec
                 Spell.Cast("Detox", on => dispeltar, ret => Dispelling.CanDispel(dispeltar)));
         }
 
-        public static Composite CreateBMBuffs { get; set; }
+        public static Composite CreateBMBuffs
+        {
+            get
+            {
+                return new PrioritySelector(
+                    new Decorator(ret => AdvancedAI.PvPRot,
+                        BrewmasterMonkPvP.CreateBMPvPBuffs));
+            }
+        }
     }
 }

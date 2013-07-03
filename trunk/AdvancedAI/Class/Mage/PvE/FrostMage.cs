@@ -17,7 +17,7 @@ using Action = Styx.TreeSharp.Action;
 
 namespace AdvancedAI.Spec
 {
-    class FrostMage// : AdvancedAI
+    class FrostMage
     {
         LocalPlayer Me { get { return StyxWoW.Me; } }
         public static Composite CreateFMCombat
@@ -25,6 +25,8 @@ namespace AdvancedAI.Spec
             get
             {
                 return new PrioritySelector(
+                    new Decorator(ret => AdvancedAI.PvPRot,
+                        FrostMagePvP.CreateFMPvPCombat)
                     //9	0.00	counterspell,if=target.debuff.casting.react
                     //A	0.00	cancel_buff,name=alter_time,moving=1
                     //B	0.00	conjure_mana_gem,if=mana_gem_charges<3&target.debuff.invulnerable.react
@@ -52,6 +54,14 @@ namespace AdvancedAI.Spec
             }
         }
 
-        public static Composite CreateFMBuffs { get; set; }
+        public static Composite CreateFMBuffs
+        {
+            get
+            {
+                return new PrioritySelector(
+                    new Decorator(ret => AdvancedAI.PvPRot,
+                        FrostMagePvP.CreateFMPvPBuffs));
+            }
+        }
     }
 }

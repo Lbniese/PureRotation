@@ -23,14 +23,24 @@ namespace AdvancedAI.Spec
         //public override WoWSpec Spec { get { return WoWSpec.WarriorProtection; } }
         LocalPlayer Me { get { return StyxWoW.Me; } }
 
-        internal static Composite CreatePWCombat { get {
-            return new PrioritySelector(
+        internal static Composite CreatePWCombat 
+        { 
+            get 
+            {
+                return new PrioritySelector(
+                    new Decorator(ret => AdvancedAI.PvPRot,
+                        ProtectionWarriorPvP.CreatePWPvPCombat));
+            }
+        }
 
-            );}}
-
-        internal static Composite CreatePWBuffs { get {
-            return new PrioritySelector(
-                
-                );}}
+        internal static Composite CreatePWBuffs 
+        { 
+            get 
+            {
+                return new PrioritySelector(
+                    new Decorator(ret => AdvancedAI.PvPRot,
+                        ProtectionWarriorPvP.CreatePWPvPBuffs));
+            }
+        }
     }
 }

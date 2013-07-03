@@ -109,9 +109,9 @@ namespace AdvancedAI
                     if (_buffs == null) { _buffs = Spec.ArcaneMage.CreateAMBuffs; }
                     break;
                 case WoWSpec.MageFire:
-                    if (_combat == null) { _combat = Spec.FireMage.CreateFMCombat; }
-                    if (_pull == null) { _pull = Spec.FireMage.CreateFMCombat; }
-                    if (_buffs == null) { _buffs = Spec.FireMage.CreateFMBuffs; }
+                    if (_combat == null) { _combat = Spec.FireMage.CreateFiMCombat; }
+                    if (_pull == null) { _pull = Spec.FireMage.CreateFiMCombat; }
+                    if (_buffs == null) { _buffs = Spec.FireMage.CreateFiMBuffs; }
                     break;
                 case WoWSpec.MageFrost:
                     if (_combat == null) { _combat = Spec.FrostMage.CreateFMCombat; }
@@ -134,9 +134,9 @@ namespace AdvancedAI
                     if (_buffs == null) { _buffs = Spec.WindwalkerMonk.CreateWMBuffs; }
                     break;
                 case WoWSpec.PaladinHoly:
-                    if (_combat == null) { _combat = Spec.HolyPaladin.CreateHPCombat; }
-                    if (_pull == null) { _pull = Spec.HolyPaladin.CreateHPCombat; }
-                    if (_buffs == null) { _buffs = Spec.HolyPaladin.CreateHPBuffs; }
+                    if (_combat == null) { _combat = Spec.HolyPaladin.CreateHPaCombat; }
+                    if (_pull == null) { _pull = Spec.HolyPaladin.CreateHPaCombat; }
+                    if (_buffs == null) { _buffs = Spec.HolyPaladin.CreateHPaBuffs; }
                     break;
                 case WoWSpec.PaladinProtection:
                     if (_combat == null) { _combat = Spec.ProtectionPaladin.CreatePPCombat; }
@@ -179,9 +179,9 @@ namespace AdvancedAI
                     if (_buffs == null) { _buffs = Spec.SubtletyRogue.CreateSRBuffs; }
                     break;
                 case WoWSpec.ShamanElemental:
-                    if (_combat == null) { _combat = Spec.ElementalShaman.CreateESCombat; }
-                    if (_pull == null) { _pull = Spec.ElementalShaman.CreateESCombat; }
-                    if (_buffs == null) { _buffs = Spec.ElementalShaman.CreateESBuffs; }
+                    if (_combat == null) { _combat = Spec.ElementalShaman.CreateElSCombat; }
+                    if (_pull == null) { _pull = Spec.ElementalShaman.CreateElSCombat; }
+                    if (_buffs == null) { _buffs = Spec.ElementalShaman.CreateElSBuffs; }
                     break;
                 case WoWSpec.ShamanEnhancement:
                     if (_combat == null) { _combat = Spec.EnhancementShaman.CreateESCombat; }
@@ -199,9 +199,9 @@ namespace AdvancedAI
                     if (_buffs == null) { _buffs = Spec.AfflictionWarlock.CreateAWBuffs; }
                     break;
                 case WoWSpec.WarlockDemonology:
-                    if (_combat == null) { _combat = Spec.DemonologyWarlock.CreateDWCombat; }
-                    if (_pull == null) { _pull = Spec.DemonologyWarlock.CreateDWCombat; }
-                    if (_buffs == null) { _buffs = Spec.DemonologyWarlock.CreateDWBuffs; }
+                    if (_combat == null) { _combat = Spec.DemonologyWarlock.CreateDemWCombat; }
+                    if (_pull == null) { _pull = Spec.DemonologyWarlock.CreateDemWCombat; }
+                    if (_buffs == null) { _buffs = Spec.DemonologyWarlock.CreateDemWBuffs; }
                     break;
                 case WoWSpec.WarlockDestruction:
                     if (_combat == null) { _combat = Spec.DestructionWarlock.CreateDWCombat; }

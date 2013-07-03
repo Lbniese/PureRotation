@@ -128,8 +128,8 @@ namespace AdvancedAI.Spec
             get
             {
                 return new PrioritySelector(
-                    Spell.BuffSelf("Battle Shout")
-                    );
+                    Spell.BuffSelf("Battle Shout"),
+                    new ActionAlwaysSucceed());
             }
         }
 
