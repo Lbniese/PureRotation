@@ -8,10 +8,9 @@ using Action = Styx.TreeSharp.Action;
 
 namespace AdvancedAI.Spec
 {
-    class ArmsWarrior// : AdvancedAI
+    class ArmsWarrior
     {
         static LocalPlayer Me { get { return StyxWoW.Me; } }
-
         public static Composite CreateAWBuffs
         {
             get

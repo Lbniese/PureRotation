@@ -8,12 +8,9 @@ using Action = Styx.TreeSharp.Action;
 
 namespace AdvancedAI.Spec
 {
-    class FeralDruid// : AdvancedAI
-    {        
-        //public override WoWClass Class { get { return WoWClass.Druid; } }
-        //public override WoWSpec Spec { get { return WoWSpec.DruidFeral; } }
+    class FeralDruid
+    {      
         static LocalPlayer Me { get { return StyxWoW.Me; } }
-
         /*Had some issues here and had to use spell ids... so heres the id and the spell
          * 132158 = Nature's Swiftness
          * 5185 = Healing Touch

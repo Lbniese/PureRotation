@@ -7,12 +7,9 @@ using System.Linq;
 
 namespace AdvancedAI.Spec
 {
-    class WindwalkerMonk// : AdvancedAI
+    class WindwalkerMonk
     {        
-        //public override WoWClass Class { get { return WoWClass.Monk; } }
-        //public override WoWSpec Spec { get { return WoWSpec.MonkWindwalker; } }
         static LocalPlayer Me { get { return StyxWoW.Me; } }
-
         public static Composite CreateWMCombat
         {
             get

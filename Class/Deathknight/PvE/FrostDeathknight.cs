@@ -18,15 +18,9 @@ using Action = Styx.TreeSharp.Action;
 
 namespace AdvancedAI.Spec
 {
-    class FrostDeathknight// : AdvancedAI
+    class FrostDeathknight
     {
-
-        //public override WoWClass Class { get { return WoWClass.DeathKnight; } }
-        //public override WoWSpec Spec { get { return WoWSpec.DeathKnightFrost; } }
         static LocalPlayer Me { get { return StyxWoW.Me; } }
-
-
-
         internal static int BloodRuneSlotsActive { get { return Me.GetRuneCount(0) + Me.GetRuneCount(1); } }
         internal static int FrostRuneSlotsActive { get { return Me.GetRuneCount(2) + Me.GetRuneCount(3); } }
         internal static int UnholyRuneSlotsActive { get { return Me.GetRuneCount(4) + Me.GetRuneCount(5); } }
@@ -35,8 +29,6 @@ namespace AdvancedAI.Spec
         {
             get { return Me.Inventory.Equipped.MainHand != null && Me.Inventory.Equipped.OffHand != null; }
         }
-
-
 
         public static Composite CreateFDKBuffs
         {
@@ -48,8 +40,6 @@ namespace AdvancedAI.Spec
                     Spell.Cast("Horn of Winter", ret => !Me.HasAura("Horn of Winter")));
             }
         }
-
-
 
         public static Composite CreateFDKCombat
         {
@@ -184,18 +174,16 @@ namespace AdvancedAI.Spec
                                 Me.UnholyRuneCount == 0 && Me.DeathRuneCount == 0 && Me.FrostRuneCount == 0))));
             }
         }
+
         Composite CreateAoe()
         {
             return new PrioritySelector(
-
-
-
                 );
         }
+
         Composite CreateExecuteRange()
         {
             return new PrioritySelector(
-
                 );
         }
     }

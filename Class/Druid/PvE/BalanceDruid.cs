@@ -17,7 +17,7 @@ using Action = Styx.TreeSharp.Action;
 
 namespace AdvancedAI.Spec
 {
-    class BalanceDruid// : AdvancedAI
+    class BalanceDruid
     {
         LocalPlayer Me { get { return StyxWoW.Me; } }
         public static Composite CreateBDCombat

@@ -17,7 +17,7 @@ using Action = Styx.TreeSharp.Action;
 
 namespace AdvancedAI.Spec
 {
-    class RestorationShaman// : AdvancedAI
+    class RestorationShaman
     {
         LocalPlayer Me { get { return StyxWoW.Me; } }
         public static Composite CreateRSCombat

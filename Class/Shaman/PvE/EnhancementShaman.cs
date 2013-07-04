@@ -9,7 +9,7 @@ using Action = Styx.TreeSharp.Action;
 
 namespace AdvancedAI.Spec
 {
-    class EnhancementShaman// : AdvancedAI
+    class EnhancementShaman
     {
         static LocalPlayer Me { get { return StyxWoW.Me; } }
         //Need to get imbues working to make life easier

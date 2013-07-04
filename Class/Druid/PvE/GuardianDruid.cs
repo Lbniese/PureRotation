@@ -16,12 +16,9 @@ using System.Threading.Tasks;
 using Action = Styx.TreeSharp.Action;
 namespace AdvancedAI.Spec
 {
-    class GuardianDruid// : AdvancedAI
+    class GuardianDruid
     {
-        //public override WoWClass Class { get { return WoWClass.Druid; } }
-        //public override WoWSpec Spec { get { return WoWSpec.DruidGuardian; } }
         LocalPlayer Me { get { return StyxWoW.Me; } }
-
         public static Composite CreateGDCombat
         {
             get

@@ -21,7 +21,6 @@ namespace AdvancedAI.Spec
     class ProtectionPaladin
     {
         static LocalPlayer Me { get { return StyxWoW.Me; } }
-
         public static Composite CreatePPCombat
         {
             get

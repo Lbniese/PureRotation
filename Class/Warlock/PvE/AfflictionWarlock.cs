@@ -17,7 +17,7 @@ using Action = Styx.TreeSharp.Action;
 
 namespace AdvancedAI.Spec
 {
-    class AfflictionWarlock// : AdvancedAI
+    class AfflictionWarlock
     {
         LocalPlayer Me { get { return StyxWoW.Me; } }
         public static Composite CreateAWCombat

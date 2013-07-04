@@ -17,7 +17,7 @@ using Action = Styx.TreeSharp.Action;
 
 namespace AdvancedAI.Spec
 {
-    class ElementalShaman// : AdvancedAI
+    class ElementalShaman
     {
         LocalPlayer Me { get { return StyxWoW.Me; } }
         public static Composite CreateElSCombat
