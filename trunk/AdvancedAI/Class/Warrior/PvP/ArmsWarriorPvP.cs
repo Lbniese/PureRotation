@@ -16,7 +16,7 @@ using Styx.CommonBot;
 
 namespace AdvancedAI.Spec
 {
-    class ArmsWarriorPvP// : AdvancedAI
+    class ArmsWarriorPvP
     {
         static LocalPlayer Me { get { return StyxWoW.Me; } }
         #region Disarm

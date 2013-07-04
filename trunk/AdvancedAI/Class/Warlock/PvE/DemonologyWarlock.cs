@@ -17,7 +17,7 @@ using Action = Styx.TreeSharp.Action;
 
 namespace AdvancedAI.Spec
 {
-    class DemonologyWarlock// : AdvancedAI
+    class DemonologyWarlock
     {
         LocalPlayer Me { get { return StyxWoW.Me; } }
         public static Composite CreateDemWCombat

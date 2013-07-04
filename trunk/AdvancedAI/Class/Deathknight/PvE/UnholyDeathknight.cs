@@ -19,7 +19,7 @@ using System.Windows.Forms;
 
 namespace AdvancedAI.Spec
 {
-    class UnholyDeathknight// : AdvancedAI
+    class UnholyDeathknight
     {
         static LocalPlayer Me { get { return StyxWoW.Me; } }
         private const int SuddenDoom = 81340;

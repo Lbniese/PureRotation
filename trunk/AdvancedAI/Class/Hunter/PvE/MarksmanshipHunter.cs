@@ -17,7 +17,7 @@ using Action = Styx.TreeSharp.Action;
 
 namespace AdvancedAI.Spec
 {
-    class MarksmanshipHunter// : AdvancedAI
+    class MarksmanshipHunter
     {
         LocalPlayer Me { get { return StyxWoW.Me; } }
         public static Composite CreateMHKBuffs

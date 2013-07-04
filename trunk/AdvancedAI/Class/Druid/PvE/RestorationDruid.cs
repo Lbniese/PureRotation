@@ -17,12 +17,9 @@ using Action = Styx.TreeSharp.Action;
 
 namespace AdvancedAI.Spec
 {
-    class RestorationDruid// : AdvancedAI
+    class RestorationDruid
     {
-        //public override WoWClass Class { get { return WoWClass.Druid; } }
-        //public override WoWSpec Spec { get { return WoWSpec.DruidRestoration; } }
         LocalPlayer Me { get { return StyxWoW.Me; } }
-
         public static Composite CreateRDCombat
         {
             get

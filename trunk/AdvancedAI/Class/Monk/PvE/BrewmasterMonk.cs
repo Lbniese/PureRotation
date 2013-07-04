@@ -12,10 +12,8 @@ using AdvancedAI.Managers;
 
 namespace AdvancedAI.Spec
 {
-    class BrewmasterMonk// : AdvancedAI
-    {        
-        //public override WoWClass Class { get { return WoWClass.Monk; } }
-        //public override WoWSpec Spec { get { return WoWSpec.MonkBrewmaster; } }
+    class BrewmasterMonk
+    {       
         static LocalPlayer Me { get { return StyxWoW.Me; } }
         private static double? _time_to_max;
         private static double? _EnergyRegen;

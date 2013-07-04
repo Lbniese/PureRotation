@@ -17,7 +17,7 @@ using Action = Styx.TreeSharp.Action;
 
 namespace AdvancedAI.Spec
 {
-    class CombatRogue// : AdvancedAI
+    class CombatRogue
     {
         LocalPlayer Me { get { return StyxWoW.Me; } }
         public static Composite CreateCRCombat

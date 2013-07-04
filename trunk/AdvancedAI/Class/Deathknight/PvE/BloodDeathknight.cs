@@ -17,12 +17,9 @@ using Action = Styx.TreeSharp.Action;
 
 namespace AdvancedAI.Spec
 {
-    class BloodDeathknight// : AdvancedAI
+    class BloodDeathknight
     {
-        //public override WoWClass Class { get { return WoWClass.DeathKnight; } }
-        //public override WoWSpec Spec { get { return WoWSpec.DeathKnightBlood; } }
         static LocalPlayer Me { get { return StyxWoW.Me; } }
-
         internal static Composite CreateBDKCombat
         {
             get

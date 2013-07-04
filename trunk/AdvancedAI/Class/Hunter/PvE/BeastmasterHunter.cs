@@ -17,7 +17,7 @@ using Action = Styx.TreeSharp.Action;
 
 namespace AdvancedAI.Spec
 {
-    class BeastmasterHunter// : AdvancedAI
+    class BeastmasterHunter
     {
         LocalPlayer Me { get { return StyxWoW.Me; } }
         public static Composite CreateBMHCombat 

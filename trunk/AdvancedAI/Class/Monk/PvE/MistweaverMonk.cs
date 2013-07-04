@@ -18,12 +18,9 @@ using AdvancedAI.Managers;
 
 namespace AdvancedAI.Spec
 {
-    class MistweaverMonk// : AdvancedAI
+    class MistweaverMonk
     {
-        //public override WoWClass Class { get { return WoWClass.Monk; } }
-        //public override WoWSpec Spec { get { return WoWSpec.MonkMistweaver; } }
         static LocalPlayer Me { get { return StyxWoW.Me; } }
-
         public static Composite CreateMMCombat
         {
             get

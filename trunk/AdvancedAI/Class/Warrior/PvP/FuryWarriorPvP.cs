@@ -11,11 +11,9 @@ using Action = Styx.TreeSharp.Action;
 
 namespace AdvancedAI.Spec
 {
-    class FuryWarriorPvP// : AdvancedAI
+    class FuryWarriorPvP
     {
-        //public override WoWClass Class { get { return WoWClass.Warrior; } }
         LocalPlayer Me { get { return StyxWoW.Me; } }
-
         public static Composite CreateFWPvPCombat
         {
             get

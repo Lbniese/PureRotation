@@ -17,7 +17,7 @@ using Action = Styx.TreeSharp.Action;
 
 namespace AdvancedAI.Spec
 {
-    class SurvivalHunter// : AdvancedAI
+    class SurvivalHunter
     {
         LocalPlayer Me { get { return StyxWoW.Me; } }
         public static Composite CreateSHCombat
