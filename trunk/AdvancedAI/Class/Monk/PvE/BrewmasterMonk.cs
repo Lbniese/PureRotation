@@ -26,6 +26,8 @@ namespace AdvancedAI.Spec
                 return new PrioritySelector(
                     new Decorator(ret => AdvancedAI.PvPRot,
                         BrewmasterMonkPvP.CreateBMPvPCombat),
+                    new Throttle(1, 1,
+                        new Action(context => ResetVariables())),
                     /*Things to fix
                      * energy capping - fixed (stole alex's code)
                      * need to check healing spheres 
@@ -157,7 +159,7 @@ namespace AdvancedAI.Spec
                 return _energy.Value;
             }
         }
-        private static RunStatus resetVariables()
+        private static RunStatus ResetVariables()
         {
             _time_to_max = null;
             _energy = null;
