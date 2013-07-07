@@ -64,9 +64,10 @@ namespace AdvancedAI.Spec
                     new Decorator(ret => AdvancedAI.Burst,
                         new PrioritySelector(
                             Spell.Cast("Stormlash Totem", ret => !Me.HasAura("Stormlash Totem")),
-                            Spell.Cast("Elemental Mastery", ret => Me.CurrentTarget.IsBoss),
-                            Spell.Cast("Fire Elemental Totem", ret => Me.CurrentTarget.IsBoss),
-                            Spell.Cast("Ascendance", ret => Me.CurrentTarget.IsBoss))),
+                            Spell.Cast("Elemental Mastery"),
+                            Spell.Cast("Fire Elemental Totem"),
+                            Spell.Cast("Feral Spirit"),
+                            Spell.Cast("Ascendance"))),
                     //end hotkey
 
                     // Needs Testing
@@ -80,6 +81,7 @@ namespace AdvancedAI.Spec
                     
                     //Need to set up for talents
                     //Spell.Cast("Unleash Elements"),
+                    new Action(ret => { Item.UseHands(); return RunStatus.Failure; }),
 
                     new Decorator(ret => Me.HasAura("Maelstrom Weapon", 5),
                         new PrioritySelector(
@@ -100,20 +102,20 @@ namespace AdvancedAI.Spec
                     Spell.Cast("Lava Lash"),
 
                     Spell.Cast("Flame Shock", ret => Me.HasAura("Unleash Flame") ||
-                               !Me.HasAura("Unleash Flame") && !Me.CurrentTarget.HasMyAura("Flame Shock") && SpellManager.Spells["Unleashed Elements"].CooldownTimeLeft.TotalSeconds >= 5),
+                               !Me.HasAura("Unleash Flame") && !Me.CurrentTarget.HasMyAura("Flame Shock")),
+                               //&& SpellManager.Spells["Unleashed Elements"].CooldownTimeLeft.TotalSeconds >= 5),
 
                     Spell.Cast("Unleash Elements"),
-
+                    new Throttle(2,
+                        new PrioritySelector(
                     new Decorator(ret => Me.HasAura("Maelstrom Weapon", 3) && !Me.HasAura("Ascendance") && !Me.IsMoving,
                         new PrioritySelector(
                             Spell.Cast("Elemental Blast"),
                             Spell.Cast("Lightning Bolt")
                             )
-                        ),
+                        ))),
 
                     Spell.Cast("Earth Shock"),
-
-                    Spell.Cast("Feral Spirit"),
 
                     Spell.Cast("Earth Elemental Totem", ret => Me.CurrentTarget.IsBoss && SpellManager.Spells["Fire Elemental Totem"].CooldownTimeLeft.Seconds >= 50),
 

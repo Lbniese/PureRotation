@@ -31,10 +31,11 @@ namespace AdvancedAI.Spec
                      * need to check healing spheres 
                      * need to work on chi wave to get more dmg/healing out it
                      * chi capping? need to do more checking - fixed as far as i know
+                     * IsCurrentTank() code does not work
                     */
                     Spell.Cast("Spear Hand Strike", ret => StyxWoW.Me.CurrentTarget.IsCasting && StyxWoW.Me.CurrentTarget.CanInterruptCurrentSpellCast),
 
-                    new Decorator(ret => Me.CurrentTarget.IsBoss && IsCurrentTank(),
+                    new Decorator(ret => Me.CurrentTarget.IsBoss,
                         new PrioritySelector(
                     //hands and trinks
                     //new Action(ret => { UseTrinkets(); return RunStatus.Failure; }),
@@ -45,19 +46,19 @@ namespace AdvancedAI.Spec
                     Spell.Cast("Touch of Death", ret => Me.CurrentChi >= 3 && Me.HasAura("Death Note")),
 
                     //// apply the Weakened Blows debuff. Keg Smash also generates allot of threat 
-                    Spell.Cast("Keg Smash", ctx => Me.CurrentChi <= 2
+                    Spell.Cast(121253, ctx => Me.CurrentChi <= 3
                         && Clusters.GetCluster(Me, Unit.NearbyUnfriendlyUnits, ClusterType.Radius, 8).Any(u => !u.HasAura("Weakened Blows"))),
 
                     //PB, EB, and Guard are off the GCD
                     //!!!!!!!Purifying Brew !!!!!!!
                     Spell.Cast("Purifying Brew", ret => Me.CurrentChi > 0 && Me.HasAura("Heavy Stagger")),
                     Spell.Cast("Purifying Brew", ret => Me.CurrentChi > 0 && Me.HasAura("Moderate Stagger") && Me.HealthPercent <= 70 && (Me.GetAuraTimeLeft("Shuffle").TotalSeconds >= 6 || Me.CurrentChi > 2)),
-                    Spell.Cast("Purifying Brew", ret => Me.CurrentChi > 0 && Me.HasAura("Light Stagger") && Me.HealthPercent <= 40 && (Me.GetAuraTimeLeft("Shuffle").TotalSeconds >= 6 || Me.CurrentChi > 2)),
+                    Spell.Cast("Purifying Brew", ret => Me.CurrentChi > 0 && Me.HasAura("Light Stagger") && Me.HealthPercent < 40 && (Me.GetAuraTimeLeft("Shuffle").TotalSeconds >= 6 || Me.CurrentChi > 2)),
 
                     //Elusive Brew will made auto at lower stacks when I can keep up 80 to 90% up time this is just to keep from capping
                     Spell.Cast("Elusive Brew", ret => Me.HasAura("Elusive Brew", 12) && !Me.HasAura(115308)),
                     //Guard
-                    Spell.Cast("Guard", ret => Me.CurrentChi >= 2 && Me.HasAura("Power Guard") && IsCurrentTank()),
+                    Spell.Cast("Guard", ret => Me.CurrentChi >= 2 && Me.HasAura("Power Guard")),
 
                     //Blackout Kick might have to add guard back but i think its better to open with BK and get shuffle to build AP for Guard
                     Spell.Cast("Blackout Kick", ret => Me.CurrentChi >= 2 && !Me.HasAura("Shuffle")),
@@ -76,7 +77,9 @@ namespace AdvancedAI.Spec
 
                     Spell.Cast("Blackout Kick", ret => Me.CurrentChi >= 3),
 
-                    Spell.Cast("Keg Smash", ret => Me.CurrentChi <= 3),
+                    //keg smash
+                    Spell.Cast(121253),
+                    //ret => Me.CurrentChi <= 3),
 
                     //Chi Talents
                     //need to do math here and make it use 2 if im going to use it
@@ -85,23 +88,24 @@ namespace AdvancedAI.Spec
 
                     Spell.Cast("Expel Harm", ret => Me.HealthPercent <= 90),
 
-                    //Healing Spheres need to work on
-                    Spell.CastOnGround("Healing Sphere", on => Me.Location, ret => Me.HealthPercent <= 50 && Me.CurrentEnergy >= 60),
+                    //Healing Spheres need to work on not happy with this atm
+                    //Spell.CastOnGround("Healing Sphere", on => Me.Location, ret => Me.HealthPercent <= 50 && Me.CurrentEnergy >= 60),
 
                     Spell.Cast("Spinning Crane Kick", ret => Unit.NearbyUnfriendlyUnits.Count(u => u.DistanceSqr <= 8 * 8) >= 5 && SpellManager.Spells["Keg Smash"].CooldownTimeLeft.TotalSeconds > 2),
 
-                    Spell.Cast("Jab", ret => time_to_max <= 1 || SpellManager.Spells["Keg Smash"].CooldownTimeLeft.TotalSeconds > 3),
-
+                    Spell.Cast("Jab", ret => Me.CurrentEnergy >= 80 || SpellManager.Spells["Keg Smash"].CooldownTimeLeft.TotalSeconds > 3),
+//time_to_max <= 1
                     Spell.CastOnGround("Summon Black Ox Statue", on => Me.CurrentTarget.Location, ret => !Me.HasAura("Sanctuary of the Ox") && Me.CurrentTarget.IsBoss),
                     //dont like using this in auto to many probs with it
                     //Spell.Cast("Invoke Xuen, the White Tiger", ret => Me.CurrentTarget.IsBoss && IsCurrentTank()),
-
+                    
                     Spell.Cast("Tiger Palm", ret => SpellManager.Spells["Keg Smash"].CooldownTimeLeft.TotalSeconds >= .9)
                         );
             }
         }
 
         #region Target Tank Tracking
+        //this code is not working
         // So, this code is just to track who the current tank is on the mob we're looking at.
         // Sometimes using threat is fine, sometimes the boss switches targets to cast an ability.
         // We want to ensure that we're the ones with threat. 
@@ -135,7 +139,7 @@ namespace AdvancedAI.Spec
             {
                 if (!_EnergyRegen.HasValue)
                 {
-                    _EnergyRegen = Styx.WoWInternals.Lua.GetReturnVal<float>("return GetPowerRegen()", 1);
+                    _EnergyRegen = Lua.GetReturnVal<float>("return GetPowerRegen()", 1);
                     return _EnergyRegen.Value;
                 }
                 return _EnergyRegen.Value;
@@ -147,7 +151,7 @@ namespace AdvancedAI.Spec
             {
                 if (!_energy.HasValue)
                 {
-                    _energy = Styx.WoWInternals.Lua.GetReturnVal<int>("return UnitPower(\"player\");", 0);
+                    _energy = Lua.GetReturnVal<int>("return UnitPower(\"player\");", 0);
                     return _energy.Value;
                 }
                 return _energy.Value;
