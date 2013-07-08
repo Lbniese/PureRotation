@@ -34,7 +34,6 @@ namespace AdvancedAI.Spec
                 return new Decorator(
                     ret => !Spell.IsCasting() && !Spell.IsGlobalCooldown(),
                     new PrioritySelector(
-
                         Spell.Cast("Lightning Shield", ret => !StyxWoW.Me.HasAura("Lightning Shield"))
                         //CreateShamanImbueMainHandBehavior(Imbue.Windfury, Imbue.Flametongue),
                         //CreateShamanImbueOffHandBehavior(Imbue.Flametongue)
@@ -52,15 +51,11 @@ namespace AdvancedAI.Spec
             get
             {
                 return new PrioritySelector(
-
-
                     //CreateShamanImbueMainHandBehavior(Imbue.Windfury, Imbue.Flametongue),
                     //CreateShamanImbueOffHandBehavior(Imbue.Flametongue),
-
                     Spell.Cast("Healing Stream Totem", ret => Me.HealthPercent < 80),
                     //Spell.Cast("Stormlash Totem", ret => PartyBuff.WeHaveBloodlust && !Me.HasAura("Stormlash Totem")),
 
-                    //need hotkey here
                     new Decorator(ret => AdvancedAI.Burst,
                         new PrioritySelector(
                             Spell.Cast("Stormlash Totem", ret => !Me.HasAura("Stormlash Totem")),
@@ -68,10 +63,9 @@ namespace AdvancedAI.Spec
                             Spell.Cast("Fire Elemental Totem"),
                             Spell.Cast("Feral Spirit"),
                             Spell.Cast("Ascendance"))),
-                    //end hotkey
 
                     // Needs Testing
-                    Spell.Cast("Hex", on => Me.FocusedUnit, ret => !Me.FocusedUnit.HasAura("Hex") && AdvancedAI.HexFocus),
+                    Spell.Cast("Hex", on => Me.FocusedUnit, ret => Me.FocusedUnit != null && !Me.FocusedUnit.HasAura("Hex") && AdvancedAI.HexFocus),
 
                     Spell.Cast("Lightning Shield", ret => !Me.HasAura("Lightning Shield")),
                     //this will have to be fixed Major Part of dps
@@ -90,17 +84,12 @@ namespace AdvancedAI.Spec
                             )
                         ),
 
-
                     new Decorator(ret => (Me.HasAura("Ascendance") && !WoWSpell.FromId(115356).Cooldown),
                         new Action(ret => Lua.DoString("RunMacroText('/cast Stormblast')"))),
 
-
                     Spell.Cast("Stormstrike"),
-
                     Spell.Cast("Flame Shock", ret => Me.HasAura("Unleash Flame") && !Me.CurrentTarget.HasMyAura("Flame Shock")),
-
                     Spell.Cast("Lava Lash"),
-
                     Spell.Cast("Flame Shock", ret => Me.HasAura("Unleash Flame") ||
                                !Me.HasAura("Unleash Flame") && !Me.CurrentTarget.HasMyAura("Flame Shock")),
                                //&& SpellManager.Spells["Unleashed Elements"].CooldownTimeLeft.TotalSeconds >= 5),
@@ -116,9 +105,7 @@ namespace AdvancedAI.Spec
                         ))),
 
                     Spell.Cast("Earth Shock"),
-
                     Spell.Cast("Earth Elemental Totem", ret => Me.CurrentTarget.IsBoss && SpellManager.Spells["Fire Elemental Totem"].CooldownTimeLeft.Seconds >= 50),
-
                     //need more gear
                     //new Decorator(ret => Me.HasAura("Maelstrom Weapon", 1) && !Me.HasAura("Ascendance"),
                     //    new PrioritySelector(

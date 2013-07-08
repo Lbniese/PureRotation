@@ -31,5 +31,29 @@ namespace AdvancedAI.Spec
 
             }
         }
+
+        #region MonkTalents
+        public enum MonkTalents
+        {
+            Celerity = 1,//Tier 1
+            TigersLust,
+            Momentum,
+            ChiWave,//Tier 2
+            ZenSphere,
+            ChiBurst,
+            PowerStrikes,//Tier 3
+            Ascension,
+            ChiBrew,
+            RingofPeace,//Tier 4
+            ChargingOxWave,
+            LegSweep,
+            HealingElixirs,//Tier 5
+            DampenHarm,
+            DiffuseMagic,
+            RushingJadeWind,//Tier 6
+            InvokeXuen,
+            ChiTorpedo
+        }
+        #endregion
     }
 }

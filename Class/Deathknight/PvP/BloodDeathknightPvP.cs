@@ -31,5 +31,29 @@ namespace AdvancedAI.Spec
 
             }
         }
+
+        #region DeathKnightTalents
+        public enum DeathKnightTalents
+        {
+            RollingBlood = 1,//Tier 1
+            PlagueLeech,
+            UnholyBlight,
+            LichBorne,//Tier 2
+            AntiMagicZone,
+            Purgatory,
+            DeathsAdvance,//Tier 3
+            Chilblains,
+            Asphyxiate,
+            DeathPact,//Tier 4
+            DeathSiphon,
+            Conversion,
+            BloodTap,//Tier 5
+            RunicEmpowerment,
+            RunicCorruption,
+            GorefiendsGrasp,//Tier 6
+            RemoreselessWinter,
+            DesecratedGround
+        }
+        #endregion
     }
 }
