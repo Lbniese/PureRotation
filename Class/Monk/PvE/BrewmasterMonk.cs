@@ -26,7 +26,7 @@ namespace AdvancedAI.Spec
                 return new PrioritySelector(
                     new Decorator(ret => AdvancedAI.PvPRot,
                         BrewmasterMonkPvP.CreateBMPvPCombat),
-                    new Throttle(1, 1,
+                    new Throttle(1,
                         new Action(context => ResetVariables())),
                     /*Things to fix
                      * energy capping - fixed (stole alex's code)
@@ -93,15 +93,17 @@ namespace AdvancedAI.Spec
                     //Healing Spheres need to work on not happy with this atm
                     //Spell.CastOnGround("Healing Sphere", on => Me.Location, ret => Me.HealthPercent <= 50 && Me.CurrentEnergy >= 60),
 
-                    Spell.Cast("Spinning Crane Kick", ret => Unit.NearbyUnfriendlyUnits.Count(u => u.DistanceSqr <= 8 * 8) >= 5 && SpellManager.Spells["Keg Smash"].CooldownTimeLeft.TotalSeconds > 2),
+                    Spell.Cast("Spinning Crane Kick", ret => Unit.NearbyUnfriendlyUnits.Count(u => u.DistanceSqr <= 8 * 8) >= 5 && Spell.GetSpellCooldown("Keg Smash").TotalSeconds >= 2),
 
-                    Spell.Cast("Jab", ret => Me.CurrentEnergy >= 80 || SpellManager.Spells["Keg Smash"].CooldownTimeLeft.TotalSeconds > 3),
-//time_to_max <= 1
+                    //Spell.Cast("Jab", ret => Spell.GetSpellCooldown("Keg Smash").TotalSeconds >= (((40 - 0) * (1.0 / EnergyRegen)) / 1.6)),
+
+                    Spell.Cast("Jab", ret => time_to_max <= 1 || Spell.GetSpellCooldown("Keg Smash").TotalSeconds >= 3),
+// Me.CurrentEnergy >= 80
                     Spell.CastOnGround("Summon Black Ox Statue", on => Me.CurrentTarget.Location, ret => !Me.HasAura("Sanctuary of the Ox") && Me.CurrentTarget.IsBoss),
                     //dont like using this in auto to many probs with it
                     //Spell.Cast("Invoke Xuen, the White Tiger", ret => Me.CurrentTarget.IsBoss && IsCurrentTank()),
-                    
-                    Spell.Cast("Tiger Palm", ret => SpellManager.Spells["Keg Smash"].CooldownTimeLeft.TotalSeconds >= .9)
+
+                    Spell.Cast("Tiger Palm", ret => Spell.GetSpellCooldown("Keg Smash").TotalSeconds >= 1)
                         );
             }
         }

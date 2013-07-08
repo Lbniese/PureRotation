@@ -70,7 +70,7 @@ namespace AdvancedAI.Spec
                     Spell.Cast("Crusader Strike"),
                     Spell.Cast("Judgment"),
                     Spell.BuffSelf("Sacred Shield", ret => SpellManager.HasSpell("Sacred Shield")),
-                    Spell.CastOnGround("Light's Hammer", ret => Me.CurrentTarget.Location, ret => true, false),
+                    Spell.CastOnGround("Light's Hammer", ret => Me.CurrentTarget.Location),
                     Spell.Cast("Holy Prism"),
                     Spell.Cast("Execution Sentence"),
                     Spell.Cast("Hammer of Wrath"),

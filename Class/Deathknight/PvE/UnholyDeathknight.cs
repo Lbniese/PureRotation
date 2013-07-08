@@ -122,11 +122,12 @@ namespace AdvancedAI.Spec
                         ret => Me.GotAlivePet &&
                                 !Me.Pet.ActiveAuras.ContainsKey("Dark Transformation") &&
                                 Me.HasAura("Shadow Infusion", 5)),
-                    Spell.CastOnGround("Death and Decay", ret => StyxWoW.Me.CurrentTarget.Location, ret => true, false),
+                    Spell.CastOnGround("Death and Decay", ret => Me.CurrentTarget.Location, ret => true, false),
                     Spell.Cast("Scourge Strike",
-                        ret => Me.UnholyRuneCount == 2 || Me.DeathRuneCount > 0),
+                        ret => Me.UnholyRuneCount == 2),
                     Spell.Cast("Festering Strike",
                         ret => Me.BloodRuneCount == 2 && Me.FrostRuneCount == 2),
+
                     Spell.Cast("Death Coil",
                         ret => (Me.HasAura(SuddenDoom) || Me.CurrentRunicPower >= 90)),// && StyxWoW.Me.Auras["Shadow Infusion"].StackCount < 5),
                     Spell.Cast("Scourge Strike"),
