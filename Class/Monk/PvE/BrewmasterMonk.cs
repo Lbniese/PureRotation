@@ -95,10 +95,10 @@ namespace AdvancedAI.Spec
 
                     Spell.Cast("Spinning Crane Kick", ret => Unit.NearbyUnfriendlyUnits.Count(u => u.DistanceSqr <= 8 * 8) >= 5 && Spell.GetSpellCooldown("Keg Smash").TotalSeconds >= 2),
 
-                    //Spell.Cast("Jab", ret => Spell.GetSpellCooldown("Keg Smash").TotalSeconds >= (((40 - 0) * (1.0 / EnergyRegen)) / 1.6)),
+                    Spell.Cast("Jab", ret => Spell.GetSpellCooldown("Keg Smash").TotalSeconds >= (((40 - 0) * (1.0 / EnergyRegen)) / 1.6)),
 
-                    Spell.Cast("Jab", ret => time_to_max <= 1 || Spell.GetSpellCooldown("Keg Smash").TotalSeconds >= 3),
-// Me.CurrentEnergy >= 80
+                    //Spell.Cast("Jab", ret => time_to_max <= 1 || Spell.GetSpellCooldown("Keg Smash").TotalSeconds >= 3),
+
                     Spell.CastOnGround("Summon Black Ox Statue", on => Me.CurrentTarget.Location, ret => !Me.HasAura("Sanctuary of the Ox") && Me.CurrentTarget.IsBoss),
                     //dont like using this in auto to many probs with it
                     //Spell.Cast("Invoke Xuen, the White Tiger", ret => Me.CurrentTarget.IsBoss && IsCurrentTank()),
