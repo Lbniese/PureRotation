@@ -168,25 +168,25 @@ namespace AdvancedAI.Spec
             }
         }
 
-        #region Nested type: DeathKnightTalents
+        #region DeathKnightTalents
         public enum DeathKnightTalents
         {
-            RollingBlood = 1,
+            RollingBlood = 1,//Tier 1
             PlagueLeech,
             UnholyBlight,
-            LichBorne,
+            LichBorne,//Tier 2
             AntiMagicZone,
             Purgatory,
-            DeathsAdvance,
+            DeathsAdvance,//Tier 3
             Chilblains,
             Asphyxiate,
-            DeathPact,
+            DeathPact,//Tier 4
             DeathSiphon,
             Conversion,
-            BloodTap,
+            BloodTap,//Tier 5
             RunicEmpowerment,
             RunicCorruption,
-            GorefiendsGrasp,
+            GorefiendsGrasp,//Tier 6
             RemoreselessWinter,
             DesecratedGround
         }

@@ -31,5 +31,29 @@ namespace AdvancedAI.Spec
 
             }
         }
+
+        #region DruidTalents
+        public enum DruidTalents
+        {
+            FelineSwiftness = 1,//Tier 1
+            DisplacerBeast,
+            WildCharge,
+            NaturesSwiftness,//Tier 2
+            Renewal,
+            CenarionWard,
+            FaerieSwarm,//Tier 3
+            MassEntanglement,
+            Typhoon,
+            SouloftheForest,//Tier 4
+            Incarnation,
+            ForceofNature,
+            DisorientingRoar,//Tier 5
+            UrsolsVortex,
+            MightyBash,
+            HeartoftheWild,//Tier 6
+            DreamofCenarius,
+            NaturesVigil
+        }
+        #endregion
     }
 }
