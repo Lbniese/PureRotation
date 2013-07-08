@@ -95,7 +95,9 @@ namespace AdvancedAI.Spec
 
                     Spell.Cast("Spinning Crane Kick", ret => Unit.NearbyUnfriendlyUnits.Count(u => u.DistanceSqr <= 8 * 8) >= 5 && Spell.GetSpellCooldown("Keg Smash").TotalSeconds >= 2),
 
-                    Spell.Cast("Jab", ret => Spell.GetSpellCooldown("Keg Smash").TotalSeconds >= (((40 - 0) * (1.0 / EnergyRegen)) / 1.6)),
+                    Spell.Cast("Jab", ret => ((Me.CurrentEnergy - 40) + (Spell.GetSpellCooldown("Keg Smash").TotalSeconds * EnergyRegen)) > 40),
+
+                    //Spell.Cast("Jab", ret => Spell.GetSpellCooldown("Keg Smash").TotalSeconds >= (((40 - 0) * (1.0 / EnergyRegen)) / 1.6)),
 
                     //Spell.Cast("Jab", ret => time_to_max <= 1 || Spell.GetSpellCooldown("Keg Smash").TotalSeconds >= 3),
 
