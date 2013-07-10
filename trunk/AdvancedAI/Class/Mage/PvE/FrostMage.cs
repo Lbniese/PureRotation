@@ -1,4 +1,5 @@
-﻿using CommonBehaviors.Actions;
+﻿using AdvancedAI.Spec;
+using CommonBehaviors.Actions;
 using Styx;
 using Styx.Common;
 using Styx.CommonBot;
@@ -19,14 +20,109 @@ namespace AdvancedAI.Spec
 {
     class FrostMage
     {
-        LocalPlayer Me { get { return StyxWoW.Me; } }
+        static LocalPlayer Me { get { return StyxWoW.Me; } }
+
         public static Composite CreateFMCombat
         {
             get
             {
                 return new PrioritySelector(
                     new Decorator(ret => AdvancedAI.PvPRot,
-                        FrostMagePvP.CreateFMPvPCombat)
+                                  FrostMagePvP.CreateFMPvPCombat),
+
+                    Spell.Cast("Ice Barrier", ret => !Me.HasAura("Ice Barrier")),
+
+                    //Moving
+                    new Decorator(ret => Me.IsMoving,
+                                  new PrioritySelector(
+                                      Spell.Cast("Frostfire Bolt", ret => Me.HasAura("Brain Freeze")),
+                                      CreateBomb(),
+                                      Spell.Cast("Fire Blast", ret => Me.IsMoving),
+                                      Spell.Cast("Ice Lance", ret => Me.IsMoving)
+                                      )),
+
+
+                    // Interrupt please.
+                    Spell.Cast("Counterspell",
+                               ret => Me.CurrentTarget.IsCasting && Me.CurrentTarget.CanInterruptCurrentSpellCast),
+                    Spell.WaitForCastOrChannel(),
+                    //cancel_buff,name=alter_time,moving=1
+                    Spell.Cast("Alter Time", ret => Me.HasAura("Alter Time") && Me.IsMoving),
+
+                    //Spell.CastOnGround("Rune of Power", ret => Me.Location, ret => !Me.HasAura("Rune of Power")),
+                    new Throttle(3,
+                        new PrioritySelector(
+                    Spell.Cast("Evocation",
+                               ret => !Me.HasAura("Invoker's Energy") || Me.HasAuraExpired("Invoker's Energy", 2)))),
+
+                    Spell.Cast("Evocation",
+                               ret =>
+                               Spell.GetSpellCooldown("Icy Veins").TotalSeconds == 0 &&
+                               Me.HasAuraExpired("Invoker's Energy", 20)),
+                    //Spell.CastOnGround("Rune of Power", ret => Me.Location, ret => GetSpellCooldown("Icy Veins").TotalSeconds ==0 && Me.HasAuraExpired("Invoker's Energy", 20)),
+
+                    Spell.Cast("Frostbolt", ret => !Me.CurrentTarget.HasMyAura("Frostbolt", 3)),
+
+                    Spell.Cast("Mirror Image", ret => Me.CurrentTarget.IsBoss),
+
+                    Spell.Cast("Lifeblood", ret => Me.HasAura("Icy Veins")),
+
+                    Spell.Cast("Frozen Orb", ret => !Me.HasAura("Fingers of Frost")),
+
+                    Spell.Cast("Icy Veins",
+                               ret =>
+                               Me.CurrentTarget.IsBoss && Me.CurrentTarget.Auras["Frostbolt"].StackCount >= 3 &&
+                               (Me.HasAura("Brain Freeze") || Me.HasAura("Fingers of Frost")) && !Me.IsMoving),
+
+                    Spell.Cast("Presence of Mind",
+                               ret =>
+                               Me.CurrentTarget.IsBoss &&
+                               (Me.HasAura("Icy Veins") || Spell.GetSpellCooldown("Icy Veins").TotalSeconds > 15)),
+
+                    Spell.Cast("Alter Time",
+                               ret => Me.CurrentTarget.IsBoss && Me.HasAura("Icy Veins") && !Me.HasAura("Alter Time")),
+
+
+                    CreateAoe(),
+
+                    Spell.Cast("Frostfire Bolt", ret => Me.HasAura("Alter Time") && Me.HasAura("Brain Freeze")),
+
+                    Spell.Cast("Ice Lance", ret => Me.HasAura("Alter Time") && Me.HasAura("Fingers of Frost")),
+
+                    CreateBomb(),
+
+                    Spell.Cast("Frostfire Bolt", ret => Me.HasAura("Brain Freeze")),
+
+                    Spell.Cast("Ice Lance", ret => Me.HasAura("Fingers of Frost")),
+
+                    Spell.Cast("Frostbolt")
+
+                    );
+            }
+        }
+
+        private static Composite CreateBomb()
+        {
+            return new PrioritySelector(
+
+                Spell.Cast("Nether Tempest", ret => !Me.CurrentTarget.HasMyAura("Nether Tempest")),
+                Spell.Cast("Frost Bomb", ret => !Me.IsMoving),                
+                Spell.Cast("Living Bomb", ret => (Me.CurrentTarget.GetAuraTimeLeft("Living Bomb", true).TotalSeconds < 2 || !Me.CurrentTarget.HasAura("Living Bomb")) && Me.CurrentTarget.TimeToDeath() > 6)
+                );
+        }
+        private static Composite CreateAoe()
+        {
+            return new PrioritySelector(ret => Unit.UnfriendlyUnitsNearTarget(10).Count() > 1,
+
+                                        Spell.CastOnGround("Flamestrike", loc => Me.CurrentTarget.Location,
+                                                           ret => Unit.UnfriendlyUnitsNearTarget(10).Count() >= 2),
+                                        Spell.Cast("Frozen Orb"),
+                                        Spell.Cast("Arcane Explosion",
+                                                   ret => Unit.NearbyUnfriendlyUnits.Count(t => t.Distance <= 10) >= 4));
+        }
+
+  
+
                     //9	0.00	counterspell,if=target.debuff.casting.react
                     //A	0.00	cancel_buff,name=alter_time,moving=1
                     //B	0.00	conjure_mana_gem,if=mana_gem_charges<3&target.debuff.invulnerable.react
@@ -50,9 +146,8 @@ namespace AdvancedAI.Spec
                     //T	205.29	frostbolt
                     //U	0.00	fire_blast,moving=1
                     //V	0.00	ice_lance,moving=1                    
-                    );
-            }
-        }
+                  
+          
 
         public static Composite CreateFMBuffs
         {
@@ -89,3 +184,4 @@ namespace AdvancedAI.Spec
         #endregion
     }
 }
+
