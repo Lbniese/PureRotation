@@ -39,5 +39,29 @@ namespace AdvancedAI.Spec
                         HolyPriestPvP.CreateHPPvPBuffs));
             }
         }
+
+        #region PriestTalents
+        public enum PriestTalents
+        {
+            VoidTendrils = 1,
+            Psyfiend,
+            DominateMind,
+            BodyAndSoul,
+            AngelicFeather,
+            Phantasm,
+            FromDarknessComesLight,
+            Mindbender,
+            SolaceAndInsanity,
+            DesperatePrayer,
+            SpectralGuise,
+            AngelicBulwark,
+            TwistOfFate,
+            PowerInfusion,
+            DivineInsight,
+            Cascade,
+            DivineStar,
+            Halo
+        }
+        #endregion
     }
 }

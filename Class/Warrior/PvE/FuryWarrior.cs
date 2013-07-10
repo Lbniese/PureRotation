@@ -106,5 +106,30 @@ namespace AdvancedAI.Spec
                 new ActionAlwaysSucceed()
                 );
         }
+
+        #region WarriorTalents
+        public enum WarriorTalents
+        {
+            None = 0,
+            Juggernaut,
+            DoubleTime,
+            Warbringer,
+            EnragedRegeneration,
+            SecondWind,
+            ImpendingVictory,
+            StaggeringShout,
+            PiercingHowl,
+            DisruptingShout,
+            Bladestorm,
+            Shockwave,
+            DragonRoar,
+            MassSpellReflection,
+            Safeguard,
+            Vigilance,
+            Avatar,
+            Bloodbath,
+            StormBolt
+        }
+        #endregion
     }
 }

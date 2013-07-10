@@ -39,5 +39,29 @@ namespace AdvancedAI.Spec
                         RestorationShamanPvP.CreateRSPvPBuffs));
             }
         }
+
+        #region ShamanTalents
+        public enum ShamanTalents
+        {
+            NaturesGuardian = 1,
+            StoneBulwarkTotem,
+            AstralShift,
+            FrozenPower,
+            EarthgrabTotem,
+            WindwalkTotem,
+            CallOfTheElements,
+            TotemicRestoration,
+            TotemicProjection,
+            ElementalMastery,
+            AncestralSwiftness,
+            EchoOfTheElements,
+            HealingTideTotem,
+            AncestralGuidance,
+            Conductivity,
+            UnleashedFury,
+            PrimalElementalist,
+            ElementalBlast
+        }
+        #endregion
     }
 }
