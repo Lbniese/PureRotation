@@ -73,5 +73,30 @@ namespace AdvancedAI.Spec
                     );
             }
         }
+
+        #region WarlockTalents
+        public enum WarlockTalents
+        {
+            None = 0,
+            DarkRegeneration,
+            SoulLeech,
+            HarvestLife,
+            HowlOfTerror,
+            MortalCoil,
+            Shadowfury,
+            SoulLink,
+            SacrificialPact,
+            DarkBargain,
+            BloodHorror,
+            BurningRush,
+            UnboundWill,
+            GrimoireOfSupremacy,
+            GrimoireOfService,
+            GrimoireOfSacrifice,
+            ArchimondesVengeance,
+            KiljadensCunning,
+            MannorothsFury
+        }
+        #endregion
     }
 }

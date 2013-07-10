@@ -29,9 +29,9 @@ namespace AdvancedAI.Spec
                 return new PrioritySelector(
                     new Decorator(ret => AdvancedAI.PvPRot,
                         ArmsWarriorPvP.CreateAWPvPCombat),
-                    new Throttle(1, 1,
-                        new PrioritySelector(
-                            Spell.Cast("Throw", on => PinkDino))),
+                    //new Throttle(1, 1,
+                    //    new PrioritySelector(
+                    //        Spell.Cast("Throw", on => PinkDino))),
                     Spell.Cast("Pummel", ret => Me.CurrentTarget.IsCasting && Me.CurrentTarget.CanInterruptCurrentSpellCast),
                     Spell.Cast("Impending Victory", ret => Me.HealthPercent <= 90 && Me.HasAura("Victorious")),
                     Spell.Cast("Die by the Sword", ret => Me.HealthPercent <= 20),
@@ -92,6 +92,31 @@ namespace AdvancedAI.Spec
                                 select unit).FirstOrDefault();
                 return direhornspirit;
             }
+        }
+        #endregion
+
+        #region WarriorTalents
+        public enum WarriorTalents
+        {
+            None = 0,
+            Juggernaut,
+            DoubleTime,
+            Warbringer,
+            EnragedRegeneration,
+            SecondWind,
+            ImpendingVictory,
+            StaggeringShout,
+            PiercingHowl,
+            DisruptingShout,
+            Bladestorm,
+            Shockwave,
+            DragonRoar,
+            MassSpellReflection,
+            Safeguard,
+            Vigilance,
+            Avatar,
+            Bloodbath,
+            StormBolt
         }
         #endregion
     }

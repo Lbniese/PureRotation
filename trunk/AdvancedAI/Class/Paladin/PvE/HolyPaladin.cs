@@ -39,5 +39,29 @@ namespace AdvancedAI.Spec
                         HolyPaladinPvP.CreateHPaPvPBuffs));
             }
         }
+
+        #region PaladinTalents
+        public enum PaladinTalents
+        {
+            SpeedofLight = 1,//Tier 1
+            LongArmoftheLaw,
+            PersuitofJustice,
+            FistofJustice,//Tier 2
+            Repentance,
+            BurdenofGuilt,
+            SelflessHealer,//Tier 3
+            EternalFlame,
+            SacredShield,
+            HandofPurity,//Tier 4
+            UnbreakableSpirit,
+            Clemency,
+            HolyAvenger,//Tier 5
+            SanctifiedWrath,
+            DivinePurpose,
+            HolyPrism,//Tier 6
+            LightsHammer,
+            ExecutionSentence
+        }
+        #endregion
     }
 }

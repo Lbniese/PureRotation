@@ -31,5 +31,30 @@ namespace AdvancedAI.Spec
 
             }
         }
+
+        #region RogueTalents
+        public enum RogueTalents
+        {
+            None = 0,
+            Nightstalker,
+            Subterfuge,
+            ShadowFocus,
+            DeadlyThrow,
+            NerveStrike,
+            CombatReadiness,
+            CheatDeath,
+            LeechingPoison,
+            Elusivenss,
+            CloakAndDagger,
+            Shadowstep,
+            BurstOfSpeed,
+            PreyOnTheWeak,
+            ParalyticPoison,
+            DirtyTricks,
+            ShurikenToss,
+            MarkedForDeath,
+            Anticipation
+        }
+        #endregion
     }
 }
