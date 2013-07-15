@@ -247,8 +247,10 @@ namespace AdvancedAI
         public static bool PvPRot { get; set; }
         public static bool Burst { get; set; }
         public static bool HexFocus { get; set; }
-        public static bool MovementEnabled { get; set; }
-        public static bool TierBouons { get; set; }
+        public static bool Movement { get; set; }
+        public static bool TierBonus { get; set; }
+        public static bool Aoe { get; set; }
+        public static bool BossMechs { get; set; }
 
         protected virtual void UnregisterHotkeys()
         {
@@ -256,7 +258,10 @@ namespace AdvancedAI
             HotkeysManager.Unregister("PvP Toggle");
             HotkeysManager.Unregister("Burst");
             HotkeysManager.Unregister("Hex Focus");
-            HotkeysManager.Unregister("Movement Enabled");
+            HotkeysManager.Unregister("Movement");
+            HotkeysManager.Unregister("Tier Bonus");
+            HotkeysManager.Unregister("AOE");
+            HotkeysManager.Unregister("Boss Mechs");
         }
         protected virtual void RegisterHotkeys()
         {
@@ -309,21 +314,44 @@ namespace AdvancedAI
             ModifierKeys.Alt,
             o =>
             {
-                MovementEnabled = !MovementEnabled;
-                Logging.Write("Movement Enabled: " + MovementEnabled);
-                Lua.DoString("print('Movement Enabled: " + MovementEnabled + "')");
+                Movement = !Movement;
+                Logging.Write("Movement Enabled: " + Movement);
+                Lua.DoString("print('Movement Enabled: " + Movement + "')");
             });
-            MovementEnabled = false;
-            HotkeysManager.Register("Tier Bouons",
+            Movement = false;
+
+            HotkeysManager.Register("Tier Bonus",
             Keys.NumPad3,
             ModifierKeys.Control,
             o =>
             {
-                TierBouons = !TierBouons;
-                Logging.Write("Tier Bouons enabled: " + TierBouons);
-                Lua.DoString("print('Tier Bouons Enabled: " + TierBouons + "')");
+                TierBonus = !TierBonus;
+                Logging.Write("Tier Bonus enabled: " + TierBonus);
+                Lua.DoString("print('Tier Bonus Enabled: " + TierBonus + "')");
             });
-            TierBouons = false;
+            TierBonus = false;
+
+            HotkeysManager.Register("AOE",
+            Keys.NumPad4,
+            ModifierKeys.Control,
+            o =>
+            {
+                Aoe = !Aoe;
+                Logging.Write("AOE enabled: " + Aoe);
+                Lua.DoString("print('AOE Enabled: " + Aoe + "')");
+            });
+            Aoe = true;
+
+            HotkeysManager.Register("Boss Mechs",
+            Keys.NumPad5,
+            ModifierKeys.Control,
+            o =>
+            {
+                BossMechs = !BossMechs;
+                Logging.Write("Boss Mechs enabled: " + BossMechs);
+                Lua.DoString("print('Boss Mechs Enabled: " + BossMechs + "')");
+            });
+            BossMechs = false;
         }
 
         #region Requirements
