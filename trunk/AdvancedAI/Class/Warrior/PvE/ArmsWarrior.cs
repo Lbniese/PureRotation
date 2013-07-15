@@ -31,7 +31,7 @@ namespace AdvancedAI.Spec
                         ArmsWarriorPvP.CreateAWPvPCombat),
                     new Throttle(1, 1,
                         new Decorator(ret => Me.HasAura("Dire Fixation"),
-                        Class.BossMechs.HorridonHeroic())),
+                            Class.BossMechs.HorridonHeroic())),
                     Spell.Cast("Pummel", ret => Me.CurrentTarget.IsCasting && Me.CurrentTarget.CanInterruptCurrentSpellCast),
                     Spell.Cast("Impending Victory", ret => Me.HealthPercent <= 90 && Me.HasAura("Victorious")),
                     Spell.Cast("Die by the Sword", ret => Me.HealthPercent <= 20),
