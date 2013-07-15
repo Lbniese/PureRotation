@@ -203,6 +203,7 @@ namespace AdvancedAI.Spec
                             Spell.Cast("Frost Strike", ret =>
                                 Me.RunicPowerPercent >= 76),
 //L	14.13	death_and_decay,if=unholy=1
+                            Spell.CastOnGround("Death and Decay", on => Me.CurrentTarget.Location, ret => Me.UnholyRuneCount == 1),
 //M	34.90	plague_strike,if=unholy=2
                             Spell.Cast("Plague Strike", ret => Me.UnholyRuneCount == 2),
 //N	0.00	blood_tap,if=talent.blood_tap.enabled
