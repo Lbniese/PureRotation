@@ -60,6 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AdvancedAI.cs" />
+    <Compile Include="Class\BossMechs.cs" />
     <Compile Include="Class\Deathknight\PvP\BloodDeathknightPvP.cs" />
     <Compile Include="Class\Deathknight\PvP\FrostDeathknightPvP.cs" />
     <Compile Include="Class\Deathknight\PvP\UnholyDeathknightPvP.cs" />
