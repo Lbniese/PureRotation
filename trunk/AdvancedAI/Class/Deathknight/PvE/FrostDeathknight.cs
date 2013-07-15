@@ -80,6 +80,9 @@ namespace AdvancedAI.Spec
                             ret => Me.HasAura("Blood Charge", 10) &&
                             (Me.UnholyRuneCount == 0 || Me.DeathRuneCount == 0 || Me.FrostRuneCount == 0)),
 
+                    new Decorator(ret => Unit.NearbyUnfriendlyUnits.Count(u => u.DistanceSqr <= 8 * 8) >= 5,
+                        CreateAoe()),
+
                     //CoolDowns 
                     Spell.Cast("Pillar of Frost"),
                     Spell.Cast("Raise Dead"),
@@ -175,9 +178,50 @@ namespace AdvancedAI.Spec
             }
         }
 
-        Composite CreateAoe()
+        private static Composite CreateAoe()
         {
             return new PrioritySelector(
+//        actions.aoe
+//F	0.00	unholy_blight,if=talent.unholy_blight.enabled
+                            Spell.Cast("Unholy Blight", ret =>
+                                    Me.CurrentTarget.GetAuraTimeLeft("Blood Plague", true).TotalSeconds <= 3 ||
+                                    Me.CurrentTarget.GetAuraTimeLeft("Frost Fever", true).TotalSeconds <= 3),
+//G	14.11	pestilence,if=dot.blood_plague.ticking&talent.plague_leech.enabled,line_cd=28
+                    new PrioritySelector(
+                        Spell.Cast("Pestilence",
+                            ret => Unit.UnfriendlyUnitsNearTarget(12f).Count() >= 2 &&
+                            !Me.HasAura("Unholy Blight") &&
+                            ShouldSpreadDiseases)),
+//H	0.00	pestilence,if=dot.blood_plague.ticking&talent.unholy_blight.enabled&cooldown.unholy_blight.remains<49,line_cd=28
+//I	174.96	howling_blast
+                            Spell.Cast("Howling Blast"),
+//J	0.00	blood_tap,if=talent.blood_tap.enabled&buff.blood_charge.stack>10
+                            Spell.Cast("Blood Tap", ret =>
+                                Me.HasAura("Blood Charge", 10)
+                                && (BloodRuneSlotsActive == 0 || FrostRuneSlotsActive == 0 || UnholyRuneSlotsActive == 0)),
+//K	22.21	frost_strike,if=runic_power>76
+                            Spell.Cast("Frost Strike", ret =>
+                                Me.RunicPowerPercent >= 76),
+//L	14.13	death_and_decay,if=unholy=1
+//M	34.90	plague_strike,if=unholy=2
+                            Spell.Cast("Plague Strike", ret => Me.UnholyRuneCount == 2),
+//N	0.00	blood_tap,if=talent.blood_tap.enabled
+                            Spell.Cast("Blood Tap", ret =>
+                                Me.HasAura("Blood Charge", 5)
+                                && (BloodRuneSlotsActive == 0 || FrostRuneSlotsActive == 0 || UnholyRuneSlotsActive == 0)),
+//O	139.66	frost_strike
+                            Spell.Cast("Frost Strike"),    
+//P	11.37	horn_of_winter
+                            Spell.Cast("Horn of Winter"),
+//Q	7.92	plague_leech,if=talent.plague_leech.enabled&unholy=1
+                            Spell.Cast("Plague Leech", ret =>
+                                Me.CurrentTarget.HasAura("Frost Fever") && Me.CurrentTarget.HasAura("Blood Plague") &&
+                                Me.UnholyRuneCount == 1),
+//R	9.05	plague_strike,if=unholy=1
+                            Spell.Cast("Plague Strike", ret => Me.UnholyRuneCount == 1),
+//S	1.17	empower_rune_weapon
+                            Spell.Cast("Empower Rune Weapon", ret =>
+                                Me.UnholyRuneCount == 0 && Me.DeathRuneCount == 0 && Me.FrostRuneCount == 0)
                 );
         }
 
@@ -185,6 +229,17 @@ namespace AdvancedAI.Spec
         {
             return new PrioritySelector(
                 );
+        }
+
+        internal static bool ShouldSpreadDiseases
+        {
+            get
+            {
+                int radius = TalentManager.HasGlyph("Pestilence") ? 15 : 10;
+                return !Me.CurrentTarget.HasAuraExpired("Blood Plague")
+                    && !Me.CurrentTarget.HasAuraExpired("Frost Fever")
+                    && Unit.NearbyUnfriendlyUnits.Any(u => Me.SpellDistance(u) < radius && u.HasAuraExpired("Blood Plague") && u.HasAuraExpired("Frost Fever"));
+            }
         }
 
         #region DeathKnightTalents

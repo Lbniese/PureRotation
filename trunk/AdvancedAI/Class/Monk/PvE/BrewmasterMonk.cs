@@ -85,7 +85,8 @@ namespace AdvancedAI.Spec
 
                     //Chi Talents
                     //need to do math here and make it use 2 if im going to use it
-                    Spell.Cast("Chi Wave", on => Me, ret => Me.HealthPercent <= 85),
+                    Spell.Cast("Chi Wave"),
+                    //Spell.Cast("Chi Wave", on => Me, ret => Me.HealthPercent <= 85),
                     Spell.Cast("Zen Sphere", on => _tanking),
 
                     Spell.Cast("Expel Harm", ret => Me.HealthPercent <= 90),
@@ -105,7 +106,7 @@ namespace AdvancedAI.Spec
                     //dont like using this in auto to many probs with it
                     //Spell.Cast("Invoke Xuen, the White Tiger", ret => Me.CurrentTarget.IsBoss && IsCurrentTank()),
 
-                    Spell.Cast("Tiger Palm", ret => Spell.GetSpellCooldown("Keg Smash").TotalSeconds >= 1)
+                    Spell.Cast("Tiger Palm", ret => Spell.GetSpellCooldown("Keg Smash").TotalSeconds >= 1 && Me.CurrentChi < 3 && Me.CurrentEnergy < 80)
                         );
             }
         }

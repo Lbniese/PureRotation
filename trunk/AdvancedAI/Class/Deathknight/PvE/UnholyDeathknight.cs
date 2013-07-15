@@ -78,7 +78,7 @@ namespace AdvancedAI.Spec
 
                     // Execute
                     Spell.Cast("Soul Reaper",
-                        ret => Me.CurrentTarget.HealthPercent < 37),
+                        ret => Me.CurrentTarget.HealthPercent < 36),
                     // Diseases
                     Spell.Cast("Outbreak",
                         ret => !Me.CurrentTarget.HasMyAura("Frost Fever") ||
