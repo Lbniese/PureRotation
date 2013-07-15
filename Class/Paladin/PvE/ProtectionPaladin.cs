@@ -52,7 +52,7 @@ namespace AdvancedAI.Spec
                     Spell.Cast("Word of Glory", ret => Me.HealthPercent < 15 && (Me.CurrentHolyPower >= 1 || Me.HasAura("Divine Purpose"))),
 
                     //Prot 2pc 
-                    new Decorator(ret => AdvancedAI.TierBouons,
+                    new Decorator(ret => AdvancedAI.TierBonus,
                         new PrioritySelector(
                             Spell.Cast("Word of Glory", ret => Me.HealthPercent < 90 && Me.CurrentHolyPower == 1 && !Me.HasAura("Shield of Glory")),
                             Spell.Cast("Word of Glory", ret => Me.HealthPercent < 75 && Me.CurrentHolyPower <= 2 && !Me.HasAura("Shield of Glory")),
