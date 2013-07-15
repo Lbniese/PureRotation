@@ -52,16 +52,16 @@ namespace AdvancedAI.Class
                             SetFocus(),
                             Spell.Cast("Howling Blast", on => Me.FocusedUnit),
                             Spell.Cast("Death Coil", on => Me.FocusedUnit),
-                            Spell.Cast("Icy Touch", on => Me.FocusedUnit)));
+                            Spell.Cast("Icy Touch", on => Me.FocusedUnit));
                 case WoWClass.Druid:
                     return new PrioritySelector(
                             SetFocus(),
-                            Spell.Cast("Growl", on => Me.FocusedUnit)));
+                            Spell.Cast("Growl", on => Me.FocusedUnit));
                 case WoWClass.Hunter:
                     return new PrioritySelector(
                             SetFocus(),
                             Spell.Cast("Chi Wave", on => Me.FocusedUnit),
-                            Spell.Cast("Faerie Fire", on => Me.FocusedUnit)));
+                            Spell.Cast("Faerie Fire", on => Me.FocusedUnit));
                 case WoWClass.Mage:
                     return new Throttle(1, 1,
                         new PrioritySelector(
@@ -71,12 +71,12 @@ namespace AdvancedAI.Class
                     return new PrioritySelector(
                             SetFocus(),
                             Spell.Cast("Provoke", on => Me.FocusedUnit),
-                            Spell.Cast("Chi Wave", on => Me.FocusedUnit)));
+                            Spell.Cast("Chi Wave", on => Me.FocusedUnit));
                 case WoWClass.Paladin:
                     return new PrioritySelector(
                             SetFocus(),
                             Spell.Cast("Judgement", on => Me.FocusedUnit),
-                            Spell.Cast("Avenger's Shield", on => Me.FocusedUnit)));
+                            Spell.Cast("Avenger's Shield", on => Me.FocusedUnit));
                 case WoWClass.Priest:
                     return new PrioritySelector(
                             SetFocus(),
@@ -85,25 +85,25 @@ namespace AdvancedAI.Class
                             Spell.Cast("Holy Fire", on => Me.FocusedUnit),
                             Spell.Cast("Power Word: Solace", on => Me.FocusedUnit),
                             Spell.Cast("Smite", on => Me.FocusedUnit),
-                            Spell.Cast("Chi Wave", on => Me.FocusedUnit)));
+                            Spell.Cast("Chi Wave", on => Me.FocusedUnit));
                 case WoWClass.Rogue:
                     return new PrioritySelector(
                             SetFocus(),
-                            Spell.Cast("Throw", on => Me.FocusedUnit)));
+                            Spell.Cast("Throw", on => Me.FocusedUnit));
                 case WoWClass.Shaman:
                     return new PrioritySelector(
                             SetFocus(),
                             Spell.Cast("Purge", on => Me.FocusedUnit),
                             Spell.Cast("Unleashed Elements", on => Me.FocusedUnit),
-                            Spell.Cast("Lightning Bolt", on => Me.FocusedUnit)));
+                            Spell.Cast("Lightning Bolt", on => Me.FocusedUnit));
                 case WoWClass.Warlock:
                     return new PrioritySelector(
                             SetFocus(),
-                            Spell.Cast("Fel Flame", on => Me.FocusedUnit)));
+                            Spell.Cast("Fel Flame", on => Me.FocusedUnit));
                 case WoWClass.Warrior:
                     return new PrioritySelector(
                             SetFocus(),
-                            Spell.Cast("Throw", on => Me.FocusedUnit)));
+                            Spell.Cast("Throw", on => Me.FocusedUnit));
             }
             return null;
         }
