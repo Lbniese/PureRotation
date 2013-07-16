@@ -171,7 +171,8 @@ namespace AdvancedAI.Spec
         #region DeathKnightTalents
         public enum DeathKnightTalents
         {
-            RoillingBlood = 1,//Tier 1
+            None = 0,
+            RoillingBlood,//Tier 1
             PlagueLeech,
             UnholyBlight,
             LichBorne,//Tier 2
