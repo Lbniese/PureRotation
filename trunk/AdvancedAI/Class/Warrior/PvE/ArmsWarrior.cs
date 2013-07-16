@@ -37,8 +37,9 @@ namespace AdvancedAI.Spec
                     Spell.Cast("Impending Victory", ret => Me.HealthPercent <= 90 && Me.HasAura("Victorious")),
                     Spell.Cast("Die by the Sword", ret => Me.HealthPercent <= 20),
                     Item.CreateUsePotionAndHealthstone(50, 0),
-                    new Decorator(ret => Unit.NearbyUnfriendlyUnits.Count(u => u.DistanceSqr <= 8 * 8) >= 4,
-                        CreateAoe()),
+                    new Throttle(
+                        new Decorator(ret => Unit.NearbyUnfriendlyUnits.Count(u => u.DistanceSqr <= 8 * 8) >= 4,
+                            CreateAoe())),
                     new Decorator(ret => AdvancedAI.Burst,
                         new PrioritySelector(
                         Spell.Cast("Recklessness", ret => Me.CurrentTarget.IsBoss && Me.CurrentTarget.HasAuraExpired("Colossus Smash", 5)),
