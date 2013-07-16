@@ -96,7 +96,7 @@ namespace AdvancedAI.Spec
                         new PrioritySelector(
                             Spell.Cast("Blood Boil",
                                 ret => Unit.UnfriendlyUnitsNearTarget(12f).Count() >= 2 &&
-                                        TalentManager.IsSelected((int)DeathKnightTalents.RollingBlood) &&
+                                        TalentManager.IsSelected((int)DeathKnightTalents.RoillingBlood) &&
                                         !Me.HasAura("Unholy Blight") &&
                                         //StyxWoW.Me.CurrentTarget.DistanceSqr <= 15 * 15 && 
                                         ShouldSpreadDiseases))),
@@ -171,7 +171,7 @@ namespace AdvancedAI.Spec
         #region DeathKnightTalents
         public enum DeathKnightTalents
         {
-            RollingBlood = 1,//Tier 1
+            RoillingBlood = 1,//Tier 1
             PlagueLeech,
             UnholyBlight,
             LichBorne,//Tier 2
