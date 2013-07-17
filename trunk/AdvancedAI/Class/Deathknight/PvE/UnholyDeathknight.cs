@@ -35,6 +35,7 @@ namespace AdvancedAI.Spec
                     new Decorator(ret => AdvancedAI.PvPRot,
                         UnholyDeathknightPvP.CreateUDKPvPCombat),
 
+                    Spell.WaitForCastOrChannel(),
                     // Interrupt please.
                     Spell.Cast("Mind Freeze", ret => Me.CurrentTarget.IsCasting && Me.CurrentTarget.CanInterruptCurrentSpellCast),
                     Spell.Cast("Strangulate", ret => Me.CurrentTarget.IsCasting && Me.CurrentTarget.CanInterruptCurrentSpellCast),
