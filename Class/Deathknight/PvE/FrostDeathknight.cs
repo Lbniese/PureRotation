@@ -49,6 +49,7 @@ namespace AdvancedAI.Spec
                     new Decorator(ret => AdvancedAI.PvPRot,
                         FrostDeathknightPvP.CreateFDKPvPCombat),
 
+                    Spell.WaitForCastOrChannel(),
                     // Interrupt please.
                     Spell.Cast("Mind Freeze", ret => Me.CurrentTarget.IsCasting && Me.CurrentTarget.CanInterruptCurrentSpellCast),
                     Spell.Cast("Strangulate", ret => Me.CurrentTarget.IsCasting && Me.CurrentTarget.CanInterruptCurrentSpellCast),
@@ -80,7 +81,7 @@ namespace AdvancedAI.Spec
                             ret => Me.HasAura("Blood Charge", 10) &&
                             (Me.UnholyRuneCount == 0 || Me.DeathRuneCount == 0 || Me.FrostRuneCount == 0)),
 
-                    new Decorator(ret => Unit.NearbyUnfriendlyUnits.Count(u => u.DistanceSqr <= 10 * 10) >= 3,
+                    new Decorator(ret => Unit.NearbyUnfriendlyUnits.Count(u => u.DistanceSqr <= 10 * 10) >= 5,
                         CreateAoe()),
                    
                     //Cooldowns
@@ -135,7 +136,7 @@ namespace AdvancedAI.Spec
                                     Me.UnholyRuneCount > 0),
                             Spell.Cast("Howling Blast"),
                             Spell.Cast("Empower Rune Weapon", ret =>
-                                    Me.UnholyRuneCount == 0 && Me.DeathRuneCount == 0 && Me.FrostRuneCount == 0))),
+                                    AdvancedAI.Burst && Me.UnholyRuneCount == 0 && Me.DeathRuneCount == 0 && Me.FrostRuneCount == 0))),
 
                     // *** 2 Hand Single Target Priority
                     new Decorator(ctx => !IsDualWelding,
@@ -196,10 +197,8 @@ namespace AdvancedAI.Spec
                       new Throttle(1, 2,
                         new PrioritySelector(
                             Spell.Cast("Blood Boil",
-                                ret => Unit.UnfriendlyUnitsNearTarget(12f).Count() >= 2 &&
-                                        TalentManager.IsSelected((int)DeathKnightTalents.RoillingBlood) &&
+                                ret => TalentManager.IsSelected((int)DeathKnightTalents.RoillingBlood) &&
                                         !Me.HasAura("Unholy Blight") &&
-                                    //StyxWoW.Me.CurrentTarget.DistanceSqr <= 15 * 15 && 
                                         ShouldSpreadDiseases))),
                       new Throttle(1, 2,
                         new PrioritySelector(

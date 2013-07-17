@@ -1,4 +1,6 @@
-﻿using CommonBehaviors.Actions;
+﻿using System.Drawing;
+using Bots.BGBuddy.Helpers;
+using CommonBehaviors.Actions;
 using Styx;
 using Styx.Common;
 using Styx.CommonBot;
@@ -19,14 +21,57 @@ namespace AdvancedAI.Spec
 {
     class BeastmasterHunter
     {
-        LocalPlayer Me { get { return StyxWoW.Me; } }
+        static LocalPlayer Me { get { return StyxWoW.Me; } }
+        static WoWUnit Pet { get { return StyxWoW.Me.Pet; } }
         public static Composite CreateBMHCombat 
         { 
             get
             {
                 return new PrioritySelector(
                     new Decorator(ret => AdvancedAI.PvPRot,
-                        BeastmasterHunterPvP.CreateBMPvPCombat)
+                        BeastmasterHunterPvP.CreateBMPvPCombat),
+
+                        Spell.Cast("Silencing Shot", ret => Me.CurrentTarget.IsCasting && Me.CurrentTarget.CanInterruptCurrentSpellCast),
+
+                        CreateHunterTrapBehavior("Explosive Trap", true, ret => Me.CurrentTarget, ret => Unit.UnfriendlyUnitsNearTarget(10f).Count() >= 2),
+                        Spell.BuffSelf("Focus Fire", ctx => Me.HasAura("Frenzy", 5)),
+                        Spell.Buff("Serpent Sting"),
+                        Spell.Cast("Fervor", ctx => Me.CurrentFocus < 65),
+                        Spell.Buff("Bestial Wrath", true, ret => Me.CurrentFocus > 60 && Spell.GetSpellCooldown("Kill Command") == TimeSpan.Zero && !Me.HasAura("Rapid Fire"), "The Beast Within"),
+
+                        Spell.Cast("Tranquilizing Shot", ctx => Me.CurrentTarget.HasAura("Enraged")),
+
+                        Spell.Buff("Concussive Shot",
+                            ret => Me.CurrentTarget.CurrentTargetGuid == Me.Guid 
+                                && Me.CurrentTarget.Distance > Spell.MeleeRange),
+
+                        // AoE Rotation
+                        new Decorator(ret => AdvancedAI.Aoe && Unit.UnfriendlyUnitsNearTarget(8f).Count() >= 5,
+                            new PrioritySelector(
+                                Spell.Cast( "Multi-Shot", ctx => Clusters.GetBestUnitForCluster( Unit.NearbyUnfriendlyUnits.Where( u => u.Distance < 40 && u.InLineOfSpellSight && Me.IsSafelyFacing(u)), ClusterType.Radius, 8f)),
+                                Spell.Cast( "Kill Shot", onUnit => Unit.NearbyUnfriendlyUnits.FirstOrDefault(u => u.HealthPercent < 20 && u.Distance < 40 && u.InLineOfSpellSight && Me.IsSafelyFacing(u))),
+                                Spell.Cast( "Cobra Shot"))),
+
+                        Spell.Buff("Rapid Fire", ret => !Me.HasAura("The Beast Within") && !Me.CurrentTarget.IsBoss()),
+                        Spell.Cast("Rabid", ret => Me.HasAura("The Beast Within")),
+                        Spell.BuffSelf("Exhilaration", ret => Me.HealthPercent < 35 || (Pet != null && Pet.HealthPercent < 25)),
+                        Spell.Buff("Mend Pet", onUnit => Pet, ret => Me.GotAlivePet && Pet.HealthPercent < 60),
+                        Spell.Cast("Stampede", ret => (PartyBuff.WeHaveBloodlust || Me.CurrentTarget.TimeToDeath() <= 25 || Me.HasAura("Rapid Fire")) && !Me.CurrentTarget.IsBoss()),
+                        Spell.Cast("Kill Shot", ctx => Me.CurrentTarget.HealthPercent < 20),
+                        Spell.Cast("Kill Command", ctx => Me.GotAlivePet && Pet.GotTarget && Pet.Location.Distance(Pet.CurrentTarget.Location) < 25f),
+                        Spell.Cast("A Murder of Crows"),
+                        Spell.Cast("Glaive Toss"),
+                        Spell.Cast("Lynx Rush", ret => Pet != null && Unit.NearbyUnfriendlyUnits.Any(u => Pet.Location.Distance(u.Location) <= 10)),
+                        Spell.Cast("Dire Beast", ret => Me.CurrentFocus <= 90),
+                        Spell.Cast("Barrage"),
+                        Spell.Cast("Powershot"),
+                        Spell.Cast("Blink Strike", on => Me.CurrentTarget, ret => Me.GotAlivePet && Me.Pet.SpellDistance(Me.CurrentTarget) < 40),
+                        Spell.Cast("Arcane Shot", ret => Me.HasAura("Thrill of the Hunt")),  
+                        Spell.BuffSelf("Focus Fire", ctx => Me.HasAura("Frenzy", 5) && !Me.HasAura("The Beast Within")),                        
+                        Spell.Cast("Cobra Shot", ret => Me.CurrentTarget.GetAuraTimeLeft("Serpent Sting", true).TotalSeconds < 6),
+                        Spell.Cast("Arcane Shot", ret => Me.CurrentFocus >= 61 || Me.HasAura("The Beast Within")),
+                        Spell.Cast("Cobra Shot")
+
                     //8	1.00	virmens_bite_potion,if=buff.bloodlust.react|target.time_to_die<=60
                     //9	1.00	auto_shot
                     //A	0.00	explosive_trap,if=active_enemies>1
@@ -66,6 +111,43 @@ namespace AdvancedAI.Spec
                         BeastmasterHunterPvP.CreateBMPvPBuffs));
             }
         }
+
+        #region Traps
+        public static Composite CreateHunterTrapBehavior(string trapName, bool useLauncher, UnitSelectionDelegate onUnit, SimpleBooleanDelegate req = null)
+        {
+            return new PrioritySelector(
+                new Decorator(
+                    ret => onUnit != null && onUnit(ret) != null
+                        && (req == null || req(ret))
+                        && onUnit(ret).DistanceSqr < (40 * 40)
+                        && SpellManager.HasSpell(trapName) && Spell.GetSpellCooldown(trapName) == TimeSpan.Zero,
+                    new Sequence(
+                        new Action(ret => Logger.WriteDebug("Trap: use trap launcher requested: {0}", useLauncher)),
+                        new PrioritySelector(
+                            new Decorator(ret => useLauncher && Me.HasAura("Trap Launcher"), new ActionAlwaysSucceed()),
+                            Spell.BuffSelf("Trap Launcher", ret => useLauncher),
+                            new Decorator(ret => !useLauncher, new Action(ret => Me.CancelAura("Trap Launcher")))
+                            ),
+                // new Wait(TimeSpan.FromMilliseconds(500), ret => !useLauncher && Me.HasAura("Trap Launcher"), new ActionAlwaysSucceed()),
+                        new Wait(TimeSpan.FromMilliseconds(500),
+                            ret => (!useLauncher && !Me.HasAura("Trap Launcher"))
+                                || (useLauncher && Me.HasAura("Trap Launcher")),
+                            new ActionAlwaysSucceed()),
+                        new Action(ret => Logger.WriteDebug("Trap: launcher aura present = {0}", Me.HasAura("Trap Launcher"))),
+                        new Action(ret => Logger.WriteDebug("Trap: cancast = {0}", SpellManager.CanCast(trapName, onUnit(ret)))),
+
+                // Spell.Cast( trapName, ctx => onUnit(ctx)),
+                        new Action(ret => SpellManager.Cast(trapName, onUnit(ret))),
+
+                        Helpers.Common.CreateWaitForLagDuration(),
+                        new Action(ctx => SpellManager.ClickRemoteLocation(onUnit(ctx).Location)),
+                        new Action(ret => Logger.WriteDebug("Trap: Complete!"))
+                        )
+                    )
+                );
+        }
+        
+        #endregion
 
         #region HunterTalents
         public enum HunterTalents
