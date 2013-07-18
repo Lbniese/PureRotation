@@ -65,7 +65,6 @@ namespace AdvancedAI.Spec
                         Spell.Cast("Dire Beast", ret => Me.CurrentFocus <= 90),
                         Spell.Cast("Barrage"),
                         Spell.Cast("Powershot"),
-                        Spell.Cast("Blink Strike", on => Me.CurrentTarget, ret => Me.GotAlivePet && Me.Pet.SpellDistance(Me.CurrentTarget) < 40),
                         Spell.Cast("Arcane Shot", ret => Me.HasAura("Thrill of the Hunt")),  
                         Spell.BuffSelf("Focus Fire", ctx => Me.HasAura("Frenzy", 5) && !Me.HasAura("The Beast Within")),                        
                         Spell.Cast("Cobra Shot", ret => Me.CurrentTarget.GetAuraTimeLeft("Serpent Sting", true).TotalSeconds < 6),
