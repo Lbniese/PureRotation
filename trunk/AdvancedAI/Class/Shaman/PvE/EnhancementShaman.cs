@@ -13,7 +13,7 @@ namespace AdvancedAI.Spec
     {
         static LocalPlayer Me { get { return StyxWoW.Me; } }
         //Need to get imbues working to make life easier
-        public enum Imbue
+        private enum Imbue
         {
             None = 0,
 
