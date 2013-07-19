@@ -102,7 +102,7 @@ namespace AdvancedAI.Managers
                 WoWUnit unit = units[i].ToUnit();
                 try
                 {
-                    if (unit == null || !unit.IsValid || unit.IsDead || unit.IsHostile || unit.HasAnyAura(_doNotHeal))
+                    if (unit == null || !unit.IsValid || unit.IsDead || unit.IsHostile || unit.HealthPercent <= 0 || unit.HasAnyAura(_doNotHeal))
                     {
                         units.RemoveAt(i);
                         continue;
@@ -183,6 +183,32 @@ namespace AdvancedAI.Managers
                 {
                     prio.Score = u.IsAlive ? 500f : -500f;
                     prio.Score -= u.HealthPercent * 5;
+
+                    // If they're out of range, give them a bit lower score.
+                    if (u.DistanceSqr > 40 * 40)
+                    {
+                        prio.Score -= 50f;
+                    }
+
+                    // If they're out of LOS, again, lower score!
+                    if (!u.InLineOfSpellSight)
+                    {
+                        prio.Score -= 100f;
+                    }
+
+                    // Give tanks more weight. If the tank dies, we all die. KEEP HIM UP.
+                    if (tanks.Contains(u.Guid) && u.HealthPercent != 100 &&
+                        // Ignore giving more weight to the tank if we have Beacon of Light on it.
+                        (!amHolyPally || !u.Auras.Any(a => a.Key == "Beacon of Light" && a.Value.CreatorGuid == StyxWoW.Me.Guid)))
+                    {
+                        prio.Score += 100f;
+                    }
+
+                    // Give flag carriers more weight in battlegrounds. We need to keep them alive!
+                    if (inBg && u.IsPlayer && u.Auras.Keys.Any(a => a.ToLowerInvariant().Contains("flag")))
+                    {
+                        prio.Score += 100f;
+                    }
                 }
                 catch (System.AccessViolationException)
                 {
@@ -193,32 +219,6 @@ namespace AdvancedAI.Managers
                 {
                     prio.Score = -9999f;
                     continue;
-                }
-
-                // If they're out of range, give them a bit lower score.
-                if (u.DistanceSqr > 40 * 40)
-                {
-                    prio.Score -= 50f;
-                }
-
-                // If they're out of LOS, again, lower score!
-                if (!u.InLineOfSpellSight)
-                {
-                    prio.Score -= 100f;
-                }
-
-                // Give tanks more weight. If the tank dies, we all die. KEEP HIM UP.
-                if (tanks.Contains(u.Guid) && u.HealthPercent != 100 && 
-                    // Ignore giving more weight to the tank if we have Beacon of Light on it.
-                    (!amHolyPally || !u.Auras.Any(a => a.Key == "Beacon of Light" && a.Value.CreatorGuid == StyxWoW.Me.Guid)))
-                {
-                    prio.Score += 100f;
-                }
-
-                // Give flag carriers more weight in battlegrounds. We need to keep them alive!
-                if (inBg && u.IsPlayer && u.Auras.Keys.Any(a => a.ToLowerInvariant().Contains("flag")))
-                {
-                    prio.Score += 100f;
                 }
             }
         }
@@ -269,7 +269,7 @@ namespace AdvancedAI.Managers
         }
 
 
-        public static WoWUnit GetBestCoverageTarget(string spell, int health, int range, int radius, int minCount)
+        public static WoWUnit GetBestCoverageTarget(string spell, int health, int range, int radius, int minCount, SimpleBooleanDelegate requirements = null, IEnumerable<WoWUnit> mainTarget = null)
         {
             if (!Me.IsInGroup() || !Me.Combat)
                 return null;
@@ -279,9 +279,12 @@ namespace AdvancedAI.Managers
                 return null;
             }
 
+            if (requirements == null)
+                requirements = req => true;
+
             // build temp list of targets that could use heal and are in range + radius
             List<WoWUnit> coveredTargets = HealerManager.Instance.TargetList
-                .Where(u => u.IsAlive && u.Distance < (range + radius) && u.HealthPercent < health)
+                .Where(u => u.IsAlive && u.SpellDistance() < (range + radius) && u.HealthPercent < health && requirements(u))
                 .ToList();
 
 
@@ -289,8 +292,10 @@ namespace AdvancedAI.Managers
             IEnumerable<WoWUnit> listOf;
             if (range == 0)
                 listOf = new List<WoWUnit>() { Me };
+            else if (mainTarget == null)
+                listOf = HealerManager.Instance.TargetList.Where(p => p.IsAlive && p.SpellDistance() <= range);
             else
-                listOf = Unit.NearbyGroupMembersAndPets.Where(p => p.Distance <= range && p.IsAlive);
+                listOf = mainTarget;
 
             // now search list finding target with greatest number of heal targets in radius
             var t = listOf
@@ -298,7 +303,7 @@ namespace AdvancedAI.Managers
                 {
                     Player = p,
                     Count = coveredTargets
-                        .Where(pp => pp.IsAlive && pp.Location.Distance(p.Location) < radius)
+                        .Where(pp => pp.IsAlive && pp.SpellDistance(p) < radius)
                         .Count()
                 })
                 .OrderByDescending(v => v.Count)
@@ -310,8 +315,10 @@ namespace AdvancedAI.Managers
                 if (t.Count >= minCount)
                 {
                     Logging.WriteDiagnostic("GetBestCoverageTarget('{0}'): found {1} with {2} nearby under {3}%", spell, t.Player.SafeName(), t.Count, health);
+                    //Logger.WriteDebug("GetBestCoverageTarget('{0}'): found {1} with {2} nearby under {3}%", spell, t.Player.SafeName(), t.Count, health);
                     return t.Player;
                 }
+
             }
 
             return null;
@@ -430,7 +437,8 @@ namespace AdvancedAI.Managers
         {
             foreach (PrioritizedBehavior hs in blist)
             {
-                Logging.WriteDiagnostic("   Priority {0} for Behavior [{1}]", hs.Priority, hs.Name);
+                Logging.WriteDiagnostic("   Priority {0} for Behavior [{1}]", hs.Priority.ToString().AlignRight(4), hs.Name);
+                //Logger.WriteDebug(Color.GreenYellow, "   Priority {0} for Behavior [{1}]", hs.Priority.ToString().AlignRight(4), hs.Name);
             }
         }
     }

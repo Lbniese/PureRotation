@@ -42,7 +42,7 @@ namespace AdvancedAI
                     break;
             }
 
-            if (!StyxWoW.Me.IsInGroup()) return;
+            //if (!StyxWoW.Me.IsInGroup()) return;
             if (HealerManager.NeedHealTargeting)
                 HealerManager.Instance.Pulse();
             //if (Group.MeIsTank && CurrentWoWContext == WoWContext.Instances)
