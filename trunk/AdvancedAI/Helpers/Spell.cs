@@ -28,20 +28,15 @@ namespace AdvancedAI.Helpers
         Yes
     };
 
-
     public delegate WoWUnit UnitSelectionDelegate(object context);
 
     public delegate bool SimpleBooleanDelegate(object context);
     public delegate string SimpleStringDelegate(object context);
     public delegate int SimpleIntDelegate(object context);
 
-
     internal static class Spell
     {
         private static LocalPlayer Me { get { return StyxWoW.Me; } }
-
-
-        
         
         public static WoWDynamicObject GetGroundEffectBySpellId(int spellId)
         {
@@ -1607,20 +1602,20 @@ namespace AdvancedAI.Helpers
             string spell = null;
             bool allowMovingWhileCasting = false;
 
-                if (Me.Class == WoWClass.Shaman)
-                    spell = "Spiritwalker's Grace";
-                else if (Me.Class == WoWClass.Mage)
-                    spell = "Ice Floes";
+            if (Me.Class == WoWClass.Shaman)
+                spell = "Spiritwalker's Grace";
+            else if (Me.Class == WoWClass.Mage)
+                spell = "Ice Floes";
 
-                if (spell != null && CanCastHack(spell, Me)) // SpellManager.CanCast(spell, Me))
-                {
-                    //LogCast(spell, Me);
-                    Logging.Write(spell, Me);
-                    allowMovingWhileCasting = SpellManager.Cast(spell, Me);
-                    if (!allowMovingWhileCasting)
-                        //Logger.WriteDebug("spell cast failed!!! [{0}]", spell);
-                        Logging.Write("spell cast failed!!! [{0}]", spell);
-                }
+                //if (spell != null && CanCastHack(spell, Me)) // SpellManager.CanCast(spell, Me))
+                //{
+                //    //LogCast(spell, Me);
+                //    Logging.Write(spell, Me);
+                //    allowMovingWhileCasting = SpellManager.Cast(spell, Me);
+                //    if (!allowMovingWhileCasting)
+                //        //Logger.WriteDebug("spell cast failed!!! [{0}]", spell);
+                //        Logging.Write("spell cast failed!!! [{0}]", spell);
+                //}
             
 
             return allowMovingWhileCasting;
