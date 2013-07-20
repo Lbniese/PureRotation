@@ -74,7 +74,7 @@ namespace AdvancedAI.Spec
                             Spell.Cast("Lightning Bolt",
                                 on => Me.CurrentTarget, 
                                 ret => TalentManager.HasGlyph("Telluric Currents") && Me.CurrentTarget.IsHostile, 
-                                cancel => healtarget.HealthPercent < 95))));
+                                cancel => healtarget.HealthPercent < 70))));
             }
         }
 
@@ -290,7 +290,7 @@ namespace AdvancedAI.Spec
                     {
                         WoWUnit unit = GetBestRiptideTarget();
                         return unit;
-                    })));
+                    }, ret => !GetBestRiptideTarget().HasMyAura("Riptide"))));
         }
 
         private static bool IsTidalWavesNeeded
