@@ -24,12 +24,11 @@ namespace AdvancedAI.Spec
                 return new PrioritySelector(
                     new Decorator(ret => AdvancedAI.PvPRot,
                         FeralDruidPvP.CreateFDPvPCombat),
+
                     // Interrupt please.
                     Spell.Cast("Skull Bash", ret => StyxWoW.Me.CurrentTarget.IsCasting && StyxWoW.Me.CurrentTarget.CanInterruptCurrentSpellCast),
 
-                    //Execute
-                    //new Decorator (ret => StyxWoW.Me.CurrentTarget.HealthPercent <= 20,
-                    //    CreateExecuteRange()),
+                    Spell.WaitForCastOrChannel(),
 
                     // AoE
                     //new Decorator(ret => UnfriendlyUnits.Count() >= 2,
@@ -57,7 +56,7 @@ namespace AdvancedAI.Spec
                             new Action(ret => { Item.UseHands(); return RunStatus.Failure; }),
                             new Action(ret => { Item.UseTrinkets(); return RunStatus.Failure; }))),
                     Spell.Cast("Tiger's Fury", ret => Me.EnergyPercent <= 35 && !Me.ActiveAuras.ContainsKey("Clearcasting") && !Me.HasAura("Berserk")),
-                    Spell.Cast("Berserk", ret => Me.HasAura("Tiger's Fury") && Me.CurrentTarget.IsBoss()),
+                    Spell.Cast("Berserk", ret => Me.HasAura("Tiger's Fury") && AdvancedAI.Burst),
                     Spell.Cast("Ferocious Bite", ret => Me.ComboPoints >= 1 && Me.CurrentTarget.HasAura("Rip") && (Me.CurrentTarget.GetAuraTimeLeft("Rip").TotalSeconds <= 3 && Me.CurrentTarget.HealthPercent <= 25)),
                     Spell.Cast("Thrash", ret => Me.CurrentTarget.TimeToDeath() >= 6 && Me.ActiveAuras.ContainsKey("Clearcasting") && Me.CurrentTarget.GetAuraTimeLeft("Thrash").TotalSeconds <= 3),
                     Spell.Cast("Ferocious Bite", ret => Me.ComboPoints >= 5 && Me.CurrentTarget.TimeToDeath() <= 4 || Me.CurrentTarget.TimeToDeath() <= 1 && Me.ComboPoints >= 3),
@@ -88,6 +87,17 @@ namespace AdvancedAI.Spec
             }
         }
 
+        public static Composite CreateFDBuffs
+        {
+            get
+            {
+                return new PrioritySelector(
+                    new Decorator(ret => AdvancedAI.PvPRot,
+                        FeralDruidPvP.CreateFDPvPBuffs));
+            }
+        }
+
+        #region Stack count
         public static uint BuffStackCount(int buff, WoWUnit onTarget)
         {
             if (onTarget != null)
@@ -98,16 +108,7 @@ namespace AdvancedAI.Spec
             }
             return 0;
         }
-
-        public static Composite CreateFDBuffs
-        {
-            get
-            {
-                return new PrioritySelector(
-                    new Decorator(ret => AdvancedAI.PvPRot,
-                        FeralDruidPvP.CreateFDPvPBuffs));
-            }
-        }
+        #endregion
 
         #region DruidTalents
         public enum DruidTalents
