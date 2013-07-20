@@ -39,6 +39,8 @@ namespace AdvancedAI.Spec
                     */
                     Spell.Cast("Spear Hand Strike", ret => StyxWoW.Me.CurrentTarget.IsCasting && StyxWoW.Me.CurrentTarget.CanInterruptCurrentSpellCast),
 
+                    Spell.WaitForCastOrChannel(),
+
                     new Decorator(ret => Me.CurrentTarget.IsBoss,
                         new PrioritySelector(
                     //hands and trinks

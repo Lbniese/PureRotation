@@ -1,4 +1,5 @@
-﻿using CommonBehaviors.Actions;
+﻿using AdvancedAI.Managers;
+using CommonBehaviors.Actions;
 using Styx;
 using Styx.Common;
 using Styx.CommonBot;
@@ -19,14 +20,69 @@ namespace AdvancedAI.Spec
 {
     class ElementalShaman
     {
-        LocalPlayer Me { get { return StyxWoW.Me; } }
+        static LocalPlayer Me { get { return StyxWoW.Me; } }
         public static Composite CreateElSCombat
         {
             get
             {
                 return new PrioritySelector(
                     new Decorator(ret => AdvancedAI.PvPRot,
-                        ElementalShamanPvP.CreateElSPvPCombat)
+                        ElementalShamanPvP.CreateElSPvPCombat),
+
+                Spell.WaitForCastOrChannel(),
+
+                // Interrupt please.
+                Spell.Cast("Wind Shear", ret => StyxWoW.Me.CurrentTarget.IsCasting && StyxWoW.Me.CurrentTarget.CanInterruptCurrentSpellCast),
+
+                //mana
+                Spell.Cast("Thunderstorm", ret => StyxWoW.Me.ManaPercent <= 83),
+
+                // AE
+                new Decorator
+                    (ret => Unit.UnfriendlyUnitsNearTarget(10).Count() > 2 && AdvancedAI.Aoe,
+                    CreateAoe()),
+
+                        Spell.Cast("Unleash Elements", ret => TalentManager.IsSelected((int)ShamanTalents.UnleashedFury)),
+
+                        Spell.Cast("Searing Totem", ret => Me.GotTarget
+                                   && Me.CurrentTarget.SpellDistance() < Totems.GetTotemRange(WoWTotem.Searing) - 2f
+                                    && !Totems.Exist(WoWTotemType.Fire)),
+
+                        //gloves and hands
+                        new Action(ret => { Item.UseTrinkets(); return RunStatus.Failure; }),
+                        new Action(ret => { Item.UseHands(); return RunStatus.Failure; }),
+
+                        Spell.Cast("Flame Shock", ret => !Me.CurrentTarget.HasMyAura("Flame Shock") || 
+                            Me.CurrentTarget.HasMyAura("Flame Shock") && Me.CurrentTarget.GetAuraTimeLeft("Flame Shock", true).TotalSeconds < 6),
+
+                        // Raid Cooldowns
+                    new Decorator(ret => AdvancedAI.Burst,
+                        new PrioritySelector(
+                        Spell.Cast("Fire Elemental Totem"),
+                        Spell.Cast("Stormlash Totem"),
+                        Spell.Cast("Ascendance", ret => Me.CurrentTarget.GetAuraTimeLeft("Flame Shock", true).TotalSeconds > 15 && !Me.HasAura("Ascendance")),
+                        Spell.Cast("Spiritwalker's Grace", ret => Me.HasAura("Ascendance") && StyxWoW.Me.IsMoving))),
+
+                        //LvB while moving
+                        Spell.Cast("Lava Burst", mov => false , on => Me.CurrentTarget, ret => Me.HasAura("Ascendance") || 
+                            StyxWoW.Me.IsMoving && Me.HasAura("Ascendance") && StyxWoW.Me.HasAura("Spritwalker's Grace") || Me.HasAura("Lava Surge")),
+
+                        Spell.Cast("Lava Burst"),
+                        Spell.Cast("Elemental Blast", ret => !Me.HasAura("Ascendance")),
+                        Spell.Cast("Earth Shock",
+                            ret => Me.HasAura("Lightning Shield", 7)),
+                        Spell.Cast("Earth Shock",
+                            ret => Me.HasAura("Lightning Shield", 4) &&
+                                   Me.CurrentTarget.GetAuraTimeLeft("Flame Shock", true).TotalSeconds > 6),
+                        Spell.Cast("Unleash Elements",
+                            ret => Me.IsMoving
+                                && !Me.HasAura("Spiritwalker's Grace")),
+
+                        Spell.Cast("Chain Lightning", ret => Unit.UnfriendlyUnitsNearTarget(10f).Count() >= 2 && !Unit.UnfriendlyUnitsNearTarget(10f).Any(u => u.IsCrowdControlled())),
+
+                        Spell.Cast("Lightning Bolt", ret => !Me.HasAura("Ascendance"))
+
+
                     //6	0.00	wind_shear
                     //7	0.00	bloodlust,if=target.health.pct<25|time>5
                     //8	0.00	stormlash_totem,if=!active&!buff.stormlash.up&(buff.bloodlust.up|time>=60)
@@ -55,6 +111,48 @@ namespace AdvancedAI.Spec
                     //c	175.65	lightning_bolt
                     );
             }
+        }
+
+        private static Composite CreateAoe()
+        {
+            return new PrioritySelector(
+
+                        Spell.Cast("Unleash Elements", ret => TalentManager.IsSelected((int)ShamanTalents.UnleashedFury)),
+
+                        Totems.CreateTotemsNormalBehavior(),
+
+                        //gloves and hands                        
+                        new Action(ret => { Item.UseTrinkets(); return RunStatus.Failure; }),
+                        new Action(ret => { Item.UseHands(); return RunStatus.Failure; }),
+
+                        // only us earthquake if more than 4 tars but need to make it so it will do the rest even if less than 4 tars
+                        Spell.CastOnGround("Earthquake", on => StyxWoW.Me.CurrentTarget.Location, ret => Unit.UnfriendlyUnitsNearTarget(10).Count() > 4),
+
+                        Spell.Cast("Flame Shock", ret => !Me.CurrentTarget.HasMyAura("Flame Shock") ||
+                            Me.CurrentTarget.HasMyAura("Flame Shock") && Me.CurrentTarget.GetAuraTimeLeft("Flame Shock", true).TotalSeconds < 6),
+
+                        // Raid Cooldowns
+                        Spell.Cast("Ascendance", ret => AdvancedAI.Burst && StyxWoW.Me.CurrentTarget.GetAuraTimeLeft("Flame Shock", true).TotalSeconds > 15 && !StyxWoW.Me.HasAura("Ascendance")),
+                        Spell.Cast("Lava Beam", ret => Clusters.GetBestUnitForCluster(Unit.UnfriendlyUnitsNearTarget(15f), ClusterType.Chained, 12)),
+
+                        //need to make it so it will only place it if the are 2 or more tar in range (8y) or have it move it using the talent totemic projection
+                //Spell.Cast("Magma Totem"),
+
+                        //LvB while moving
+                        Spell.Cast("Lava Burst", mov => false, on => StyxWoW.Me.CurrentTarget, ret => StyxWoW.Me.HasAura("Ascendance") || StyxWoW.Me.IsMoving && StyxWoW.Me.HasAura("Ascendance") && StyxWoW.Me.HasAura("Spritwalker's Grace") || StyxWoW.Me.HasAura("Lava Surge")),
+
+                        Spell.Cast("Lava Burst"),
+                        Spell.Cast("Earth Shock",
+                            ret => StyxWoW.Me.HasAura("Lightning Shield", 5) &&
+                                   StyxWoW.Me.CurrentTarget.GetAuraTimeLeft("Flame Shock", true).TotalSeconds > 3),
+                        Spell.Cast("Unleash Elements",
+                            ret => StyxWoW.Me.IsMoving
+                                && !StyxWoW.Me.HasAura("Spiritwalker's Grace")),
+
+                        Spell.Cast("Chain Lightning", ret => Clusters.GetBestUnitForCluster(Unit.UnfriendlyUnitsNearTarget(15f), ClusterType.Chained, 12))
+
+
+                );
         }
 
         public static Composite CreateElSBuffs
