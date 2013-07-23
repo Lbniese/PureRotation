@@ -55,16 +55,18 @@ namespace AdvancedAI.Spec
                         new Action(ret => { Item.UseTrinkets(); return RunStatus.Failure; }),
                         Spell.Cast("Mana Tea", ret => Me.ManaPercent < 85),
                         Spell.Cast("Thunder Focus Tea", ret => Me.GroupInfo.RaidMembers.Count(u => u.ToPlayer().HasAura("Renewing Mist") && u.ToPlayer().HealthPercent < 80) >= 3),
-                        new Decorator(ret => healtarget.HealthPercent < 58,
-                            new Sequence(
-                                Spell.Cast("Soothing Mist", on => healtarget),
-                                Spell.Cast("Enveloping Mist", on => healtarget))),
+                        //new Decorator(ret => healtarget.HealthPercent < 58,
+                        //    new Sequence(
+                        //        Spell.Cast("Soothing Mist", on => healtarget),
+                        //        Spell.Cast("Enveloping Mist", on => healtarget))),
+                        Spell.Cast("Enveloping Mist", on => healtarget, ret => healtarget.HealthPercent < 58 && Me.IsChanneling),
                         Spell.Cast("Uplift", ret => Me.GroupInfo.RaidMembers.Count(u => u.ToPlayer().HasAura("Renewing Mist") && u.ToPlayer().HealthPercent < 90) > 2),
                         Spell.Cast("Expel Harm", ret => Me.HealthPercent < 90),
-                        new Decorator(ret => healtarget.HealthPercent < 41,
-                            new Sequence(
-                                Spell.Cast("Soothing Mist", on => healtarget),
-                                Spell.Cast("Surging Mist", on => healtarget))),
+                        //new Decorator(ret => healtarget.HealthPercent < 41,
+                        //    new Sequence(
+                        //        Spell.Cast("Soothing Mist", on => healtarget),
+                        //        Spell.Cast("Surging Mist", on => healtarget))),
+                        Spell.Cast("Surging Mist", on => healtarget, ret => healtarget.HealthPercent < 41 && Me.IsChanneling),
                         Spell.Cast("Soothing Mist", on => healtarget, ret => healtarget.HealthPercent < 83),
                         Spell.Cast("Renewing Mist", on => healtarget, ret => !healtarget.HasAura("Renewing Mist")),
                         Spell.Cast("Spinning Crane Kick", ret => Me.IsMoving && Me.GroupInfo.RaidMembers.Count(u => u.ToPlayer().HealthPercent < 85) >= 5),
