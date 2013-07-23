@@ -136,6 +136,54 @@ namespace AdvancedAI.Class
             return null;
         }
 
+        // Fight Specific Dispelling
+        public static WoWUnit _unitDispel;
+        public static Composite MechDispell()
+        {
+            PrioritySelector prio = new PrioritySelector();
+            switch (StyxWoW.Me.Class)
+            {
+                case WoWClass.Paladin:
+                    prio.AddChild(Spell.Cast("Cleanse", on => _unitDispel));
+                    break;
+                case WoWClass.Monk:
+                    prio.AddChild(Spell.Cast("Detox", on => _unitDispel));
+                    break;
+                case WoWClass.Priest:
+                    if (StyxWoW.Me.Specialization == WoWSpec.PriestHoly || StyxWoW.Me.Specialization == WoWSpec.PriestDiscipline)
+                        prio.AddChild(Spell.Cast("Purify", on => _unitDispel));
+                    break;
+                case WoWClass.Druid:
+                    if (StyxWoW.Me.Specialization == WoWSpec.DruidRestoration)
+                        prio.AddChild(Spell.Cast("Nature's Cure", on => _unitDispel));
+                    else
+                        prio.AddChild(Spell.Cast("Remove Corruption", on => _unitDispel));
+                    break;
+                case WoWClass.Shaman:
+                    if (StyxWoW.Me.Specialization == WoWSpec.ShamanRestoration)
+                        prio.AddChild(Spell.Cast("Purify Spirit", on => _unitDispel, ret => !_unitDispel.HasAura("Reshape Life") && 
+                                                                                            !_unitDispel.HasAura("Corrupted Waters") && 
+                                                                                            (_unitDispel.HasAura("Matter Swap") && _unitDispel.GetAuraTimeLeft("Matter Swap", false).TotalSeconds < 5)));
+                    else
+                        prio.AddChild(Spell.Cast("Cleanse Spirit", on => _unitDispel));
+                    break;
+                case WoWClass.Mage:
+                    prio.AddChild(Spell.Cast("Remove Curse", on => _unitDispel));
+                    break;
+            }
+
+            return new Sequence(
+                new Action(r => _unitDispel = (from unit in ObjectManager.GetObjectsOfType<WoWPlayer>(false)
+                                               where unit.IsAlive
+                                               where Dispelling.CanDispel(unit)
+                                               select unit).OrderByDescending(u => u.HealthPercent).LastOrDefault()),
+                //HealerManager.Instance.TargetList.FirstOrDefault(u => u.IsAlive && CanDispel(u))),
+                prio
+                );
+        }
+
+
+
 
     }
 }
