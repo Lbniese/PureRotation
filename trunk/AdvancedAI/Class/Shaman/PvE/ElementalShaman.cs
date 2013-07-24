@@ -44,10 +44,6 @@ namespace AdvancedAI.Spec
 
                         Spell.Cast("Unleash Elements", ret => TalentManager.IsSelected((int)ShamanTalents.UnleashedFury)),
 
-                        Spell.Cast("Searing Totem", ret => Me.GotTarget
-                                   && Me.CurrentTarget.SpellDistance() < Totems.GetTotemRange(WoWTotem.Searing) - 2f
-                                    && !Totems.Exist(WoWTotemType.Fire)),
-
                         //gloves and hands
                         new Action(ret => { Item.UseTrinkets(); return RunStatus.Failure; }),
                         new Action(ret => { Item.UseHands(); return RunStatus.Failure; }),
@@ -74,6 +70,11 @@ namespace AdvancedAI.Spec
                         Spell.Cast("Earth Shock",
                             ret => Me.HasAura("Lightning Shield", 4) &&
                                    Me.CurrentTarget.GetAuraTimeLeft("Flame Shock", true).TotalSeconds > 6),
+
+                        Spell.Cast("Searing Totem", ret => Me.GotTarget
+                                   && Me.CurrentTarget.SpellDistance() < Totems.GetTotemRange(WoWTotem.Searing) - 2f
+                                    && !Totems.Exist(WoWTotemType.Fire)),
+
                         Spell.Cast("Unleash Elements",
                             ret => Me.IsMoving
                                 && !Me.HasAura("Spiritwalker's Grace")),
