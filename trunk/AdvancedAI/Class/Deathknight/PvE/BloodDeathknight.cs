@@ -98,7 +98,7 @@ namespace AdvancedAI.Spec
                     //Spell.Cast("Dancing Rune Weapon",
                     //    ret => Unit.NearbyUnfriendlyUnits.Count() > 2),
                     Spell.Cast("Bone Shield",
-                        ret => Me.HasAnyAura("Bone Shield")),
+                        ret => !Me.HasAnyAura("Bone Shield")),
                     Spell.Cast("Vampiric Blood",
                         ret => Me.HealthPercent < 60
                             && (!Me.HasAnyAura("Bone Shield", "Vampiric Blood", "Dancing Rune Weapon", "Lichborne", "Icebound Fortitude"))),
