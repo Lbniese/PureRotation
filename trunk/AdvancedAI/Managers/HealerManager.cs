@@ -252,7 +252,7 @@ namespace AdvancedAI.Managers
             {
                 try
                 {
-                    if (unit.HealthPercent < minHealth)
+                    if (unit.HealthPercent < minHealth && unit.Distance < 40)
                     {
                         minHealth = unit.HealthPercent;
                         minUnit = unit;
