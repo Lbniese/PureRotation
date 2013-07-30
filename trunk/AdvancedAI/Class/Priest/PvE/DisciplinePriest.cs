@@ -24,45 +24,40 @@ namespace AdvancedAI.Spec
                 return new PrioritySelector(ctx => HealerManager.Instance.TargetList.Any(t => t.IsAlive),
                     Spell.WaitForCastOrChannel(),
                     new Decorator(ret => AdvancedAI.PvPRot,
-                                  DisciplinePriestPvP.CreateDPPvPCombat),
+                        DisciplinePriestPvP.CreateDPPvPCombat),
                     new Decorator(ret => Me.Combat || healtarget.Combat || healtarget.GetPredictedHealthPercent() <= 99,
-                 new PrioritySelector(
-
-                    Spell.Cast("Void Shift", on => healtarget, ret => Group.Tanks.Any(u => u.Guid == healtarget.Guid && healtarget.HealthPercent < 25)),//tanks 
-                    Spell.Cast("Mindbender", ret => Me.ManaPercent <= 87),
-                    Spell.Cast("Inner Focus", ret => Me.HasAura("Spirit Shell") || healtarget.HealthPercent < 45),
-                    //Spell.Cast("Prayer of Healing"),//with ss buff
-                    new Decorator(ret => _POHAudit == 0 && Me.HasAura("Spirit Shell"),
-                        new Sequence(
-                            Spell.Cast("Prayer of Healing", on => POHTarget),
-                            new Action(r => setPOH()))),
-                    new Decorator(ret => _POHAudit == 1 && Me.HasAura("Spirit Shell"),
-                        new Sequence(
-                            Spell.Cast("Prayer of Healing", on => Me),
-                            new Action(r => POHReset()))),
-                    Spell.Cast("Purify"),
-                    Spell.Cast("Archangel", ret => Me.HasAura("Evangelism, 5")),//5 stacks
-                    //healing
-                    Spell.Cast("Power Word: Shield", on => healtarget,
-                                ret => healtarget.HealthPercent < 80,
-                                ret => Me.ManaPercent > 40),// every 12 secs on current tank
-                    Spell.Cast("Prayer of Mending", on => healtarget, ret => !healtarget.HasAura("Prayer of Mending")),
-                    Spell.Cast("Penance", on => healtarget,
-                                ret => healtarget.HealthPercent < 65),// on ppl if low if not on boss
-                    Spell.Cast("Flash Heal", on => healtarget,
-                                ret => healtarget.HealthPercent < 25,
-                                cancel => healtarget.HealthPercent > cancelHeal),
-                    Spell.Cast("Greater Heal", on => healtarget,
-                                ret => healtarget.HealthPercent < 45,
-                                cancel => healtarget.HealthPercent > cancelHeal),
-                    //dps part
-                    Spell.Cast("Penance"),
-                    Spell.Cast("Holy Fire"),
-                    Spell.Cast("Smite")
-
-
-                    )));
-
+                        new PrioritySelector(
+                            Spell.Cast("Void Shift", on => healtarget, ret => Group.Tanks.Any(u => u.Guid == healtarget.Guid && healtarget.HealthPercent < 25)),//tanks 
+                            Spell.Cast("Mindbender", ret => Me.ManaPercent <= 87),
+                            Spell.Cast("Inner Focus", ret => Me.HasAura("Spirit Shell") || healtarget.HealthPercent < 45),
+                            //Spell.Cast("Prayer of Healing"),//with ss buff
+                            new Decorator(ret => _POHAudit == 0 && Me.HasAura("Spirit Shell"),
+                                new Sequence(
+                                    Spell.Cast("Prayer of Healing", on => POHTarget),
+                                    new Action(r => setPOH()))),
+                            new Decorator(ret => _POHAudit == 1 && Me.HasAura("Spirit Shell"),
+                                new Sequence(
+                                    Spell.Cast("Prayer of Healing", on => Me),
+                                    new Action(r => POHReset()))),
+                            Spell.Cast("Purify"),
+                            Spell.Cast("Archangel", ret => Me.HasAura("Evangelism, 5")),//5 stacks
+                            //healing
+                            Spell.Cast("Power Word: Shield", on => healtarget,
+                                        ret => healtarget.HealthPercent < 80,
+                                        ret => Me.ManaPercent > 40),// every 12 secs on current tank
+                            Spell.Cast("Prayer of Mending", on => healtarget, ret => !healtarget.HasAura("Prayer of Mending")),
+                            Spell.Cast("Penance", on => healtarget,
+                                        ret => healtarget.HealthPercent < 65),// on ppl if low if not on boss
+                            Spell.Cast("Flash Heal", on => healtarget,
+                                        ret => healtarget.HealthPercent < 25,
+                                        cancel => healtarget.HealthPercent > cancelHeal),
+                            Spell.Cast("Greater Heal", on => healtarget,
+                                        ret => healtarget.HealthPercent < 45,
+                                        cancel => healtarget.HealthPercent > cancelHeal),
+                            //dps part
+                            Spell.Cast("Penance"),
+                            Spell.Cast("Holy Fire"),
+                            Spell.Cast("Smite"))));
             }
         }
 
