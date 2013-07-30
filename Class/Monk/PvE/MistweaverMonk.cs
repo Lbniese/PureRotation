@@ -51,10 +51,10 @@ namespace AdvancedAI.Spec
                         new Throttle(1, 1,
                             new PrioritySelector(
                                 Spell.Cast("Thunder Focus Tea", ret => Me.GroupInfo.RaidMembers.Count(u => u.ToPlayer().HasAura("Renewing Mist") && u.ToPlayer().HealthPercent < 80) >= 3))),
-                        new Decorator(ret => healtarget.HealthPercent < 58,
-                            new Sequence(
-                                Spell.Cast("Soothing Mist", on => healtarget),
-                                Spell.Cast("Enveloping Mist", on => healtarget))),
+                        //new Decorator(ret => healtarget.HealthPercent < 58,
+                        //    new Sequence(
+                        //        Spell.Cast("Soothing Mist", on => healtarget),
+                        //        Spell.Cast("Enveloping Mist", on => healtarget))),
                         Spell.Cast("Enveloping Mist", on => healtarget, ret => healtarget.HealthPercent < 58 && Me.IsChanneling),
                         new Throttle(1, 1,
                             new PrioritySelector(
