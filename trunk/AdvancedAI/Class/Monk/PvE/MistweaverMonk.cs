@@ -68,7 +68,7 @@ namespace AdvancedAI.Spec
                         Spell.Cast("Surging Mist", on => healtarget, ret => healtarget.HealthPercent < 85 && Me.HasAura("Vital Mists", 5)),
                         Spell.Cast("Soothing Mist", on => healtarget, ret => healtarget.HealthPercent < 95 && !Me.CurrentTarget.IsWithinMeleeRange),
                         Spell.Cast("Soothing Mist", on => healtarget, ret => healtarget.HealthPercent < 41),
-                        Spell.Cast("Renewing Mist", on => healtarget, ret => !healtarget.HasAura("Renewing Mist")),
+                        Spell.Cast("Renewing Mist", on => HealerManager.Instance.FirstUnit, ret => !HealerManager.Instance.FirstUnit.HasAura("Renewing Mist")),
                         Spell.Cast("Spinning Crane Kick", ret => Me.IsMoving && Me.GroupInfo.RaidMembers.Count(u => u.ToPlayer().HealthPercent < 85) >= 5),
                         Spell.Cast("Chi Wave", on => healtarget, ret => healtarget.HealthPercent < 90),
                         Spell.Cast("Chi Burst", on => healtarget, ret => Clusters.GetClusterCount(healtarget, Unit.NearbyFriendlyPlayers, ClusterType.Path, 5) >= 3 && healtarget.HealthPercent < 80),
