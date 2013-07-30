@@ -117,7 +117,7 @@ namespace AdvancedAI.Spec
             get
             {
                 var tanks = Group.Tanks.OrderByDescending(u => u.HealthPercent).LastOrDefault();
-                if (tanks != null && (tanks.IsAlive && tanks.IsValid && tanks.HealthPercent < 35))
+                if (tanks != null && tanks.IsAlive && tanks.IsValid && tanks.HealthPercent < 35 && tanks.Distance < 40)
                     return tanks;
                 return null;
             }
