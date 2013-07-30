@@ -61,7 +61,7 @@ namespace AdvancedAI.Managers
                     if (incomingUnit.IsMe)
                         foundMe = true;
 
-                    if (incomingUnit.ToPlayer().IsHorde != isHorde)
+                    if (incomingUnit.ToPlayer().IsHorde != isHorde || !incomingUnit.ToPlayer().IsFriendly)
                         continue;
 
                     outgoingUnits.Add(incomingUnit);
@@ -102,7 +102,7 @@ namespace AdvancedAI.Managers
                 WoWUnit unit = units[i].ToUnit();
                 try
                 {
-                    if (unit == null || !unit.IsValid || unit.IsDead || unit.IsHostile || unit.HealthPercent <= 0 || unit.HasAnyAura(_doNotHeal))
+                    if (unit == null || !unit.IsValid || unit.IsDead || !unit.IsFriendly || unit.HealthPercent <= 0 || unit.HasAnyAura(_doNotHeal))
                     {
                         units.RemoveAt(i);
                         continue;

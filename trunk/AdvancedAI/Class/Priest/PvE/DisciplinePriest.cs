@@ -77,7 +77,6 @@ namespace AdvancedAI.Spec
         }
 
         #region POH Spirit Shell
-
         public static WoWUnit POHTarget
         {
             get
@@ -111,7 +110,6 @@ namespace AdvancedAI.Spec
             _POHAudit = 0;
         }
         #endregion
-
 
         #region PriestTalents
         public enum PriestTalents
