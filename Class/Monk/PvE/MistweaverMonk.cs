@@ -12,7 +12,7 @@ namespace AdvancedAI.Spec
     class MistweaverMonk
     {
         static LocalPlayer Me { get { return StyxWoW.Me; } }
-        static WoWUnit healtarget { get { return HealerManager.FindLowestHealthTarget(); } }
+        static WoWUnit healtarget { get { return HealerManager.Instance.FirstUnit; } }
         static WoWPlayer RenewingMistTarget { get { return HealerManager.GetUnbuffedTarget("Renewing Mist"); } }
         private static string[] _doNotHeal;
         public static Composite CreateMMCombat
