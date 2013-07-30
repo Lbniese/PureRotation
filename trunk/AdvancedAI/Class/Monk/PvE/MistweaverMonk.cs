@@ -12,7 +12,7 @@ namespace AdvancedAI.Spec
     class MistweaverMonk
     {
         static LocalPlayer Me { get { return StyxWoW.Me; } }
-        static WoWUnit healtarget { get { return Me.GroupInfo.IsInParty ? HealerManager.FindLowestHealthTarget() : Me; } }
+        static WoWUnit healtarget { get { return HealerManager.FindLowestHealthTarget(); } }
         static WoWPlayer RenewingMistTarget { get { return HealerManager.GetUnbuffedTarget("Renewing Mist"); } }
         private static string[] _doNotHeal;
         public static Composite CreateMMCombat
@@ -40,7 +40,7 @@ namespace AdvancedAI.Spec
                             Common.CreateInterruptBehavior(),
                             Dispelling.CreateDispelBehavior(),
                             Spell.Cast("Fortifying Brew", ret => Me.HealthPercent < 30),
-                            Spell.Cast("Life Cocoon", on => healtarget, ret => Group.Tanks.Any(u => u.Guid == healtarget.Guid && healtarget.HealthPercent < 35)),
+                            Spell.Cast("Life Cocoon", on => CocoonTar),
                             Spell.Cast("Revival", on => Me, ret => Me.GroupInfo.RaidMembers.Count(u => u.ToPlayer().HealthPercent < 55) > 4),
                             //Spell.CastOnGround("Healing Sphere", on => healtarget.Location, ret => healtarget.HealthPercent < 55 && Me.ManaPercent > 40, false),
                             new Action(ret => { Item.UseHands(); return RunStatus.Failure; }),
@@ -112,6 +112,19 @@ namespace AdvancedAI.Spec
         }
 
         #region statue target
+        public static WoWUnit CocoonTar
+        {
+            get
+            {
+                var tanks = Group.Tanks.OrderByDescending(u => u.HealthPercent).LastOrDefault();
+                if (tanks != null && (tanks.IsAlive && tanks.IsValid && tanks.HealthPercent < 35))
+                    return tanks;
+                return null;
+            }
+        }
+        #endregion
+
+        #region cocoon
         public static WoWUnit StatueTar
         {
             get
