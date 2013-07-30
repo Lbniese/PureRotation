@@ -40,13 +40,13 @@ namespace AdvancedAI.Spec
                             RollRiptide(),
                             TidalWaves(),
                             Dispelling.CreateDispelBehavior(),
-                            Spell.Buff("Earth Shield", on => GetBestEarthShieldTargetInstance()),
+                            Spell.Cast("Earth Shield", on => GetBestEarthShieldTargetInstance()),
                             Spell.Cast("Spirit Link Totem", 
                                 on => healtarget,
                                 ret => HealerManager.Instance.TargetList.Count(p => p.GetPredictedHealthPercent() < 40 && p.Distance <= Totems.GetTotemRange(WoWTotem.SpiritLink)) >= 3),
                             new Decorator(ret => healtarget.HealthPercent < 25,
                                 new Sequence(
-                                    Spell.BuffSelf("Ancestral Swiftness"),
+                                    Spell.Cast("Ancestral Swiftness"),
                                     Spell.Cast("Greater Healing Wave", on => healtarget))),
                             Spell.Cast("Healing Tide Totem",
                                 ret => Me.Combat && HealerManager.Instance.TargetList.Count(p => p.GetPredictedHealthPercent() < 60 && p.Distance <= Totems.GetTotemRange(WoWTotem.HealingTide)) >= (Me.GroupInfo.IsInRaid ? 3 : 2)),
@@ -66,8 +66,8 @@ namespace AdvancedAI.Spec
                                 on => healtarget,
                                 ret => healtarget.HealthPercent < 25,
                                 cancel => healtarget.HealthPercent > cancelHeal),
-                            Spell.BuffSelf("Ascendance",
-                                ret => HealerManager.Instance.TargetList.Count(p => p.GetPredictedHealthPercent() < 50) >= 4),
+                            Spell.Cast("Ascendance",
+                                ret => HealerManager.Instance.TargetList.Count(p => p.GetPredictedHealthPercent() < 50) >= 4 && !Me.HasAura("Ascendance")),
                             Riptide(),
                             Common.CreateInterruptBehavior(),
                             Totems.CreateTotemsBehavior(),
@@ -260,7 +260,7 @@ namespace AdvancedAI.Spec
                     ret => ret != null,
                     new PrioritySelector(
                         new Sequence(
-                            Spell.Buff("Riptide", on => (WoWUnit) on),
+                            Spell.Cast("Riptide", on => (WoWUnit) on, ret => !((WoWUnit)ret).HasAura("Riptide")),
                             new Wait(TimeSpan.FromMilliseconds(1500), until => !Spell.IsGlobalCooldown(),
                                      new ActionAlwaysFail())),
                         Spell.Cast("Chain Heal", on => (WoWUnit) on))));
