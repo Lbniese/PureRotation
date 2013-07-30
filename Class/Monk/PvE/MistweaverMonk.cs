@@ -66,7 +66,7 @@ namespace AdvancedAI.Spec
                         //        Spell.Cast("Surging Mist", on => healtarget))),
                         Spell.Cast("Surging Mist", on => healtarget, ret => healtarget.HealthPercent < 41 && Me.IsChanneling),
                         Spell.Cast("Surging Mist", on => healtarget, ret => healtarget.HealthPercent < 85 && Me.HasAura("Vital Mists", 5)),
-                        Spell.Cast("Soothing Mist", on => healtarget, ret => healtarget.HealthPercent < 83 && !Me.CurrentTarget.IsWithinMeleeRange),
+                        Spell.Cast("Soothing Mist", on => healtarget, ret => healtarget.HealthPercent < 95 && !Me.CurrentTarget.IsWithinMeleeRange),
                         Spell.Cast("Soothing Mist", on => healtarget, ret => healtarget.HealthPercent < 41),
                         Spell.Cast("Renewing Mist", on => healtarget, ret => !healtarget.HasAura("Renewing Mist")),
                         Spell.Cast("Spinning Crane Kick", ret => Me.IsMoving && Me.GroupInfo.RaidMembers.Count(u => u.ToPlayer().HealthPercent < 85) >= 5),
