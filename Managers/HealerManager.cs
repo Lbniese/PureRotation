@@ -350,7 +350,11 @@ namespace AdvancedAI.Managers
             return hotTarget;
         }
 
-
+        public static WoWPlayer GetUnbuffedTarget(string withoutBuff)
+        {
+            return Instance.TargetList.FirstOrDefault(u => u != null && !u.ToPlayer().HasAura(withoutBuff)) as WoWPlayer;
+        }
+        
         //public static WoWUnit TankToMoveTowards
         //{
         //    get
