@@ -1,10 +1,12 @@
 ﻿using AdvancedAI.Managers;
 using Styx;
 using Styx.TreeSharp;
+using Styx.WoWInternals;
 using Styx.WoWInternals.WoWObjects;
 using AdvancedAI.Helpers;
 using System;
 using System.Linq;
+using Action = Styx.TreeSharp.Action;
 
 namespace AdvancedAI.Spec
 {
@@ -30,6 +32,14 @@ namespace AdvancedAI.Spec
                     Spell.Cast("Mindbender", ret => Me.ManaPercent <= 87),
                     Spell.Cast("Inner Focus", ret => Me.HasAura("Spirit Shell") || healtarget.HealthPercent < 45),
                     //Spell.Cast("Prayer of Healing"),//with ss buff
+                    new Decorator(ret => _POHAudit == 0 && Me.HasAura("Spirit Shell"),
+                        new Sequence(
+                            Spell.Cast("Prayer of Healing", on => POHTarget),
+                            new Action(r => setPOH()))),
+                    new Decorator(ret => _POHAudit == 1 && Me.HasAura("Spirit Shell"),
+                        new Sequence(
+                            Spell.Cast("Prayer of Healing", on => Me),
+                            new Action(r => POHReset()))),
                     Spell.Cast("Purify"),
                     Spell.Cast("Archangel", ret => Me.HasAura("Evangelism, 5")),//5 stacks
                     //healing
@@ -65,6 +75,43 @@ namespace AdvancedAI.Spec
                         DisciplinePriestPvP.CreateDPPvPBuffs));
             }
         }
+
+        #region POH Spirit Shell
+
+        public static WoWUnit POHTarget
+        {
+            get
+            {
+                var poh = (from unit in ObjectManager.GetObjectsOfType<WoWPlayer>(false)
+                               where !unit.IsInMyParty
+                               where unit.IsInMyRaid
+                               where unit.IsAlive
+                               where unit.IsPlayer
+                               where !unit.IsHostile
+                               where unit.InLineOfSight
+                               select unit).FirstOrDefault();
+                return poh;
+            }
+        }
+
+        private static Composite pohtar()
+        {
+            return new Action(r => setPOH());
+        }
+
+        private static int _POHAudit = 0;
+
+        private static void setPOH()
+        {
+            _POHAudit = 1;
+        }
+
+        private static void POHReset()
+        {
+            _POHAudit = 0;
+        }
+        #endregion
+
 
         #region PriestTalents
         public enum PriestTalents
