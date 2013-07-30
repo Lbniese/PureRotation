@@ -415,7 +415,7 @@ namespace AdvancedAI.Managers
 
         public void AddBehavior(int pri, string behavName, string spellName, Composite bt)
         {
-            if (pri <= 0)
+            if (pri == 0)
                 Logging.WriteDiagnostic("Skipping Behavior [{0}] configured for Priority {1}", behavName, pri);
             else if (!String.IsNullOrEmpty(spellName) && !SpellManager.HasSpell(spellName))
                 Logging.WriteDiagnostic("Skipping Behavior [{0}] since spell '{1}' is not known by this character", behavName, spellName);
