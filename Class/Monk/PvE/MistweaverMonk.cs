@@ -1,18 +1,9 @@
-﻿using CommonBehaviors.Actions;
-using Styx;
-using Styx.Common;
-using Styx.CommonBot;
-using Styx.Helpers;
+﻿using Styx;
 using Styx.TreeSharp;
 using Styx.WoWInternals;
 using Styx.WoWInternals.WoWObjects;
 using AdvancedAI.Helpers;
-
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Action = Styx.TreeSharp.Action;
 using AdvancedAI.Managers;
 
@@ -51,7 +42,9 @@ namespace AdvancedAI.Spec
                         Spell.Cast("Life Cocoon", on => healtarget, ret => Group.Tanks.Any(u => u.Guid == healtarget.Guid && healtarget.HealthPercent < 35)),
                         Spell.Cast("Revival", on => Me, ret => Me.GroupInfo.RaidMembers.Count(u => u.ToPlayer().HealthPercent < 55) > 4),
                         Spell.CastOnGround("Healing Sphere", on => healtarget.Location, ret => healtarget.HealthPercent < 55 && Me.ManaPercent > 40),
-                        Spell.CastOnGround("Jade Serpent Statue", on => StatueTar.Location, ret => ObjectManager.GetObjectsOfTypeFast<WoWUnit>().Count(q => q.Entry == 60849 && q.CreatedByUnitGuid == Me.Guid && q.Distance <= 35) == 0),
+                        new Throttle(1, 10,
+                            new PrioritySelector(
+                                Spell.CastOnGround("Jade Serpent Statue", on => StatueTar.Location, ret => ObjectManager.GetObjectsOfTypeFast<WoWUnit>().Count(q => q.Entry == 60849 && q.CreatedByUnitGuid == Me.Guid && q.Distance <= 35) == 0))),
                         new Action(ret => { Item.UseHands(); return RunStatus.Failure; }),
                         new Action(ret => { Item.UseTrinkets(); return RunStatus.Failure; }),
                         Spell.Cast("Mana Tea", ret => Me.ManaPercent < 85),

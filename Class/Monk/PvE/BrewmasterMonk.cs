@@ -1,8 +1,5 @@
-﻿
-using CommonBehaviors.Actions;
+﻿using CommonBehaviors.Actions;
 using Styx;
-using Styx.Common;
-using Styx.CommonBot;
 using Styx.TreeSharp;
 using Styx.WoWInternals.WoWObjects;
 using AdvancedAI.Helpers;
