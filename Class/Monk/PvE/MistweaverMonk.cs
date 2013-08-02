@@ -25,18 +25,6 @@ namespace AdvancedAI.Spec
                         MistweaverMonkPvP.CreateMWPvPCombat),
                     new Decorator(ret => Me.Combat || healtarget.Combat || Me.GroupInfo.IsInRaid,
                         new PrioritySelector(
-                            //Spell.Cast("Mana Tea", ret => Me.ManaPercent < 90),
-                            //Spell.Cast("Invoke Xuen, the White Tiger", ret => Me.CurrentTarget.IsBoss),
-                            //Spell.Cast("Touch of Death", ret => Me.HasAura("Death Note")),
-                            //Spell.Cast("Renewing Mist", on => healtarget, ret => healtarget.HasAura("Renewing Mist")),
-                            //Spell.Cast("Surging Mist", on =>healtarget, ret => healtarget.HealthPercent < 90 && Me.HasAura("Vital Mists", 5)),
-                            //Spell.Cast("Chi Wave"),
-                            //Spell.Cast("Thunder Focus Tea"),
-                            //Spell.Cast("Blackout Kick", ret => !Me.HasAura("Serpent's Zeal") && Me.HasAura("Muscle Memory")),
-                            //Spell.Cast("Tiger Palm", ret => Me.HasAura("Muscle Memory")),
-                            //Spell.Cast("Uplift", ret => Me.GroupInfo.RaidMembers.Count(u => u.ToPlayer().HasAura("Renewing Mist") && u.ToPlayer().HealthPercent < 90) > 2),
-                            //Spell.Cast("Expel Harm"),
-                            //Spell.Cast("Jab"),
                             Common.CreateInterruptBehavior(),
                             Dispelling.CreateDispelBehavior(),
                             Spell.Cast("Fortifying Brew", ret => Me.HealthPercent < 30),
@@ -78,27 +66,6 @@ namespace AdvancedAI.Spec
                             Spell.Cast("Jab"))));
             }
         }
-        //detox
-        //stance
-        // fortbrew
-        //life cocoon
-        //revival
-        //healing sphere
-        //jade serrpent statue
-        //trikets/hands
-        //mana tea
-        //thunder focus more than 3 with renewing mist && they are below 80%
-        //enveloping mist
-        //uplift
-        //epel harm < 90 health
-        //surging mist
-        //soothing mist
-        //renewing mist
-        //sck (in if 3 targets around less than x and me.moving)
-        //lvl 30 talent
-        //fist weave BK TP JAB
-
-
 
         public static Composite CreateMMBuffs
         {
@@ -111,7 +78,7 @@ namespace AdvancedAI.Spec
             }
         }
 
-        #region statue target
+        #region cocoon target
         public static WoWUnit CocoonTar
         {
             get
@@ -124,7 +91,7 @@ namespace AdvancedAI.Spec
         }
         #endregion
 
-        #region cocoon
+        #region statue target
         public static WoWUnit StatueTar
         {
             get
