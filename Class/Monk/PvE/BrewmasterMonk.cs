@@ -54,7 +54,7 @@ namespace AdvancedAI.Spec
 
                     //PB, EB, and Guard are off the GCD
                     //!!!!!!!Purifying Brew !!!!!!!
-                    Spell.Cast("Purifying Brew", ret => Me.HasAura("Purifier") && Me.GetAuraTimeLeft("Purifier").TotalSeconds <= 1),
+                    Spell.Cast("Purifying Brew", ret => Me.HasAura("Purifier") && (Me.GetAuraTimeLeft("Purifier").TotalSeconds <= 1) || Me.HasAura("Moderate Stagger") || Me.HasAura("Heavy Stagger")),
                     Spell.Cast("Purifying Brew", ret => Me.CurrentChi > 0 && Me.HasAura("Heavy Stagger")),
                     Spell.Cast("Purifying Brew", ret => Me.CurrentChi > 0 && Me.HasAura("Moderate Stagger") && Me.HealthPercent <= 70 && (Me.GetAuraTimeLeft("Shuffle").TotalSeconds >= 6 || Me.CurrentChi > 2)),
                     Spell.Cast("Purifying Brew", ret => Me.CurrentChi > 0 && Me.HasAura("Light Stagger") && Me.HealthPercent < 40 && (Me.GetAuraTimeLeft("Shuffle").TotalSeconds >= 6 || Me.CurrentChi > 2)),
