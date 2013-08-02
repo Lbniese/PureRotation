@@ -1,4 +1,5 @@
-﻿using Styx;
+﻿using AdvancedAI.Managers;
+using Styx;
 using Styx.TreeSharp;
 using Styx.WoWInternals;
 using Styx.WoWInternals.WoWObjects;
@@ -19,29 +20,46 @@ namespace AdvancedAI.Spec
                 return new PrioritySelector(
                     new Decorator(ret => AdvancedAI.PvPRot,
                         RetributionPaladinPvP.CreateRPPvPCombat),
-                    Spell.Cast("Rebuke", ret => Me.CurrentTarget.IsCasting && Me.CurrentTarget.CanInterruptCurrentSpellCast),
-                    Spell.Cast("Inquisition", ret => (!Me.HasAura("Inquisition") || Me.HasAuraExpired("Inquisition", 2)) && (Me.CurrentHolyPower >= 3 || Me.ActiveAuras.ContainsKey("Divine Purpose"))),
-                    Spell.Cast("Avenging Wrath", ret => Me.HasAura("Inquisition") && Me.CurrentTarget.IsBoss),
-                    Spell.Cast("Holy Avenger", ret => Me.HasAura("Inquisition") && Me.CurrentTarget.IsBoss),
-                    Spell.Cast("Guardian of Ancient Kings", ret => Me.HasAura("Inquisition") && Me.CurrentTarget.IsBoss),
-                    new Decorator(ret => Me.HasAura("Inquisition"),
+                    new Throttle(
                         new PrioritySelector(
+                    Common.CreateInterruptBehavior(),
+                    Dispelling.CreateDispelBehavior(),
+                    Spell.Cast("Inquisition", ret => (!Me.HasAura("Inquisition") || Me.HasAuraExpired("Inquisition", 2)) && (Me.CurrentHolyPower >= 3 || Me.HasAura("Divine Purpose"))),
+                    new Decorator(ret => Me.HasAura("Inquisition") && AdvancedAI.Burst,
+                        new PrioritySelector(
+                            Spell.Cast("Avenging Wrath", ret => Me.CurrentTarget.IsBoss),
+                            Spell.Cast("Holy Avenger", ret => Me.CurrentTarget.IsBoss),
+                            Spell.Cast("Guardian of Ancient Kings", ret => Me.CurrentTarget.IsBoss),
                             new Action(ret => { Item.UseHands(); return RunStatus.Failure; }),
                             new Action(ret => { Item.UseTrinkets(); return RunStatus.Failure; }))),
-                    Spell.Cast("Execution Sentence", ret => Me.HasAura("Inquisition") && Me.CurrentTarget.IsBoss),
-                    Spell.Cast("Holy Prism", ret => Me.HasAura("Inquisition")),
-                    Spell.CastOnGround("Light's Hammer", ret => Me.CurrentTarget.Location, ret => Me.HasAura("Inquisition") && Me.CurrentTarget.IsBoss),
-                    Spell.Cast("Divine Storm", ret => Unit.NearbyUnfriendlyUnits.Count(u => u.DistanceSqr <= 8 * 8) >= 2 && Me.HasAura("Inquisition") && (Me.CurrentHolyPower == 5 || Me.ActiveAuras.ContainsKey("Divine Purpose"))),
-                    Spell.Cast("Templar's Verdict", ret => Me.HasAura("Inquisition") && (Me.CurrentHolyPower == 5 || Me.ActiveAuras.ContainsKey("Divine Purpose"))),
+                    Spell.Cast("Seal of Righteousness", ret => !Me.HasAura("Seal of Righteousness") && Clusters.GetClusterCount(Me, Unit.NearbyUnfriendlyUnits, ClusterType.Radius, 8f) >= 8),
+                    Spell.Cast("Seal of Truth", ret => !Me.HasAura("Seal of Truth") && Clusters.GetClusterCount(Me, Unit.NearbyUnfriendlyUnits, ClusterType.Radius, 8f) < 8),
+                    new Decorator(ret => Me.HasAura("Inquisition"),
+                        new PrioritySelector(
+                            Spell.Cast("Execution Sentence", ret => Me.HasAura("Inquisition") && Me.CurrentTarget.IsBoss),
+                            Spell.Cast("Holy Prism", ret => Me.HasAura("Inquisition")),
+                            Spell.CastOnGround("Light's Hammer", ret => Me.CurrentTarget.Location, ret => Me.HasAura("Inquisition") && Me.CurrentTarget.IsBoss),
+                            Spell.Cast("Divine Storm", ret => Unit.NearbyUnfriendlyUnits.Count(u => u.DistanceSqr <= 8 * 8) >= 2 && Me.HasAura("Inquisition") && (Me.CurrentHolyPower == 5 || Me.HasAura("Divine Purpose"))),
+                            Spell.Cast("Templar's Verdict", ret => Me.HasAura("Inquisition") && (Me.CurrentHolyPower == 5 || Me.HasAura("Divine Purpose"))))),
                     Spell.Cast("Hammer of Wrath", ret => Me.CurrentHolyPower <= 4),
                     Spell.Cast("Exorcism", ret => Me.CurrentHolyPower <= 4),
-                    Spell.Cast("Hammer of the Righteous", ret => Unit.NearbyUnfriendlyUnits.Count(u => u.DistanceSqr <= 8 * 8) >= 4),
+                    Spell.Cast("Hammer of the Righteous", ret =>  Me.CurrentHolyPower <= 4 && Clusters.GetClusterCount(Me, Unit.NearbyUnfriendlyUnits, ClusterType.Radius, 8f) >= 2),// Unit.NearbyUnfriendlyUnits.Count(u => u.DistanceSqr <= 8 * 8) >= 2),
                     Spell.Cast("Crusader Strike", ret => Me.CurrentHolyPower <= 4),
-                    Spell.Cast("Judgment", on => SecTar, ret => Clusters.GetClusterCount(Me, Unit.NearbyUnfriendlyUnits, ClusterType.Radius, 8f) >= 2 && Me.HasAura("Glyph of Double Jeopardy")),
+                    //new Throttle(1, 1,
+                    //    new Decorator(ret => Clusters.GetClusterCount(Me, Unit.NearbyUnfriendlyUnits, ClusterType.Radius, 15f) >= 2 && TalentManager.HasGlyph("Double Jeopardy"),
+                    //        new PrioritySelector(
+                    //            new Decorator(ret => _SecTarAudit == 0,
+                    //                new Sequence(
+                    //                    Spell.Cast("Judgement", ret => Me.CurrentHolyPower <= 4),
+                    //                    new Action(r => setSecTar()))),
+                    //            new Decorator(ret => _SecTarAudit == 1,
+                    //                new Sequence(
+                    //                    Spell.Cast("Judgement", on => SecTar),
+                    //                    new Action(r => resetSecTar())))))),
+                    Spell.Cast("Judgment", on => SecTar, ret => Me.CurrentHolyPower <= 4 && Clusters.GetClusterCount(Me, Unit.NearbyUnfriendlyUnits, ClusterType.Radius, 15f) >= 2 && Me.HasAura("Glyph of Double Jeopardy")),
                     Spell.Cast("Judgment", ret => Me.CurrentHolyPower <= 4),
-                    Spell.Cast("Divine Storm", ret => Me.HasAura("Inquisition") && Unit.NearbyUnfriendlyUnits.Count(u => u.DistanceSqr <= 8 * 8) >= 2 && Me.GetAuraTimeLeft("Inquisition").TotalSeconds > 4),
-                    Spell.Cast("Templar's Verdict", ret => Me.HasAura("Inquisition") && Me.GetAuraTimeLeft("Inquisition").TotalSeconds > 4),
-                    Spell.Cast("Sacred Shield", on => Me, ret => !Me.HasAura("Sacred Shield")));
+                    Spell.Cast("Divine Storm", ret => Me.HasAura("Inquisition") && Clusters.GetClusterCount(Me, Unit.NearbyUnfriendlyUnits, ClusterType.Radius, 8f) >= 2 && Me.GetAuraTimeLeft("Inquisition").TotalSeconds > 4),
+                    Spell.Cast("Templar's Verdict", ret => Me.HasAura("Inquisition") && Me.GetAuraTimeLeft("Inquisition").TotalSeconds > 4))));
             }
         }
 
@@ -66,6 +84,18 @@ namespace AdvancedAI.Spec
                 }
                 return null;
             }
+        }
+
+        private static int _SecTarAudit = 0;
+
+        private static void setSecTar()
+        {
+            _SecTarAudit = 1;
+        }
+
+        private static void resetSecTar()
+        {
+            _SecTarAudit = 0;
         }
         #endregion
 

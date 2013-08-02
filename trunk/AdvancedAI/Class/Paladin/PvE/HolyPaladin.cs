@@ -1,32 +1,36 @@
-﻿using CommonBehaviors.Actions;
+﻿using System;
+using AdvancedAI.Managers;
 using Styx;
-using Styx.Common;
-using Styx.CommonBot;
-using Styx.Helpers;
 using Styx.TreeSharp;
-using Styx.WoWInternals;
 using Styx.WoWInternals.WoWObjects;
 using AdvancedAI.Helpers;
-
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Action = Styx.TreeSharp.Action;
 
 namespace AdvancedAI.Spec
 {
     class HolyPaladin
     {
-        LocalPlayer Me { get { return StyxWoW.Me; } }
+        static LocalPlayer Me { get { return StyxWoW.Me; } }
+        static WoWPlayer tank { get { return Group.Tanks.FirstOrDefault(); } }
+        static WoWUnit healtarget { get { return HealerManager.FindLowestHealthTarget(); } }
         public static Composite CreateHPaCombat
         {
             get
             {
-                return new PrioritySelector(
+                HealerManager.NeedHealTargeting = true;
+                var cancelHeal = Math.Max(95, Math.Max(93, Math.Max(55, 25)));
+                return new PrioritySelector(ctx => HealerManager.Instance.TargetList.Any(t => t.IsAlive),
                     new Decorator(ret => AdvancedAI.PvPRot,
-                        HolyPaladinPvP.CreateHPaPvPCombat));
+                        HolyPaladinPvP.CreateHPaPvPCombat),
+                    new Decorator(ret => Me.Combat || healtarget.Combat || healtarget.GetPredictedHealthPercent() <= 99,
+                        new PrioritySelector(
+                            //beacon tank
+                            Spell.Cast("Beacon of Light", on => tank, ret => !tank.HasAura("Beacon of Light"))
+                            //urgent heals
+                            //tank heals
+                            //aoe heals
+                            // single heals
+                        )));
             }
         }
 
