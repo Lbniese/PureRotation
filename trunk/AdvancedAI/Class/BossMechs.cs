@@ -99,8 +99,8 @@ namespace AdvancedAI.Class
                     return new PrioritySelector(
                             new Decorator(ret => Me.FocusedUnitGuid == 0,
                                 SetFocusDino()),
-                            Spell.Cast("Shadow Word: Pain", on => Me.FocusedUnit, ret => Me.Specialization == WoWSpec.PriestShadow && Me.FocusedUnit.HasMyAura("Shadow Word: Pain")),
-                            Spell.Cast("Vampiric Touch", on => Me.FocusedUnit, ret => Me.Specialization == WoWSpec.PriestShadow && Me.FocusedUnit.HasMyAura("Shadow Word: Pain")),
+                            Spell.Cast("Shadow Word: Pain", on => Me.FocusedUnit, ret => Me.Specialization == WoWSpec.PriestShadow && !Me.FocusedUnit.HasMyAura("Shadow Word: Pain")),
+                            Spell.Cast("Vampiric Touch", on => Me.FocusedUnit, ret => Me.Specialization == WoWSpec.PriestShadow && !Me.FocusedUnit.HasMyAura("Shadow Word: Pain")),
                             Spell.Cast("Holy Fire", on => Me.FocusedUnit),
                             Spell.Cast("Power Word: Solace", on => Me.FocusedUnit),
                             Spell.Cast("Smite", on => Me.FocusedUnit),

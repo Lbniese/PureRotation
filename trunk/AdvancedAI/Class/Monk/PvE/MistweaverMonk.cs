@@ -37,22 +37,22 @@ namespace AdvancedAI.Spec
                             new Throttle(1, 1,
                                 new PrioritySelector(
                                     Spell.Cast("Thunder Focus Tea", ret => Me.GroupInfo.RaidMembers.Count(u => u.ToPlayer().HasAura("Renewing Mist") && u.ToPlayer().HealthPercent < 80) >= 3))),
-                            //new Decorator(ret => healtarget.HealthPercent < 58,
-                            //    new Sequence(
-                            //        Spell.Cast("Soothing Mist", on => healtarget),
-                            //        Spell.Cast("Enveloping Mist", on => healtarget))),
-                            Spell.Cast("Enveloping Mist", on => healtarget, ret => healtarget.HealthPercent < 58 && Me.IsChanneling),
+                            new Decorator(ret => healtarget.HealthPercent < 58,
+                                new Sequence(
+                                    Spell.Cast("Soothing Mist", on => healtarget),
+                                    Spell.Cast("Enveloping Mist", on => healtarget))),
+                            //Spell.Cast("Enveloping Mist", on => healtarget, ret => healtarget.HealthPercent < 58 && Me.IsChanneling),
                             new Throttle(1, 1,
                                 new PrioritySelector(
                                     Spell.Cast("Uplift", ret => Me.GroupInfo.RaidMembers.Count(u => u.ToPlayer().HasAura("Renewing Mist") && u.ToPlayer().HealthPercent < 90) > 2))),
                             Spell.Cast("Expel Harm", ret => Me.HealthPercent < 90),
-                            //new Decorator(ret => healtarget.HealthPercent < 41,
-                            //    new Sequence(
-                            //        Spell.Cast("Soothing Mist", on => healtarget),
-                            //        Spell.Cast("Surging Mist", on => healtarget))),
-                            Spell.Cast("Surging Mist", on => healtarget, ret => healtarget.HealthPercent < 41 && Me.IsChanneling),
+                            new Decorator(ret => healtarget.HealthPercent < 41,
+                                new Sequence(
+                                    Spell.Cast("Soothing Mist", on => healtarget),
+                                    Spell.Cast("Surging Mist", on => healtarget))),
+                            //Spell.Cast("Surging Mist", on => healtarget, ret => healtarget.HealthPercent < 41 && Me.IsChanneling),
                             Spell.Cast("Surging Mist", on => healtarget, ret => healtarget.HealthPercent < 85 && Me.HasAura("Vital Mists", 5)),
-                            Spell.Cast("Soothing Mist", on => healtarget, ret => healtarget.HealthPercent < 95 && !Me.CurrentTarget.IsWithinMeleeRange),
+                            //Spell.Cast("Soothing Mist", on => healtarget, ret => healtarget.HealthPercent < 95 && !Me.CurrentTarget.IsWithinMeleeRange),
                             Spell.Cast("Soothing Mist", on => healtarget, ret => healtarget.HealthPercent < 41),
                             Spell.Cast("Renewing Mist", on => RenewingMistTarget),
                             Spell.Cast("Spinning Crane Kick", ret => Me.IsMoving && Me.GroupInfo.RaidMembers.Count(u => u.ToPlayer().HealthPercent < 85) >= 5),
