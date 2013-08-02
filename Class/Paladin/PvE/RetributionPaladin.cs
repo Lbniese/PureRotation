@@ -17,49 +17,41 @@ namespace AdvancedAI.Spec
         {
             get
             {
-                return new PrioritySelector(
-                    new Decorator(ret => AdvancedAI.PvPRot,
-                        RetributionPaladinPvP.CreateRPPvPCombat),
-                    new Throttle(
-                        new PrioritySelector(
-                    Common.CreateInterruptBehavior(),
-                    Dispelling.CreateDispelBehavior(),
-                    Spell.Cast("Inquisition", ret => (!Me.HasAura("Inquisition") || Me.HasAuraExpired("Inquisition", 2)) && (Me.CurrentHolyPower >= 3 || Me.HasAura("Divine Purpose"))),
-                    new Decorator(ret => Me.HasAura("Inquisition") && AdvancedAI.Burst,
-                        new PrioritySelector(
-                            Spell.Cast("Avenging Wrath", ret => Me.CurrentTarget.IsBoss),
-                            Spell.Cast("Holy Avenger", ret => Me.CurrentTarget.IsBoss),
-                            Spell.Cast("Guardian of Ancient Kings", ret => Me.CurrentTarget.IsBoss),
-                            new Action(ret => { Item.UseHands(); return RunStatus.Failure; }),
-                            new Action(ret => { Item.UseTrinkets(); return RunStatus.Failure; }))),
-                    Spell.Cast("Seal of Righteousness", ret => !Me.HasAura("Seal of Righteousness") && Clusters.GetClusterCount(Me, Unit.NearbyUnfriendlyUnits, ClusterType.Radius, 8f) >= 8),
-                    Spell.Cast("Seal of Truth", ret => !Me.HasAura("Seal of Truth") && Clusters.GetClusterCount(Me, Unit.NearbyUnfriendlyUnits, ClusterType.Radius, 8f) < 8),
-                    new Decorator(ret => Me.HasAura("Inquisition"),
-                        new PrioritySelector(
-                            Spell.Cast("Execution Sentence", ret => Me.HasAura("Inquisition") && Me.CurrentTarget.IsBoss),
-                            Spell.Cast("Holy Prism", ret => Me.HasAura("Inquisition")),
-                            Spell.CastOnGround("Light's Hammer", ret => Me.CurrentTarget.Location, ret => Me.HasAura("Inquisition") && Me.CurrentTarget.IsBoss),
-                            Spell.Cast("Divine Storm", ret => Unit.NearbyUnfriendlyUnits.Count(u => u.DistanceSqr <= 8 * 8) >= 2 && Me.HasAura("Inquisition") && (Me.CurrentHolyPower == 5 || Me.HasAura("Divine Purpose"))),
-                            Spell.Cast("Templar's Verdict", ret => Me.HasAura("Inquisition") && (Me.CurrentHolyPower == 5 || Me.HasAura("Divine Purpose"))))),
-                    Spell.Cast("Hammer of Wrath", ret => Me.CurrentHolyPower <= 4),
-                    Spell.Cast("Exorcism", ret => Me.CurrentHolyPower <= 4),
-                    Spell.Cast("Hammer of the Righteous", ret =>  Me.CurrentHolyPower <= 4 && Clusters.GetClusterCount(Me, Unit.NearbyUnfriendlyUnits, ClusterType.Radius, 8f) >= 2),// Unit.NearbyUnfriendlyUnits.Count(u => u.DistanceSqr <= 8 * 8) >= 2),
-                    Spell.Cast("Crusader Strike", ret => Me.CurrentHolyPower <= 4),
-                    //new Throttle(1, 1,
-                    //    new Decorator(ret => Clusters.GetClusterCount(Me, Unit.NearbyUnfriendlyUnits, ClusterType.Radius, 15f) >= 2 && TalentManager.HasGlyph("Double Jeopardy"),
-                    //        new PrioritySelector(
-                    //            new Decorator(ret => _SecTarAudit == 0,
-                    //                new Sequence(
-                    //                    Spell.Cast("Judgement", ret => Me.CurrentHolyPower <= 4),
-                    //                    new Action(r => setSecTar()))),
-                    //            new Decorator(ret => _SecTarAudit == 1,
-                    //                new Sequence(
-                    //                    Spell.Cast("Judgement", on => SecTar),
-                    //                    new Action(r => resetSecTar())))))),
-                    Spell.Cast("Judgment", on => SecTar, ret => Me.CurrentHolyPower <= 4 && Clusters.GetClusterCount(Me, Unit.NearbyUnfriendlyUnits, ClusterType.Radius, 15f) >= 2 && Me.HasAura("Glyph of Double Jeopardy")),
-                    Spell.Cast("Judgment", ret => Me.CurrentHolyPower <= 4),
-                    Spell.Cast("Divine Storm", ret => Me.HasAura("Inquisition") && Clusters.GetClusterCount(Me, Unit.NearbyUnfriendlyUnits, ClusterType.Radius, 8f) >= 2 && Me.GetAuraTimeLeft("Inquisition").TotalSeconds > 4),
-                    Spell.Cast("Templar's Verdict", ret => Me.HasAura("Inquisition") && Me.GetAuraTimeLeft("Inquisition").TotalSeconds > 4))));
+                return new Throttle(
+                    new PrioritySelector(
+                        new Decorator(ret => AdvancedAI.PvPRot,
+                            RetributionPaladinPvP.CreateRPPvPCombat),
+                        new Throttle(1, 1,
+                            new Decorator(ret => Me.HasAura("Dire Fixation"),
+                                new PrioritySelector(
+                                    Class.BossMechs.HorridonHeroic()))),
+                        Common.CreateInterruptBehavior(),
+                        Dispelling.CreateDispelBehavior(),
+                        Spell.Cast("Inquisition", ret => (!Me.HasAura("Inquisition") || Me.HasAuraExpired("Inquisition", 2)) && (Me.CurrentHolyPower >= 3 || Me.HasAura("Divine Purpose"))),
+                        new Decorator(ret => Me.HasAura("Inquisition") && AdvancedAI.Burst,
+                            new PrioritySelector(
+                                Spell.Cast("Avenging Wrath", ret => Me.CurrentTarget.IsBoss),
+                                Spell.Cast("Holy Avenger", ret => Me.CurrentTarget.IsBoss),
+                                Spell.Cast("Guardian of Ancient Kings", ret => Me.CurrentTarget.IsBoss),
+                                new Action(ret => { Item.UseHands(); return RunStatus.Failure; }),
+                                new Action(ret => { Item.UseTrinkets(); return RunStatus.Failure; }))),
+                        Spell.Cast("Seal of Righteousness", ret => !Me.HasAura("Seal of Righteousness") && Clusters.GetClusterCount(Me, Unit.NearbyUnfriendlyUnits, ClusterType.Radius, 8f) >= 8),
+                        Spell.Cast("Seal of Truth", ret => !Me.HasAura("Seal of Truth") && Clusters.GetClusterCount(Me, Unit.NearbyUnfriendlyUnits, ClusterType.Radius, 8f) < 8),
+                        new Decorator(ret => Me.HasAura("Inquisition"),
+                            new PrioritySelector(
+                                Spell.Cast("Execution Sentence", ret => Me.HasAura("Inquisition") && Me.CurrentTarget.IsBoss),
+                                Spell.Cast("Holy Prism", ret => Me.HasAura("Inquisition")),
+                                Spell.CastOnGround("Light's Hammer", ret => Me.CurrentTarget.Location, ret => Me.HasAura("Inquisition") && Me.CurrentTarget.IsBoss),
+                                Spell.Cast("Divine Storm", ret => Unit.NearbyUnfriendlyUnits.Count(u => u.DistanceSqr <= 8 * 8) >= 2 && Me.HasAura("Inquisition") && (Me.CurrentHolyPower == 5 || Me.HasAura("Divine Purpose"))),
+                                Spell.Cast("Templar's Verdict", ret => Me.HasAura("Inquisition") && (Me.CurrentHolyPower == 5 || Me.HasAura("Divine Purpose"))))),
+                        Spell.Cast("Hammer of Wrath", ret => Me.CurrentHolyPower <= 4),
+                        Spell.Cast("Exorcism", ret => Me.CurrentHolyPower <= 4),
+                        Spell.Cast("Hammer of the Righteous", ret =>  Me.CurrentHolyPower <= 4 && Clusters.GetClusterCount(Me, Unit.NearbyUnfriendlyUnits, ClusterType.Radius, 8f) >= 2),// Unit.NearbyUnfriendlyUnits.Count(u => u.DistanceSqr <= 8 * 8) >= 2),
+                        Spell.Cast("Crusader Strike", ret => Me.CurrentHolyPower <= 4),
+                        Spell.Cast("Judgment", on => SecTar, ret => Me.CurrentHolyPower <= 4 && Clusters.GetClusterCount(Me, Unit.NearbyUnfriendlyUnits, ClusterType.Radius, 15f) >= 2 && Me.HasAura("Glyph of Double Jeopardy")),
+                        Spell.Cast("Judgment", ret => Me.CurrentHolyPower <= 4),
+                        Spell.Cast("Divine Storm", ret => Me.HasAura("Inquisition") && Clusters.GetClusterCount(Me, Unit.NearbyUnfriendlyUnits, ClusterType.Radius, 8f) >= 2 && Me.GetAuraTimeLeft("Inquisition").TotalSeconds > 4),
+                        Spell.Cast("Templar's Verdict", ret => Me.HasAura("Inquisition") && Me.GetAuraTimeLeft("Inquisition").TotalSeconds > 4)));
             }
         }
 

@@ -33,7 +33,7 @@ namespace AdvancedAI.Spec
                         new Decorator(ret => Me.HasAura("Dire Fixation"),
                             new PrioritySelector(
                                 Class.BossMechs.HorridonHeroic()))),
-                    Spell.Cast("Pummel", ret => Me.CurrentTarget.IsCasting && Me.CurrentTarget.CanInterruptCurrentSpellCast),
+                    Common.CreateInterruptBehavior(),
                     Spell.Cast("Impending Victory", ret => Me.HealthPercent <= 90 && Me.HasAura("Victorious")),
                     Spell.Cast("Die by the Sword", ret => Me.HealthPercent <= 20),
                     Item.CreateUsePotionAndHealthstone(50, 0),
