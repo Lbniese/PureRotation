@@ -41,6 +41,7 @@ namespace AdvancedAI.Spec
                                     // Apply Diseases
                                     CreateApplyDiseases(),
                                     CreateBDKBuffs,
+                    new Action(ret => { Item.UseHands(); return RunStatus.Failure; }),
                                     // Spread Diseases
                       new Throttle(1, 2,
                         new PrioritySelector(
