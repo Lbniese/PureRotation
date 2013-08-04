@@ -29,41 +29,51 @@ namespace AdvancedAI.Spec
                             Dispelling.CreateDispelBehavior(),
                             Spell.Cast("Fortifying Brew", ret => Me.HealthPercent < 30),
                             Spell.Cast("Life Cocoon", on => CocoonTar),
-                            Spell.Cast("Revival", on => Me, ret => Me.GroupInfo.RaidMembers.Count(u => u.ToPlayer().HealthPercent < 55) > 4),
+                            Spell.Cast("Revival", ret => Me.GroupInfo.RaidMembers.Count(u => u.ToPlayer().HealthPercent < 55) > 4 && AdvancedAI.Burst),
                             //Spell.CastOnGround("Healing Sphere", on => healtarget.Location, ret => healtarget.HealthPercent < 55 && Me.ManaPercent > 40, false),
                             new Action(ret => { Item.UseHands(); return RunStatus.Failure; }),
                             new Action(ret => { Item.UseTrinkets(); return RunStatus.Failure; }),
-                            Spell.Cast("Mana Tea", ret => Me.ManaPercent < 85),
+                            Spell.Cast("Mana Tea", ret => Me.ManaPercent < 87),
+                            // Execute if we can
+                            Spell.Cast("Touch of Death", ret => Me.CurrentChi >= 3 && Me.HasAura("Death Note")),
                             new Throttle(1, 1,
                                 new PrioritySelector(
                                     Spell.Cast("Thunder Focus Tea", ret => Me.GroupInfo.RaidMembers.Count(u => u.ToPlayer().HasAura("Renewing Mist") && u.ToPlayer().HealthPercent < 80) >= 3))),
-                            new Decorator(ret => healtarget.HealthPercent < 58,
+
+                            //OH Crap stuff
+                            new Decorator(ret => healtarget.HealthPercent < 70,
                                 new Sequence(
                                     Spell.Cast("Soothing Mist", on => healtarget),
                                     Spell.Cast("Enveloping Mist", on => healtarget))),
-                            //Spell.Cast("Enveloping Mist", on => healtarget, ret => healtarget.HealthPercent < 58 && Me.IsChanneling),
                             new Throttle(1, 1,
                                 new PrioritySelector(
                                     Spell.Cast("Uplift", ret => Me.GroupInfo.RaidMembers.Count(u => u.ToPlayer().HasAura("Renewing Mist") && u.ToPlayer().HealthPercent < 90) > 2 || Me.CurrentChi >= 4))),
-                            Spell.Cast("Expel Harm", ret => Me.HealthPercent < 90),
                             new Decorator(ret => healtarget.HealthPercent < 41,
                                 new Sequence(
                                     Spell.Cast("Soothing Mist", on => healtarget),
                                     Spell.Cast("Surging Mist", on => healtarget))),
+
                             Spell.Cast("Renewing Mist", on => RenewingMistTarget),
-                            //Spell.Cast("Surging Mist", on => healtarget, ret => healtarget.HealthPercent < 41 && Me.IsChanneling),
                             Spell.Cast("Surging Mist", on => healtarget, ret => healtarget.HealthPercent < 85 && Me.HasAura("Vital Mists", 5)),
-                            Spell.Cast("Soothing Mist", on => healtarget, ret => healtarget.HealthPercent < 95 && !Me.CurrentTarget.IsWithinMeleeRange),
-                            Spell.Cast("Soothing Mist", on => healtarget, ret => healtarget.HealthPercent < 41),
+
+                            //needs more work to dial in SCK it cost alot of mana
                             Spell.Cast("Spinning Crane Kick", ret => Me.IsMoving && Me.GroupInfo.RaidMembers.Count(u => u.ToPlayer().HealthPercent < 85) >= 5),
+
+                            //LvL 30 Talents
                             Spell.Cast("Chi Wave", on => healtarget, ret => healtarget.HealthPercent < 90),
                             Spell.Cast("Chi Burst", on => healtarget, ret => Clusters.GetClusterCount(healtarget, Unit.NearbyFriendlyPlayers, ClusterType.Path, 5) >= 3 && healtarget.HealthPercent < 80),
                             new Throttle(1, 3,
                                 new PrioritySelector(
                                     Spell.Cast("Zen Sphere", on => healtarget, ret => Me.GroupInfo.RaidMembers.Count(u => u.ToPlayer().HasAura("Zen Sphere")) < 2 && healtarget.HealthPercent < 90))),
+                            Spell.Cast("Expel Harm", ret => Me.HealthPercent < 90),
+
+                            //FW                                 
                             Spell.Cast("Blackout Kick", ret => !Me.HasAura("Serpent's Zeal") && Me.HasAura("Muscle Memory")),
                             Spell.Cast("Tiger Palm", ret => Me.HasAura("Muscle Memory") || (Me.CurrentChi > 3 && TalentManager.IsSelected((int)MonkTalents.Ascension)) || Me.CurrentChi > 4),
-                            Spell.Cast("Jab"))));
+                            Spell.Cast("Jab", ret => !Me.HasAura("Muscle Memory")),
+                            //Spam
+                            Spell.Cast("Soothing Mist", on => healtarget, ret => healtarget.HealthPercent < 95 && !Me.CurrentTarget.IsWithinMeleeRange)                            
+                            )));
             }
         }
 
