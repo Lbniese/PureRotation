@@ -36,6 +36,7 @@
     <Reference Include="Honorbuddy">
       <HintPath>..\..\Honorbuddy.exe</HintPath>
     </Reference>
+    <Reference Include="PresentationCore" />
     <Reference Include="RemoteASMNative">
       <HintPath>..\..\..\RemoteASMNative.dll</HintPath>
     </Reference>
@@ -59,7 +60,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AdvancedAI.Behaviors.cs" />
+    <Compile Include="AdvancedAI.Context.cs" />
     <Compile Include="AdvancedAI.cs" />
+    <Compile Include="AdvancedAI.Hotkeys.cs" />
     <Compile Include="Class\BossMechs.cs" />
     <Compile Include="Class\Deathknight\PvP\BloodDeathknightPvP.cs" />
     <Compile Include="Class\Deathknight\PvP\FrostDeathknightPvP.cs" />

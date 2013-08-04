@@ -83,4 +83,10 @@ namespace AdvancedAI
         Raids = 0x8
     }
 
+    public enum GroupType
+    {
+        Solo,
+        Party,
+        Raid
+    }
 }
