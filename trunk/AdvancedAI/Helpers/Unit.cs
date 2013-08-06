@@ -29,6 +29,11 @@ namespace AdvancedAI.Helpers
                     || unit.CreatureType == WoWCreatureType.Demon;
         }
 
+        internal static IEnumerable<WoWUnit> AttackableUnits
+        {
+            get { return ObjectManager.GetObjectsOfType<WoWUnit>(true, false).Where(u => u.Attackable && u.CanSelect && !u.IsFriendly && !u.IsDead && !u.IsNonCombatPet && !u.IsCritter && u.Distance <= 60); }
+        }
+
         public static bool IsFrozen(this WoWUnit unit)
         {
             return unit.GetAllAuras().Any(a => a.Spell.Mechanic == WoWSpellMechanic.Frozen || (a.Spell.School == WoWSpellSchool.Frost && a.Spell.SpellEffects.Any(e => e.AuraType == WoWApplyAuraType.ModRoot)));
@@ -120,6 +125,28 @@ namespace AdvancedAI.Helpers
                     from p in ObjectManager.GetObjectsOfType<WoWPlayer>(true, true)
                     where p.IsFriendly && guids.Any(g => g == p.Guid)
                     select p).ToList();
+            }
+        }
+
+        public static IEnumerable<WoWUnit> HealList
+        {
+            get
+            {
+                try
+                {
+                    var ret = from o in ObjectManager.ObjectList
+                              where o is WoWPlayer && o.Location.DistanceSqr(StyxWoW.Me.Location) < 40 * 40
+                              let p = o.ToUnit().ToPlayer()
+                              where p.IsAlive && !p.IsGhost && p.IsPlayer && p.ToPlayer() != null && !p.IsFlying && !p.OnTaxi
+                              orderby p.CurrentHealth
+                              select p.ToUnit();
+
+                    return ret;
+                }
+                catch (NullReferenceException)
+                {
+                    return new List<WoWUnit>();
+                }
             }
         }
 
@@ -572,7 +599,7 @@ namespace AdvancedAI.Helpers
             return unit.Stunned 
                 || unit.Rooted 
                 || unit.Fleeing 
-                || unit.HasAuraWithEffect(
+                || unit.HasAuraWithEffectsing(
                         WoWApplyAuraType.ModConfuse, 
                         WoWApplyAuraType.ModCharm, 
                         WoWApplyAuraType.ModFear, 
@@ -586,12 +613,12 @@ namespace AdvancedAI.Helpers
         }
 
         // this one optimized for single applytype lookup
-        public static bool HasAuraWithEffect(this WoWUnit unit, WoWApplyAuraType applyType)
+        public static bool HasAuraWithEffectsing(this WoWUnit unit, WoWApplyAuraType applyType)
         {
             return unit.Auras.Values.Any(a => a.Spell != null && a.Spell.SpellEffects.Any(se => applyType == se.AuraType));
         }
 
-        public static bool HasAuraWithEffect(this WoWUnit unit, params WoWApplyAuraType[] applyType)
+        public static bool HasAuraWithEffectsing(this WoWUnit unit, params WoWApplyAuraType[] applyType)
         {
             var hashes = new HashSet<WoWApplyAuraType>(applyType);
             return unit.Auras.Values.Any( a => a.Spell != null && a.Spell.SpellEffects.Any(se => hashes.Contains(se.AuraType)));

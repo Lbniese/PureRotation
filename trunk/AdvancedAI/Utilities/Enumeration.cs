@@ -33,6 +33,12 @@ namespace AdvancedAI
         All,
     }
 
+    public enum HealingAquisitionMethod
+    {
+        Proximity,
+        RaidParty
+    }
+
     [Flags]
     public enum WoWContext
     {

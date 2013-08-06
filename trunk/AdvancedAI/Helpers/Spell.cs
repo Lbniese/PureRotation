@@ -1963,6 +1963,243 @@ namespace AdvancedAI.Helpers
 
         #endregion
 
+        public static bool CachedHasAura(this WoWUnit unit, string aura, int stacks = 0, bool fromMyAura = false, int msLeft = 0, int expiry = 1000)
+        {
+            if (unit == null) return false;
+
+            var cachedResult = fromMyAura ? unit.CachedGetAllAuras(expiry).FirstOrDefault(a => a.Name == aura && a.CreatorGuid == StyxWoW.Me.Guid && a.TimeLeft > TimeSpan.Zero) : unit.CachedGetAllAuras(expiry).FirstOrDefault(a => a.Name == aura && a.TimeLeft > TimeSpan.Zero);
+
+            if (cachedResult == null)
+                return false;
+
+            // debugging put your spell in here
+            //if (cachedResult.Name == "Unstable Affliction")
+            //Logger.InfoLog("[TimeLeft] {0} : {1} msLeft {2} msSetpoint {3}", aura, unit, cachedResult.TimeLeft.TotalMilliseconds, msLeft);
+
+            if (cachedResult.TimeLeft.TotalMilliseconds > msLeft)
+                return cachedResult.StackCount >= stacks;
+
+            return false;
+        }
+
+        public static bool CachedHasAura(this WoWUnit unit, int aura, int stacks = 0, bool fromMyAura = false, int msLeft = 0, int expiry = 1000)
+        {
+            if (unit == null) return false;
+
+            var cachedResult = fromMyAura ? unit.CachedGetAllAuras(expiry).FirstOrDefault(a => a.SpellId == aura && a.CreatorGuid == StyxWoW.Me.Guid && a.TimeLeft > TimeSpan.Zero) : unit.CachedGetAllAuras(expiry).FirstOrDefault(a => a.SpellId == aura && a.TimeLeft > TimeSpan.Zero);
+
+            if (cachedResult == null)
+                return false;
+
+            // debugging put your spell in here
+            //if (cachedResult.Name == "Unstable Affliction")
+            //Logger.InfoLog("[TimeLeft] {0} : {1} msLeft {2} msSetpoint {3}", aura, unit, cachedResult.TimeLeft.TotalMilliseconds, msLeft);
+
+            if (cachedResult.TimeLeft.TotalMilliseconds > msLeft)
+                return cachedResult.StackCount >= stacks;
+
+            return false;
+        }
+
+        public static bool CachedHasAuraDown(this WoWUnit unit, int aura, int stacks = 0, bool fromMyAura = false, int msLeft = 0, int expiry = 1000)
+        {
+            var cachedResult = unit.CachedGetAllAuras(expiry).FirstOrDefault(a => a.SpellId == aura);
+
+            if (cachedResult == null)
+                return false;
+
+            if (fromMyAura && cachedResult.CreatorGuid != StyxWoW.Me.Guid)
+                return false;
+
+            // debugging put your spell in here
+            //if (cachedResult.Name == "Unstable Affliction")
+            //Logger.InfoLog("[TimeLeft] {0} : {1} msLeft {2} msSetpoint {3}", aura, unit, cachedResult.TimeLeft.TotalMilliseconds, msLeft);
+
+            if (cachedResult.TimeLeft.TotalMilliseconds < msLeft)
+                return cachedResult.StackCount >= stacks;
+
+            return false;
+        }
+
+        public static bool CachedHasAnyAura(this WoWUnit unit, HashSet<int> auraIDs, int expiry = 1000)
+        {
+            if (unit == null) return false;
+            var cachedauras = unit.CachedGetAllAuras(expiry);
+            return cachedauras.Any(a => auraIDs.Contains(a.SpellId));
+        }
+
+        public static bool CachedHasAnyAura(this WoWUnit unit, HashSet<string> auras, int expiry = 1000)
+        {
+            if (unit == null) return false;
+            var cachedauras = unit.CachedGetAllAuras(expiry);
+            return cachedauras.Any(a => auras.Contains(a.Name));
+        }
+
+        public static bool CachedAnyFriendlyHasMyAura(string aura, int expiry = 1000)
+        {
+            return CachedUnits.HealList.Any(u => u.ToUnit().CachedGetAllAuras(expiry).Any(a => a.Name == aura && a.CreatorGuid == Me.Guid));
+        }
+
+        public static bool CachedAnyEnemeyHasMyAura(string aura, int expiry = 1000)
+        {
+            return CachedUnits.AttackableUnits.Any(u => u.CachedGetAllAuras(expiry).Any(a => a.Name == aura && a.CreatorGuid == Me.Guid));
+        }
+
+        public static uint CachedStackCount(this WoWUnit unit, string aura, bool fromMyAura = false, int expiry = 1000)
+        {
+            {
+                if (unit != null)
+                {
+                    var cachedResult = fromMyAura ? unit.CachedGetAllAuras(expiry).FirstOrDefault(a => a.Name == aura && a.CreatorGuid == StyxWoW.Me.Guid && a.TimeLeft > TimeSpan.Zero) : unit.CachedGetAllAuras(expiry).FirstOrDefault(a => a.Name == aura && a.TimeLeft > TimeSpan.Zero);
+
+                    if (cachedResult == null)
+                        return 0;
+
+                    return cachedResult.StackCount;
+                }
+                return 0;
+            }
+        }
+
+        public static uint CachedStackCount(this WoWUnit unit, int aura, bool fromMyAura = false, int expiry = 1000)
+        {
+            {
+                if (unit != null)
+                {
+                    var cachedResult = fromMyAura ? unit.CachedGetAllAuras(expiry).FirstOrDefault(a => a.SpellId == aura && a.CreatorGuid == StyxWoW.Me.Guid && a.TimeLeft > TimeSpan.Zero) : unit.CachedGetAllAuras(expiry).FirstOrDefault(a => a.SpellId == aura && a.TimeLeft > TimeSpan.Zero);
+
+                    if (cachedResult == null)
+                        return 0;
+
+                    return cachedResult.StackCount;
+                }
+                return 0;
+            }
+        }
+
+        public static double CachedGetAuraTimeLeft(this WoWUnit unit, int aura, bool fromMyAura = false, int expiry = 1000)
+        {
+            if (unit != null)
+            {
+                var cachedResult = fromMyAura ? unit.CachedGetAllAuras(expiry).FirstOrDefault(a => a.SpellId == aura && a.CreatorGuid == StyxWoW.Me.Guid && a.TimeLeft > TimeSpan.Zero) : unit.CachedGetAllAuras(expiry).FirstOrDefault(a => a.SpellId == aura && a.TimeLeft > TimeSpan.Zero);
+
+                if (cachedResult == null)
+                    return 0;
+
+                if (cachedResult.TimeLeft.TotalMilliseconds > 0)
+                    return cachedResult.TimeLeft.TotalMilliseconds;
+            }
+            return 0;
+        }
+
+        public static double CachedGetAuraTimeLeft(this WoWUnit unit, string aura, bool fromMyAura = false, int expiry = 1000)
+        {
+            if (unit != null)
+            {
+                var cachedResult = fromMyAura ? unit.CachedGetAllAuras(expiry).FirstOrDefault(a => a.Name == aura && a.CreatorGuid == StyxWoW.Me.Guid && a.TimeLeft > TimeSpan.Zero) : unit.CachedGetAllAuras(expiry).FirstOrDefault(a => a.Name == aura && a.TimeLeft > TimeSpan.Zero);
+
+                if (cachedResult == null)
+                    return 0;
+
+                if (cachedResult.TimeLeft.TotalMilliseconds > 0)
+                    return cachedResult.TimeLeft.TotalMilliseconds;
+            }
+            return 0;
+        }
+
+        public static double CachedGetAuraTimeLeft(this WoWUnit unit, HashSet<int> aura, bool fromMyAura = false, int expiry = 1000)
+        {
+            if (unit != null)
+            {
+                var cachedResult = fromMyAura ? unit.CachedGetAllAuras(expiry).FirstOrDefault(a => aura.Contains(a.SpellId) && a.CreatorGuid == StyxWoW.Me.Guid && a.TimeLeft > TimeSpan.Zero) : unit.CachedGetAllAuras(expiry).FirstOrDefault(a => aura.Contains(a.SpellId) && a.TimeLeft > TimeSpan.Zero);
+
+                if (cachedResult == null)
+                    return 0;
+
+                if (cachedResult.TimeLeft.TotalMilliseconds > 0)
+                    return cachedResult.TimeLeft.TotalMilliseconds;
+            }
+            return 0;
+        }
+
+        // Counts (cached) to blanket check the AttackableUnits for aura(s)
+        internal static int CountUnitAura(HashSet<int> aura)
+        {
+            return CachedUnits.AttackableUnits.Count(unit => !unit.CachedHasAnyAura(aura));
+        }
+
+        internal static int CountUnitAura(int aura)
+        {
+            return CachedUnits.AttackableUnits.Count(unit => !unit.ToPlayer().CachedHasAura(aura));
+        }
+
+        internal static int CountUnitAura(string aura)
+        {
+            return CachedUnits.AttackableUnits.Count(unit => !unit.CachedHasAura(aura));
+        }
+
+        // Gets (cached) target to apply an aura too
+        internal static WoWUnit GetUnbuffedTarget(int withoutBuff)
+        {
+            return CachedUnits.AttackableUnits.FirstOrDefault(unit => unit != null && !unit.CachedHasAura(withoutBuff));
+        }
+
+        internal static WoWUnit GetUnbuffedTarget(HashSet<int> withoutBuff)
+        {
+            return CachedUnits.AttackableUnits.FirstOrDefault(unit => unit != null && !unit.CachedHasAnyAura(withoutBuff));
+        }
+
+        public static bool CachedHasAuraWithEffect(this WoWUnit unit, WoWApplyAuraType auraType, int miscValue, int basePointsMin, int basePointsMax)
+        {
+            var auras = unit.CachedGetAllAuras();
+            return (from a in auras
+                    where a.Spell != null
+                    let spell = a.Spell
+                    from e in spell.GetSpellEffects()
+
+                    // First check: Ensure the effect is... well... valid
+                    where e != null &&
+
+                        // Ensure the aura type is correct.
+                    e.AuraType == auraType &&
+
+                        // Check for a misc value. (Resistance types, etc)
+                    (miscValue == -1 || e.MiscValueA == miscValue) &&
+
+                        // Check for the base points value. (Usually %s for most debuffs)
+                    e.BasePoints >= basePointsMin && e.BasePoints <= basePointsMax
+                    select a).Any();
+        }
+
+        private static IEnumerable<SpellEffect> GetSpellEffects(this WoWSpell spell)
+        {
+            var effects = new SpellEffect[3];
+            effects[0] = spell.GetSpellEffect(0);
+            effects[1] = spell.GetSpellEffect(1);
+            effects[2] = spell.GetSpellEffect(2);
+            return effects;
+        }
+
+        internal static WoWAuraCollection CachedGetAllAuras(this WoWUnit unit, int expiry = 1000)
+        {
+            string cacheKey = "GetAllAuras_" + unit.Guid;
+
+            // Check the cache
+            var getAllAuras = CacheManager.Get<WoWAuraCollection>(cacheKey);
+
+            if (getAllAuras == null)
+            {
+                // Go and retrieve the data from the objectManager
+                getAllAuras = unit.GetAllAuras();
+
+                // Then add it to the cache so we
+                // can retrieve it from there next time
+                // set the object to expire
+                CacheManager.Add(getAllAuras, cacheKey, expiry);
+            }
+            return getAllAuras;
+        }
+
         public static bool IsFunnel(string name)
         {
             SpellFindResults sfr;
