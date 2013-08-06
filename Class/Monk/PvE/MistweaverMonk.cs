@@ -12,24 +12,28 @@ namespace AdvancedAI.Spec
     class MistweaverMonk
     {
         static LocalPlayer Me { get { return StyxWoW.Me; } }
-        static WoWUnit healtarget { get { return HealerManager.FindLowestHealthTarget(); } }
-        static WoWPlayer RenewingMistTarget { get { return HealerManager.GetUnbuffedTarget("Renewing Mist"); } }
-        private static string[] _doNotHeal;
+        //static WoWUnit healtarget { get { return HealerManager.Instance.FirstUnit; } } //SING
+        static WoWUnit healtarget { get { return HealerManager.FindLowestHealthTarget(); } } //SING2
+        //static WoWUnit healtarget { get { return HealManager.HealTarget; } } //PURE
+        static WoWPlayer RenewingMistTarget { get { return HealerManager.GetUnbuffedTarget("Renewing Mist"); } } //SING
+        //static WoWPlayer RenewingMistTarget { get { return HealManager.GetUnbuffedTarget(115151); } } // PURE
         public static Composite CreateMMCombat
         {
             get
             {
                 HealerManager.NeedHealTargeting = true;
                 return new PrioritySelector(
+                    //CachedUnits.Pulse, 
+                    //HealManager.PulseHealManager,
                     new Decorator(ret => AdvancedAI.PvPRot,
                         MistweaverMonkPvP.CreateMWPvPCombat),
-                    new Decorator(ret => Me.Combat || healtarget.Combat || Me.GroupInfo.IsInRaid,
-                        new PrioritySelector(
+                    //new Decorator(ret => Me.Combat || healtarget.Combat || healtarget.GetPredictedHealthPercent() <= 99,
+                        //new PrioritySelector(
                             Common.CreateInterruptBehavior(),
                             Dispelling.CreateDispelBehavior(),
                             Spell.Cast("Fortifying Brew", ret => Me.HealthPercent < 30),
                             Spell.Cast("Life Cocoon", on => CocoonTar),
-                            Spell.Cast("Revival", ret => Me.GroupInfo.RaidMembers.Count(u => u.ToPlayer().HealthPercent < 55) > 4 && AdvancedAI.Burst),
+                            Spell.Cast("Revival", ret => HealerManager.GetCountWithHealth(55) > 4 && AdvancedAI.Burst),
                             //Spell.CastOnGround("Healing Sphere", on => healtarget.Location, ret => healtarget.HealthPercent < 55 && Me.ManaPercent > 40, false),
                             new Action(ret => { Item.UseHands(); return RunStatus.Failure; }),
                             new Action(ret => { Item.UseTrinkets(); return RunStatus.Failure; }),
@@ -38,7 +42,7 @@ namespace AdvancedAI.Spec
                             Spell.Cast("Touch of Death", ret => Me.CurrentChi >= 3 && Me.HasAura("Death Note")),
                             new Throttle(1, 1,
                                 new PrioritySelector(
-                                    Spell.Cast("Thunder Focus Tea", ret => Me.GroupInfo.RaidMembers.Count(u => u.ToPlayer().HasAura("Renewing Mist") && u.ToPlayer().HealthPercent < 80) >= 3))),
+                                    Spell.Cast("Thunder Focus Tea", ret => HealerManager.GetCountWithBuffAndHealth("Renewing Mist", 80) >= 3))),//Me.GroupInfo.RaidMembers.Count(u => u.ToPlayer().HasAura("Renewing Mist") && u.ToPlayer().HealthPercent < 80) >= 3))),
 
                             //OH Crap stuff
                             new Decorator(ret => healtarget.HealthPercent < 70,
@@ -47,7 +51,7 @@ namespace AdvancedAI.Spec
                                     Spell.Cast("Enveloping Mist", on => healtarget))),
                             new Throttle(1, 1,
                                 new PrioritySelector(
-                                    Spell.Cast("Uplift", ret => Me.GroupInfo.RaidMembers.Count(u => u.ToPlayer().HasAura("Renewing Mist") && u.ToPlayer().HealthPercent < 90) > 2 || Me.CurrentChi >= 4))),
+                                    Spell.Cast("Uplift", ret => HealerManager.GetCountWithBuffAndHealth("Renewing Mist", 90) > 2 || Me.CurrentChi >= 4))),//Me.GroupInfo.RaidMembers.Count(u => u.ToPlayer().HasAura("Renewing Mist") && u.ToPlayer().HealthPercent < 90) > 2 || Me.CurrentChi >= 4))),
                             new Decorator(ret => healtarget.HealthPercent < 41,
                                 new Sequence(
                                     Spell.Cast("Soothing Mist", on => healtarget),
@@ -57,14 +61,14 @@ namespace AdvancedAI.Spec
                             Spell.Cast("Surging Mist", on => healtarget, ret => healtarget.HealthPercent < 85 && Me.HasAura("Vital Mists", 5)),
 
                             //needs more work to dial in SCK it cost alot of mana
-                            Spell.Cast("Spinning Crane Kick", ret => Me.IsMoving && Me.GroupInfo.RaidMembers.Count(u => u.ToPlayer().HealthPercent < 85) >= 5),
+                            //Spell.Cast("Spinning Crane Kick", ret => Me.IsMoving && Me.GroupInfo.RaidMembers.Count(u => u.ToPlayer().HealthPercent < 85) >= 5),
 
                             //LvL 30 Talents
                             Spell.Cast("Chi Wave", on => healtarget, ret => healtarget.HealthPercent < 90),
                             Spell.Cast("Chi Burst", on => healtarget, ret => Clusters.GetClusterCount(healtarget, Unit.NearbyFriendlyPlayers, ClusterType.Path, 5) >= 3 && healtarget.HealthPercent < 80),
                             new Throttle(1, 3,
                                 new PrioritySelector(
-                                    Spell.Cast("Zen Sphere", on => healtarget, ret => Me.GroupInfo.RaidMembers.Count(u => u.ToPlayer().HasAura("Zen Sphere")) < 2 && healtarget.HealthPercent < 90))),
+                                    Spell.Cast("Zen Sphere", on => healtarget, ret => HealerManager.GetCountWithBuff("Zen Sphere") < 2 && healtarget.HealthPercent < 90))),
                             Spell.Cast("Expel Harm", ret => Me.HealthPercent < 90),
 
                             //FW                                 
@@ -73,7 +77,7 @@ namespace AdvancedAI.Spec
                             Spell.Cast("Jab", ret => !Me.HasAura("Muscle Memory")),
                             //Spam
                             Spell.Cast("Soothing Mist", on => healtarget, ret => healtarget.HealthPercent < 95 && !Me.CurrentTarget.IsWithinMeleeRange)                            
-                            )));
+                            );
             }
         }
 
@@ -135,6 +139,13 @@ namespace AdvancedAI.Spec
             RushingJadeWind,//Tier 6
             InvokeXuen,
             ChiTorpedo
+        }
+        #endregion
+
+        #region Channel Check
+        static  bool ChannelCheck()
+        {
+            return healtarget.Guid == Me.ChannelObjectGuid;
         }
         #endregion
     }

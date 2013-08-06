@@ -121,6 +121,24 @@ namespace AdvancedAI.Helpers
             return false;
         }
 
+        private static IEnumerable<WoWPartyMember> GroupMembers { get { return !StyxWoW.Me.GroupInfo.IsInRaid ? StyxWoW.Me.GroupInfo.PartyMembers : StyxWoW.Me.GroupInfo.RaidMembers; } }
+
+        public static bool IsMainTank(this WoWPlayer p)
+        {
+            if (!GroupMembers.Any()) return false;
+            var partyMember = GroupMembers.FirstOrDefault(pm => pm.Guid == p.Guid);
+            var result = partyMember != null && partyMember.IsMainTank;
+            return result;
+        }
+
+        public static bool IsAssistTank(this WoWPlayer p)
+        {
+            if (!GroupMembers.Any()) return false;
+            var partyMember = GroupMembers.FirstOrDefault(pm => pm.Guid == p.Guid);
+            var result = partyMember != null && partyMember.IsMainAssist;
+            return result;
+        }
+
         /// <summary>
         ///  
         /// </summary>

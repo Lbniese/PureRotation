@@ -55,6 +55,13 @@ namespace AdvancedAI
                 RebuildBehaviors();
             };
             CombatandBuffSelection();
+
+            //CLU
+            //HealableUnit.HealableUnitsByProximity();
+            //HealableUnit.HealableUnitsByPartyorRaid();
+            //Pure
+            //HealManager.Initialize();
+
             MovementManager.Init();
             Dispelling.Init();
             //base.Initialize();
@@ -81,8 +88,14 @@ namespace AdvancedAI
             }
 
             //if (!StyxWoW.Me.IsInGroup()) return;
+
+            //CLU
+            //HealableUnit.Pulse();
+            //SING
             if (HealerManager.NeedHealTargeting)
                 HealerManager.Instance.Pulse();
+
+
             //if (Group.MeIsTank && CurrentWoWContext == WoWContext.Instances)
             //    TankManager.Instance.Pulse();
 

@@ -9,7 +9,7 @@ using Action = Styx.TreeSharp.Action;
 
 namespace AdvancedAI.Spec
 {
-    class FuryWarrior : AdvancedAI
+    class FuryWarrior// : AdvancedAI
     {
         static LocalPlayer Me { get { return StyxWoW.Me; } }
         public static Composite CreateFWCombat
@@ -17,7 +17,7 @@ namespace AdvancedAI.Spec
             get
             {
                 return new PrioritySelector(
-                    new Decorator(ret => PvPRot,
+                    new Decorator(ret => AdvancedAI.PvPRot,
                         FuryWarriorPvP.CreateFWPvPCombat),
                     // Interrupt please.
                     Spell.Cast("Pummel",
@@ -61,7 +61,7 @@ namespace AdvancedAI.Spec
             get
             {
                 return new PrioritySelector(
-                    new Decorator( ret => PvPRot,
+                    new Decorator( ret => AdvancedAI.PvPRot,
                         FuryWarriorPvP.CreateFWPvPBuffs),
                     Spell.Cast("Battle Shout", ret => !StyxWoW.Me.HasAura("Battle Shout")));
             }

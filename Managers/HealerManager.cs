@@ -354,6 +354,21 @@ namespace AdvancedAI.Managers
         {
             return Instance.TargetList.FirstOrDefault(u => u != null && !u.ToPlayer().HasAura(withoutBuff)) as WoWPlayer;
         }
+
+        public static int GetCountWithBuff(string withbuff)
+        {
+            return Instance.TargetList.Count(u => u != null && u.ToPlayer().HasAura(withbuff));
+        }
+
+        public static int GetCountWithHealth(int health)
+        {
+            return Instance.TargetList.Count(u => u != null && u.ToPlayer().HealthPercent < health);
+        }
+
+        public static int GetCountWithBuffAndHealth(string withbuff, int health)
+        {
+            return Instance.TargetList.Count(u => u != null && u.ToPlayer().HealthPercent < health && u.ToPlayer().HasAura(withbuff));
+        }
         
         //public static WoWUnit TankToMoveTowards
         //{

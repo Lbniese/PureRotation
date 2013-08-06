@@ -46,6 +46,7 @@
       <HintPath>..\..\..\System.Data.SQLite.dll</HintPath>
     </Reference>
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -100,7 +101,9 @@
     <Compile Include="Class\Warrior\PvP\ArmsWarriorPvP.cs" />
     <Compile Include="Class\Warrior\PvP\FuryWarriorPvP.cs" />
     <Compile Include="Class\Warrior\PvP\ProtectionWarriorPvP.cs" />
+    <Compile Include="Helpers\CircularBuffer.cs" />
     <Compile Include="Helpers\Clusters.cs" />
+    <Compile Include="Helpers\CombatLog.cs" />
     <Compile Include="Helpers\Common.cs" />
     <Compile Include="Helpers\Dispelling.cs" />
     <Compile Include="Helpers\Extensions.cs" />
@@ -115,12 +118,17 @@
     <Compile Include="Helpers\Throttle.cs" />
     <Compile Include="Helpers\Totems.cs" />
     <Compile Include="Helpers\Unit.cs" />
+    <Compile Include="Helpers\UnitOracle.cs" />
     <Compile Include="Lists\Auras.cs" />
     <Compile Include="Lists\BossList.cs" />
     <Compile Include="Lists\SpellList.CleanseBlacklist.cs" />
     <Compile Include="Lists\SpellList.cs" />
     <Compile Include="Lists\SpellList.PurgeWhitelist.cs" />
+    <Compile Include="Managers\CachedUnits.cs" />
+    <Compile Include="Managers\CacheManager.cs" />
+    <Compile Include="Managers\HealableUnit.cs" />
     <Compile Include="Managers\HealerManager.cs" />
+    <Compile Include="Managers\HealManager.cs" />
     <Compile Include="Managers\MovementManager.cs" />
     <Compile Include="Managers\PetManager.cs" />
     <Compile Include="Managers\SpellImmunityManager.cs" />

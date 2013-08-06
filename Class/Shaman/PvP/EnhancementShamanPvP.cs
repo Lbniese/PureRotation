@@ -9,7 +9,7 @@ using CommonBehaviors.Actions;
 
 namespace AdvancedAI.Spec
 {
-    internal class EnhancementShamanPvP // : AdvancedAI
+    internal class EnhancementShamanPvP
     {
         static LocalPlayer Me { get { return StyxWoW.Me; } }
 

@@ -98,7 +98,7 @@ namespace AdvancedAI.Helpers
                     new Action(r =>
                     {
                         bool ccMechanic = Me.HasAuraWithMechanic(WoWSpellMechanic.Fleeing | WoWSpellMechanic.Polymorphed | WoWSpellMechanic.Asleep);
-                        bool ccEffect = Me.HasAuraWithEffect(WoWApplyAuraType.ModFear | WoWApplyAuraType.ModPacify | WoWApplyAuraType.ModPacifySilence);
+                        bool ccEffect = ((WoWUnit) Me).HasAuraWithEffectsing((WoWApplyAuraType.ModFear | WoWApplyAuraType.ModPacify | WoWApplyAuraType.ModPacifySilence));
                         bool ccAttrib = Me.Fleeing;
                         if (ccMechanic || ccEffect || ccAttrib)
                             Logging.Write("... FEAR CHECKED OUT --  Mechanic={0}  Effect={1}  Attrib={2}", ccMechanic, ccEffect, ccAttrib);
