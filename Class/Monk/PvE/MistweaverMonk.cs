@@ -26,7 +26,7 @@ namespace AdvancedAI.Spec
                     //CachedUnits.Pulse, 
                     //HealManager.PulseHealManager,
                     new Decorator(ret => AdvancedAI.PvPRot,
-                        MistweaverMonkPvP.CreateMWPvPCombat),
+                        MistweaverMonkPvP.CreateMMPvPCombat),
                     //new Decorator(ret => Me.Combat || healtarget.Combat || healtarget.GetPredictedHealthPercent() <= 99,
                         //new PrioritySelector(
                             Common.CreateInterruptBehavior(),
@@ -51,7 +51,7 @@ namespace AdvancedAI.Spec
                                     Spell.Cast("Enveloping Mist", on => healtarget))),
                             new Throttle(1, 1,
                                 new PrioritySelector(
-                                    Spell.Cast("Uplift", ret => HealerManager.GetCountWithBuffAndHealth("Renewing Mist", 90) > 2 || Me.CurrentChi >= 4))),//Me.GroupInfo.RaidMembers.Count(u => u.ToPlayer().HasAura("Renewing Mist") && u.ToPlayer().HealthPercent < 90) > 2 || Me.CurrentChi >= 4))),
+                                    Spell.Cast("Uplift", ret => HealerManager.GetCountWithBuffAndHealth("Renewing Mist", 90) > 2 || Me.CurrentChi >= (TalentManager.IsSelected((int)MonkTalents.Ascension) ? 4 : 3)))),//Me.GroupInfo.RaidMembers.Count(u => u.ToPlayer().HasAura("Renewing Mist") && u.ToPlayer().HealthPercent < 90) > 2 || Me.CurrentChi >= 4))),
                             new Decorator(ret => healtarget.HealthPercent < 41,
                                 new Sequence(
                                     Spell.Cast("Soothing Mist", on => healtarget),
@@ -87,7 +87,7 @@ namespace AdvancedAI.Spec
             {
                 return new PrioritySelector(
                     new Decorator(ret => AdvancedAI.PvPRot,
-                        MistweaverMonkPvP.CreateMWPvPBuffs),
+                        MistweaverMonkPvP.CreateMMPvPBuffs),
                     Spell.Cast("Stance of the Wise Serpent", ret => !Me.HasAura("Stance of the Wise Serpent")));
             }
         }

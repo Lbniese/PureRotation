@@ -10,7 +10,7 @@ namespace AdvancedAI.Spec
 {
     class MistweaverMonkPvP
     {
-        public static Composite CreateMWPvPCombat
+        public static Composite CreateMMPvPCombat
         {
             get
             {
@@ -21,7 +21,7 @@ namespace AdvancedAI.Spec
             }
         }
 
-        public static Composite CreateMWPvPBuffs
+        public static Composite CreateMMPvPBuffs
         {
             get
             {
