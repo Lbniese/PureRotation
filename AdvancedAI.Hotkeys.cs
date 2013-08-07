@@ -19,6 +19,7 @@ namespace AdvancedAI
         public static bool TierBonus { get; set; }
         public static bool Aoe { get; set; }
         public static bool BossMechs { get; set; }
+        public static bool FistWeave { get; set; }
 
         protected virtual void UnregisterHotkeys()
         {
@@ -30,6 +31,7 @@ namespace AdvancedAI
             HotkeysManager.Unregister("Tier Bonus");
             HotkeysManager.Unregister("AOE");
             HotkeysManager.Unregister("Boss Mechs");
+            HotkeysManager.Unregister("Fist Weave");
         }
         protected virtual void RegisterHotkeys()
         {
@@ -120,6 +122,17 @@ namespace AdvancedAI
                 Lua.DoString("print('Boss Mechs Enabled: " + BossMechs + "')");
             });
             BossMechs = false;
+
+            HotkeysManager.Register("Fist Weave",
+            Keys.NumPad6,
+            ModifierKeys.Control,
+            o =>
+            {
+                FistWeave = !FistWeave;
+                Logging.Write("Fist Weave enabled: " + FistWeave);
+                Lua.DoString("print('Fist Weave Enabled: " + FistWeave + "')");
+            });
+            FistWeave = false;
         }
 
     }
