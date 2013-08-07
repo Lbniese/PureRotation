@@ -37,7 +37,7 @@ namespace AdvancedAI.Spec
                         Spell.Cast("Focus Fire", ctx => Me.HasAura("Frenzy", 5)),
                         Spell.Cast("Serpent Sting", ret => !Me.CurrentTarget.HasMyAura("Serpent Sting")),
                         Spell.Cast("Fervor", ctx => Me.CurrentFocus < 65),
-                        Spell.Cast("Bestial Wrath", ret => Me.CurrentFocus > 60 && Spell.GetSpellCooldown("Kill Command") == TimeSpan.Zero && !Me.HasAura("Rapid Fire")),
+                        Spell.Cast("Bestial Wrath", ret => Me.CurrentFocus > 60 && !Me.HasAura("Rapid Fire")), //add brust key
 
                         Spell.Cast("Tranquilizing Shot", ctx => Me.CurrentTarget.HasAura("Enraged")),
 
@@ -52,14 +52,14 @@ namespace AdvancedAI.Spec
                                 Spell.Cast( "Kill Shot", onUnit => Unit.NearbyUnfriendlyUnits.FirstOrDefault(u => u.HealthPercent < 20 && u.Distance < 40 && u.InLineOfSpellSight && Me.IsSafelyFacing(u))),
                                 Spell.Cast( "Cobra Shot"))),
 
-                        Spell.Cast("Rapid Fire", ret => !Me.HasAura("The Beast Within") && Me.CurrentTarget.IsBoss),
+                        Spell.Cast("Rapid Fire", ret => !Me.HasAura("The Beast Within") && Me.CurrentTarget.IsBoss), //add brust key
                         Spell.Cast("Rabid", ret => Me.HasAura("The Beast Within")),
                         Spell.Cast("Exhilaration", ret => Me.HealthPercent < 35 || (Pet != null && Pet.HealthPercent < 25)),
                         Spell.Cast("Mend Pet", onUnit => Pet, ret => Me.GotAlivePet && Pet.HealthPercent < 60),
-                        Spell.Cast("Stampede", ret => (PartyBuff.WeHaveBloodlust || Me.CurrentTarget.TimeToDeath() <= 25 || Me.HasAura("Rapid Fire")) && Me.CurrentTarget.IsBoss),
+                        Spell.Cast("Stampede", ret => (PartyBuff.WeHaveBloodlust || Me.CurrentTarget.TimeToDeath() <= 25 || Me.HasAura("Rapid Fire")) && Me.CurrentTarget.IsBoss), //add brust key
                         Spell.Cast("Kill Shot", ctx => Me.CurrentTarget.HealthPercent < 20),
                         Spell.Cast("Kill Command", ctx => Me.GotAlivePet && Pet.GotTarget && Pet.Location.Distance(Pet.CurrentTarget.Location) < 25f),
-                        Spell.Cast("A Murder of Crows", ret => Me.CurrentTarget.IsBoss),
+                        Spell.Cast("A Murder of Crows", ret => Me.CurrentTarget.IsBoss), //add brust key
                         Spell.Cast("Glaive Toss"),
                         Spell.Cast("Lynx Rush", ret => Pet != null && Unit.NearbyUnfriendlyUnits.Any(u => Pet.Location.Distance(u.Location) <= 10)),
                         Spell.Cast("Dire Beast", ret => Me.CurrentFocus <= 90),
