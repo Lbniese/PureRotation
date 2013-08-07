@@ -33,7 +33,7 @@ namespace AdvancedAI.Spec
                             Dispelling.CreateDispelBehavior(),
                             Spell.Cast("Fortifying Brew", ret => Me.HealthPercent < 30),
                             Spell.Cast("Life Cocoon", on => CocoonTar),
-                            Spell.Cast("Revival", ret => HealerManager.GetCountWithHealth(55) > 4 && AdvancedAI.Burst),
+                            Spell.Cast("Revival", ret => Unit.NearbyFriendlyPlayers.Count(u => u.HealthPercent < 55) > 4 && AdvancedAI.Burst),//HealerManager.GetCountWithHealth(55) > 4 && AdvancedAI.Burst),
                             //Spell.CastOnGround("Healing Sphere", on => healtarget.Location, ret => healtarget.HealthPercent < 55 && Me.ManaPercent > 40, false),
                             new Action(ret => { Item.UseHands(); return RunStatus.Failure; }),
                             new Action(ret => { Item.UseTrinkets(); return RunStatus.Failure; }),
@@ -69,7 +69,7 @@ namespace AdvancedAI.Spec
                             Spell.Cast("Chi Burst", on => healtarget, ret => Clusters.GetClusterCount(healtarget, Unit.NearbyFriendlyPlayers, ClusterType.Path, 5) >= 3 && healtarget.HealthPercent < 80),
                             new Throttle(1, 3,
                                 new PrioritySelector(
-                                    Spell.Cast("Zen Sphere", on => healtarget, ret => HealerManager.GetCountWithBuff("Zen Sphere") < 2 && healtarget.HealthPercent < 90))),
+                                    Spell.Cast("Zen Sphere", on => healtarget, ret => Unit.NearbyFriendlyPlayers.Count(u => u.HasAura("Zen Sphere")) > 2 && healtarget.HealthPercent < 90))),// HealerManager.GetCountWithBuff("Zen Sphere") < 2 && healtarget.HealthPercent < 90))),
                             Spell.Cast("Expel Harm", ret => Me.HealthPercent < 90),
 
                             //FW                                 
@@ -77,8 +77,7 @@ namespace AdvancedAI.Spec
                             Spell.Cast("Tiger Palm", ret => Me.HasAura("Muscle Memory") || (Me.CurrentChi > 3 && TalentManager.IsSelected((int)MonkTalents.Ascension)) || Me.CurrentChi > 4),
                             Spell.Cast("Jab"),
                             //Spam
-                            Spell.Cast("Soothing Mist", on => healtarget, ret => healtarget.HealthPercent < 95 && !Me.CurrentTarget.IsWithinMeleeRange)                            
-                            );
+                            Spell.Cast("Soothing Mist", on => healtarget, ret => healtarget.HealthPercent < 95 && (Me.CurrentTarget.IsValid && Me.CurrentTarget != null && !Me.CurrentTarget.IsWithinMeleeRange)));
             }
         }
 
