@@ -34,28 +34,28 @@ namespace AdvancedAI.Spec
                         Spell.Cast("Silencing Shot", ret => Me.CurrentTarget.IsCasting && Me.CurrentTarget.CanInterruptCurrentSpellCast),
 
                         CreateHunterTrapBehavior("Explosive Trap", true, ret => Me.CurrentTarget, ret => Unit.UnfriendlyUnitsNearTarget(10f).Count() >= 2),
-                        Spell.BuffSelf("Focus Fire", ctx => Me.HasAura("Frenzy", 5)),
-                        Spell.Buff("Serpent Sting"),
+                        Spell.Cast("Focus Fire", ctx => Me.HasAura("Frenzy", 5)),
+                        Spell.Cast("Serpent Sting", ret => !Me.CurrentTarget.HasMyAura("Serpent Sting")),
                         Spell.Cast("Fervor", ctx => Me.CurrentFocus < 65),
-                        Spell.Buff("Bestial Wrath", true, ret => Me.CurrentFocus > 60 && Spell.GetSpellCooldown("Kill Command") == TimeSpan.Zero && !Me.HasAura("Rapid Fire"), "The Beast Within"),
+                        Spell.Cast("Bestial Wrath", ret => Me.CurrentFocus > 60 && Spell.GetSpellCooldown("Kill Command") == TimeSpan.Zero && !Me.HasAura("Rapid Fire")),
 
                         Spell.Cast("Tranquilizing Shot", ctx => Me.CurrentTarget.HasAura("Enraged")),
 
-                        Spell.Buff("Concussive Shot",
-                            ret => Me.CurrentTarget.CurrentTargetGuid == Me.Guid 
-                                && Me.CurrentTarget.Distance > Spell.MeleeRange),
+                        //Spell.Buff("Concussive Shot",
+                        //    ret => Me.CurrentTarget.CurrentTargetGuid == Me.Guid 
+                        //        && Me.CurrentTarget.Distance > Spell.MeleeRange),
 
                         // AoE Rotation
-                        new Decorator(ret => AdvancedAI.Aoe && Unit.UnfriendlyUnitsNearTarget(8f).Count() >= 5,
+                        new Decorator(ret => Unit.UnfriendlyUnitsNearTarget(8f).Count() >= 5,// && AdvancedAI.Aoe 
                             new PrioritySelector(
                                 Spell.Cast( "Multi-Shot", ctx => Clusters.GetBestUnitForCluster( Unit.NearbyUnfriendlyUnits.Where( u => u.Distance < 40 && u.InLineOfSpellSight && Me.IsSafelyFacing(u)), ClusterType.Radius, 8f)),
                                 Spell.Cast( "Kill Shot", onUnit => Unit.NearbyUnfriendlyUnits.FirstOrDefault(u => u.HealthPercent < 20 && u.Distance < 40 && u.InLineOfSpellSight && Me.IsSafelyFacing(u))),
                                 Spell.Cast( "Cobra Shot"))),
 
-                        Spell.Buff("Rapid Fire", ret => !Me.HasAura("The Beast Within") && !Me.CurrentTarget.IsBoss()),
+                        Spell.Cast("Rapid Fire", ret => !Me.HasAura("The Beast Within") && !Me.CurrentTarget.IsBoss()),
                         Spell.Cast("Rabid", ret => Me.HasAura("The Beast Within")),
-                        Spell.BuffSelf("Exhilaration", ret => Me.HealthPercent < 35 || (Pet != null && Pet.HealthPercent < 25)),
-                        Spell.Buff("Mend Pet", onUnit => Pet, ret => Me.GotAlivePet && Pet.HealthPercent < 60),
+                        Spell.Cast("Exhilaration", ret => Me.HealthPercent < 35 || (Pet != null && Pet.HealthPercent < 25)),
+                        Spell.Cast("Mend Pet", onUnit => Pet, ret => Me.GotAlivePet && Pet.HealthPercent < 60),
                         Spell.Cast("Stampede", ret => (PartyBuff.WeHaveBloodlust || Me.CurrentTarget.TimeToDeath() <= 25 || Me.HasAura("Rapid Fire")) && !Me.CurrentTarget.IsBoss()),
                         Spell.Cast("Kill Shot", ctx => Me.CurrentTarget.HealthPercent < 20),
                         Spell.Cast("Kill Command", ctx => Me.GotAlivePet && Pet.GotTarget && Pet.Location.Distance(Pet.CurrentTarget.Location) < 25f),
@@ -66,7 +66,7 @@ namespace AdvancedAI.Spec
                         Spell.Cast("Barrage"),
                         Spell.Cast("Powershot"),
                         Spell.Cast("Arcane Shot", ret => Me.HasAura("Thrill of the Hunt")),  
-                        Spell.BuffSelf("Focus Fire", ctx => Me.HasAura("Frenzy", 5) && !Me.HasAura("The Beast Within")),                        
+                        Spell.Cast("Focus Fire", ctx => Me.HasAura("Frenzy", 5) && !Me.HasAura("The Beast Within")),                        
                         Spell.Cast("Cobra Shot", ret => Me.CurrentTarget.GetAuraTimeLeft("Serpent Sting", true).TotalSeconds < 6),
                         Spell.Cast("Arcane Shot", ret => Me.CurrentFocus >= 61 || Me.HasAura("The Beast Within")),
                         Spell.Cast("Cobra Shot")
