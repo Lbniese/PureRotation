@@ -352,22 +352,26 @@ namespace AdvancedAI.Managers
 
         public static WoWPlayer GetUnbuffedTarget(string withoutBuff)
         {
-            return Instance.TargetList.FirstOrDefault(u => u != null && !u.ToPlayer().HasAura(withoutBuff)) as WoWPlayer;
+            //return Instance.TargetList.FirstOrDefault(u => u != null && !u.ToPlayer().HasAura(withoutBuff)) as WoWPlayer;
+            return Unit.NearbyFriendlyPlayers.FirstOrDefault(u => u != null && !u.HasAura(withoutBuff));
         }
 
         public static int GetCountWithBuff(string withbuff)
         {
-            return Instance.TargetList.Count(u => u != null && u.ToPlayer().HasAura(withbuff));
+            //return Instance.TargetList.Count(u => u != null && u.ToPlayer().HasAura(withbuff));
+            return Unit.NearbyFriendlyPlayers.Count(u => u != null && u.HasAura(withbuff));
         }
 
         public static int GetCountWithHealth(int health)
         {
-            return Instance.TargetList.Count(u => u != null && u.ToPlayer().HealthPercent < health);
+            //return Instance.TargetList.Count(u => u != null && u.ToPlayer().HealthPercent < health);
+            return Unit.NearbyFriendlyPlayers.Count(u => u != null && u.HealthPercent < health);
         }
 
         public static int GetCountWithBuffAndHealth(string withbuff, int health)
         {
-            return Instance.TargetList.Count(u => u != null && u.ToPlayer().HealthPercent < health && u.ToPlayer().HasAura(withbuff));
+            //return Instance.TargetList.Count(u => u != null && u.ToPlayer().HealthPercent < health && u.ToPlayer().HasAura(withbuff));
+            return Unit.NearbyFriendlyPlayers.Count(u => u != null && u.HealthPercent < health && u.HasAura(withbuff));
         }
         
         //public static WoWUnit TankToMoveTowards
