@@ -33,7 +33,7 @@ namespace AdvancedAI.Spec
                             Dispelling.CreateDispelBehavior(),
                             Spell.Cast("Fortifying Brew", ret => Me.HealthPercent < 30),
                             Spell.Cast("Life Cocoon", on => CocoonTar),
-                            Spell.Cast("Revival", ret => Unit.NearbyFriendlyPlayers.Count(u => u.HealthPercent < 55) > 4 && AdvancedAI.Burst),//HealerManager.GetCountWithHealth(55) > 4 && AdvancedAI.Burst),
+                            Spell.Cast("Revival", ret => HealerManager.GetCountWithHealth(55) > 4 && AdvancedAI.Burst),
                             //Spell.CastOnGround("Healing Sphere", on => healtarget.Location, ret => healtarget.HealthPercent < 55 && Me.ManaPercent > 40, false),
                             new Action(ret => { Item.UseHands(); return RunStatus.Failure; }),
                             new Action(ret => { Item.UseTrinkets(); return RunStatus.Failure; }),
@@ -42,8 +42,7 @@ namespace AdvancedAI.Spec
                             Spell.Cast("Touch of Death", ret => Me.CurrentChi >= 3 && Me.HasAura("Death Note")),
                             new Throttle(1, 1,
                                 new PrioritySelector(
-                                    Spell.Cast("Thunder Focus Tea", ret => HealerManager.GetCountWithBuffAndHealth("Renewing Mist", 80) >= 3)//Me.GroupInfo.RaidMembers.Count(u => u.ToPlayer().HasAura("Renewing Mist") && u.ToPlayer().HealthPercent < 80) >= 3))),
-                                    )),
+                                    Spell.Cast("Thunder Focus Tea", ret => HealerManager.GetCountWithBuffAndHealth("Renewing Mist", 80) >= 3))),
                             Spell.Cast("Uplift", ret => Me.HasAura("Thunder Focus Tea")),
                             //OH Crap stuff
                             new Decorator(ret => healtarget.HealthPercent < 70,
@@ -69,7 +68,7 @@ namespace AdvancedAI.Spec
                             Spell.Cast("Chi Burst", on => healtarget, ret => Clusters.GetClusterCount(healtarget, Unit.NearbyFriendlyPlayers, ClusterType.Path, 5) >= 3 && healtarget.HealthPercent < 80),
                             new Throttle(1, 3,
                                 new PrioritySelector(
-                                    Spell.Cast("Zen Sphere", on => healtarget, ret => Unit.NearbyFriendlyPlayers.Count(u => u.HasAura("Zen Sphere")) > 2 && healtarget.HealthPercent < 90))),// HealerManager.GetCountWithBuff("Zen Sphere") < 2 && healtarget.HealthPercent < 90))),
+                                    Spell.Cast("Zen Sphere", on => healtarget, ret => HealerManager.GetCountWithBuff("Zen Sphere") < 2 && healtarget.HealthPercent < 90))),
                             Spell.Cast("Expel Harm", ret => Me.HealthPercent < 90),
 
                             //FW                                 
