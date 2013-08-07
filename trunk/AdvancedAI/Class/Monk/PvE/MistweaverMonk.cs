@@ -41,9 +41,9 @@ namespace AdvancedAI.Spec
                             // Execute if we can
                             Spell.Cast("Touch of Death", ret => Me.CurrentChi >= 3 && Me.HasAura("Death Note")),
                             new Throttle(1, 1,
-                                new PrioritySelector(
-                                    Spell.Cast("Thunder Focus Tea", ret => HealerManager.GetCountWithBuffAndHealth("Renewing Mist", 80) >= 3))),//Me.GroupInfo.RaidMembers.Count(u => u.ToPlayer().HasAura("Renewing Mist") && u.ToPlayer().HealthPercent < 80) >= 3))),
-
+                                new Sequence(
+                                    Spell.Cast("Thunder Focus Tea", ret => HealerManager.GetCountWithBuffAndHealth("Renewing Mist", 80) >= 3),//Me.GroupInfo.RaidMembers.Count(u => u.ToPlayer().HasAura("Renewing Mist") && u.ToPlayer().HealthPercent < 80) >= 3))),
+                                    Spell.Cast("Uplift"))),
                             //OH Crap stuff
                             new Decorator(ret => healtarget.HealthPercent < 70,
                                 new Sequence(
