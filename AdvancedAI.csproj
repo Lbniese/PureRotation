@@ -101,6 +101,12 @@
     <Compile Include="Class\Warrior\PvP\ArmsWarriorPvP.cs" />
     <Compile Include="Class\Warrior\PvP\FuryWarriorPvP.cs" />
     <Compile Include="Class\Warrior\PvP\ProtectionWarriorPvP.cs" />
+    <Compile Include="GUI\Form1.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GUI\Form1.Designer.cs">
+      <DependentUpon>Form1.cs</DependentUpon>
+    </Compile>
     <Compile Include="Helpers\CircularBuffer.cs" />
     <Compile Include="Helpers\Clusters.cs" />
     <Compile Include="Helpers\CombatLog.cs" />
@@ -169,6 +175,11 @@
     <Compile Include="Class\Monk\PvE\WindwalkerMonk.cs" />
     <Compile Include="Utilities\Enumeration.cs" />
     <Compile Include="Utilities\EventHandlers.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="GUI\Form1.resx">
+      <DependentUpon>Form1.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
