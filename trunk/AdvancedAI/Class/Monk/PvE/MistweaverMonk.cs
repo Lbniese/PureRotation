@@ -41,9 +41,10 @@ namespace AdvancedAI.Spec
                             // Execute if we can
                             Spell.Cast("Touch of Death", ret => Me.CurrentChi >= 3 && Me.HasAura("Death Note")),
                             new Throttle(1, 1,
-                                new Sequence(
-                                    Spell.Cast("Thunder Focus Tea", ret => HealerManager.GetCountWithBuffAndHealth("Renewing Mist", 80) >= 3),//Me.GroupInfo.RaidMembers.Count(u => u.ToPlayer().HasAura("Renewing Mist") && u.ToPlayer().HealthPercent < 80) >= 3))),
-                                    Spell.Cast("Uplift"))),
+                                new PrioritySelector(
+                                    Spell.Cast("Thunder Focus Tea", ret => HealerManager.GetCountWithBuffAndHealth("Renewing Mist", 80) >= 3)//Me.GroupInfo.RaidMembers.Count(u => u.ToPlayer().HasAura("Renewing Mist") && u.ToPlayer().HealthPercent < 80) >= 3))),
+                                    )),
+                            Spell.Cast("Uplift", ret => Me.HasAura("Thunder Focus Tea")),
                             //OH Crap stuff
                             new Decorator(ret => healtarget.HealthPercent < 70,
                                 new Sequence(
@@ -51,7 +52,7 @@ namespace AdvancedAI.Spec
                                     Spell.Cast("Enveloping Mist", on => healtarget))),
                             new Throttle(1, 1,
                                 new PrioritySelector(
-                                    Spell.Cast("Uplift", ret => HealerManager.GetCountWithBuffAndHealth("Renewing Mist", 90) > 2 || Me.CurrentChi >= (TalentManager.IsSelected((int)MonkTalents.Ascension) ? 4 : 3)))),//Me.GroupInfo.RaidMembers.Count(u => u.ToPlayer().HasAura("Renewing Mist") && u.ToPlayer().HealthPercent < 90) > 2 || Me.CurrentChi >= 4))),
+                                    Spell.Cast("Uplift", ret => HealerManager.GetCountWithBuffAndHealth("Renewing Mist", 90) > 2 || Me.CurrentChi > (TalentManager.IsSelected((int)MonkTalents.Ascension) ? 4 : 3)))),//Me.GroupInfo.RaidMembers.Count(u => u.ToPlayer().HasAura("Renewing Mist") && u.ToPlayer().HealthPercent < 90) > 2 || Me.CurrentChi >= 4))),
                             new Decorator(ret => healtarget.HealthPercent < 41,
                                 new Sequence(
                                     Spell.Cast("Soothing Mist", on => healtarget),
@@ -74,7 +75,7 @@ namespace AdvancedAI.Spec
                             //FW                                 
                             Spell.Cast("Blackout Kick", ret => !Me.HasAura("Serpent's Zeal") && Me.HasAura("Muscle Memory")),
                             Spell.Cast("Tiger Palm", ret => Me.HasAura("Muscle Memory") || (Me.CurrentChi > 3 && TalentManager.IsSelected((int)MonkTalents.Ascension)) || Me.CurrentChi > 4),
-                            Spell.Cast("Jab", ret => !Me.HasAura("Muscle Memory")),
+                            Spell.Cast("Jab"),
                             //Spam
                             Spell.Cast("Soothing Mist", on => healtarget, ret => healtarget.HealthPercent < 95 && !Me.CurrentTarget.IsWithinMeleeRange)                            
                             );
