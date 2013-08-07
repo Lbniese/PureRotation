@@ -1,4 +1,5 @@
 ﻿using Styx;
+using Styx.CommonBot;
 using Styx.TreeSharp;
 using Styx.WoWInternals;
 using Styx.WoWInternals.WoWObjects;
@@ -76,6 +77,11 @@ namespace AdvancedAI.Spec
                             Spell.Cast("Tiger Palm", ret => Me.HasAura("Muscle Memory") || (Me.CurrentChi > 3 && TalentManager.IsSelected((int)MonkTalents.Ascension)) || Me.CurrentChi > 4),
                             Spell.Cast("Jab"),
                             //Spam
+                            new Decorator(ret => !ChannelCheck(),
+                                new Sequence(
+                                    new Action(ret => SpellManager.StopCasting()),
+                                    Spell.Cast("Soothing Mist", on => healtarget, ret => healtarget.HealthPercent < 95 && (Me.CurrentTarget.IsValid && Me.CurrentTarget != null && !Me.CurrentTarget.IsWithinMeleeRange)))),
+                            Spell.Cast("Soothing Mist", on => healtarget, ret =>  healtarget.HealthPercent < 95 && (Me.CurrentTarget.IsValid && Me.CurrentTarget != null && !Me.CurrentTarget.IsWithinMeleeRange), cancel => !ChannelCheck()),
                             Spell.Cast("Soothing Mist", on => healtarget, ret => healtarget.HealthPercent < 95 && (Me.CurrentTarget.IsValid && Me.CurrentTarget != null && !Me.CurrentTarget.IsWithinMeleeRange)));
             }
         }
