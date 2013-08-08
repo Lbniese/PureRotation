@@ -1,4 +1,5 @@
-﻿using Styx;
+﻿using CommonBehaviors.Actions;
+using Styx;
 using Styx.CommonBot;
 using Styx.TreeSharp;
 using Styx.WoWInternals.WoWObjects;
@@ -48,24 +49,25 @@ namespace AdvancedAI.Spec
                             Spell.Cast("Uplift", ret => Me.HasAura("Thunder Focus Tea")),
                     //OH Crap stuff
                             // need to see if i want it drop on only tanks or everyone TFT is to big to waste
-                            new Decorator(ret => healtarget.HealthPercent < 20,
-                                new Sequence(
-                                    Spell.Cast("Thunder Focus Tea"),
-                                    Spell.Cast("Soothing Mist", on => healtarget),
-                                    Spell.Cast("Surging Mist", on => healtarget))),
+                            //new Decorator(ret => healtarget.HealthPercent < 20,
+                            //    new Sequence(
+                            //        Spell.Cast("Thunder Focus Tea"),
+                            //        Spell.Cast("Soothing Mist", on => healtarget),
+                            //        Spell.Cast("Surging Mist", on => healtarget))),
 
-                            new Decorator(ret => healtarget.HealthPercent < 70,
-                                new Sequence(
-                                    Spell.Cast("Soothing Mist", on => healtarget),
-                                    Spell.Cast("Enveloping Mist", on => healtarget))),
+                            //new Decorator(ret => healtarget.HealthPercent < 70,
+                            //    new Sequence(
+                            //        Spell.Cast("Soothing Mist", on => healtarget),
+                            //        Spell.Cast("Enveloping Mist", on => healtarget))),
                                     //doing some testing here to see which way is better
+                            Spell.Cast("Enveloping Mist", ret => healtarget.HealthPercent < 75 && Me.IsChanneling && ChannelCheck()),
+                            //new Decorator(ret => healtarget.HealthPercent < 41,
+                            //    new Sequence(
+                            //        Spell.Cast("Soothing Mist", on => healtarget),
+                            //        Spell.Cast("Surging Mist", on => healtarget))),
+                            Spell.Cast("Surging Mist", ret => healtarget.HealthPercent < 41 && Me.IsChanneling && ChannelCheck()),
 
-                            new Decorator(ret => healtarget.HealthPercent < 41,
-                                new Sequence(
-                                    Spell.Cast("Soothing Mist", on => healtarget),
-                                    Spell.Cast("Surging Mist", on => healtarget))),
-
-                            Spell.Cast("Renewing Mist", on => RenewingMistTarget),
+                            Spell.Cast("Renewing Mist", on => RenewingMistTarget, ret => Me.CurrentChi < Me.MaxChi),
                             new Throttle(1, 1,
                                 new PrioritySelector(
                                     Spell.Cast("Uplift", ret => HealerManager.GetCountWithBuffAndHealth("Renewing Mist", 90) > 2 || Me.CurrentChi >= 4/*(TalentManager.IsSelected((int)MonkTalents.Ascension) ? 4 : 3)*/))),//Me.GroupInfo.RaidMembers.Count(u => u.ToPlayer().HasAura("Renewing Mist") && u.ToPlayer().HealthPercent < 90) > 2 || Me.CurrentChi >= 4))),
@@ -87,14 +89,15 @@ namespace AdvancedAI.Spec
                                 new PrioritySelector(
                             Spell.Cast("Blackout Kick", ret => !Me.HasAura("Serpent's Zeal") && Me.HasAura("Muscle Memory")),
                             Spell.Cast("Tiger Palm", ret => Me.HasAura("Muscle Memory") || (Me.CurrentChi > 3 && TalentManager.IsSelected((int)MonkTalents.Ascension)) || Me.CurrentChi > 4),
-                            Spell.Cast("Jab", ret => !Me.HasAura("Muscle Memory")))),
+                            Spell.Cast("Jab", ret => !Me.HasAura("Muscle Memory") && Me.CurrentChi < Me.MaxChi))),
                     //Spam
                     new Decorator(ret => !ChannelCheck() && healtarget.HealthPercent < 95,
                         new Sequence(
                             new Action(ret => SpellManager.StopCasting()),
-                            Spell.Cast("Soothing Mist", on => healtarget, ret => !AdvancedAI.FistWeave /*&& (Me.CurrentTarget.IsValid && Me.CurrentTarget != null && !Me.CurrentTarget.IsWithinMeleeRange)*/)))
-                            //Spell.Cast("Soothing Mist", on => healtarget, ret => healtarget.HealthPercent < 95 && (!AdvancedAI.FistWeave && Me.CurrentTarget.IsHostile && Me.CurrentTarget.IsValid && Me.CurrentTarget != null && !Me.CurrentTarget.IsWithinMeleeRange), cancel => !ChannelCheck())
+                            Spell.Cast("Soothing Mist", on => healtarget, ret => !AdvancedAI.FistWeave && Me.CurrentChi < Me.MaxChi/*&& (Me.CurrentTarget.IsValid && Me.CurrentTarget != null && !Me.CurrentTarget.IsWithinMeleeRange)*/))),
+                            //Spell.Cast("Soothing Mist", on => healtarget, ret => healtarget.HealthPercent < 95 && !AdvancedAI.FistWeave, cancel => !ChannelCheck()),
                             //Spell.Cast("Soothing Mist", on => healtarget, ret => healtarget.HealthPercent < 95 && (Me.CurrentTarget.IsValid && Me.CurrentTarget != null && !Me.CurrentTarget.IsWithinMeleeRange))
+                            new ActionAlwaysSucceed()
                             );
             }
         }
@@ -166,5 +169,7 @@ namespace AdvancedAI.Spec
             return healtarget.Guid == Me.ChannelObjectGuid;
         }
         #endregion
+
+
     }
 }
