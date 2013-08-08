@@ -42,6 +42,11 @@ namespace AdvancedAI.Spec
                                     CreateApplyDiseases(),
                                     CreateBDKBuffs,
                     new Action(ret => { Item.UseHands(); return RunStatus.Failure; }),
+
+                    new Decorator(ret => AdvancedAI.BossMechs,
+                        new PrioritySelector(
+                            Class.BossMechs.TriplePunc)),
+                        
                                     // Spread Diseases
                       new Throttle(1, 2,
                         new PrioritySelector(
