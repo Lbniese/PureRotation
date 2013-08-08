@@ -45,7 +45,7 @@ namespace AdvancedAI.Spec
 
                     new Decorator(ret => AdvancedAI.BossMechs,
                         new PrioritySelector(
-                            Class.BossMechs.TriplePunc)),
+                            Class.BossMechs.TriplePunc())),
                         
                                     // Spread Diseases
                       new Throttle(1, 2,
