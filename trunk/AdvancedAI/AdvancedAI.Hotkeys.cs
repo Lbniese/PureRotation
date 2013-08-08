@@ -132,7 +132,7 @@ namespace AdvancedAI
                 Logging.Write("Fist Weave enabled: " + FistWeave);
                 Lua.DoString("print('Fist Weave Enabled: " + FistWeave + "')");
             });
-            FistWeave = false;
+            FistWeave = true;
         }
 
     }
