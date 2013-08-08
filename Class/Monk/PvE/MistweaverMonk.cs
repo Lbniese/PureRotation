@@ -78,11 +78,11 @@ namespace AdvancedAI.Spec
                     Spell.Cast("Expel Harm", ret => Me.HealthPercent < 90),
 
                     //FW                                 
-                    new Decorator( ret => AdvancedAI.FistWeave,
+                    new Decorator(ret => AdvancedAI.FistWeave,
                         new PrioritySelector(
-                    Spell.Cast("Blackout Kick", ret => !Me.HasAura("Serpent's Zeal") && Me.HasAura("Muscle Memory")),
-                    Spell.Cast("Tiger Palm", ret => Me.HasAura("Muscle Memory") || (Me.CurrentChi > 3 && TalentManager.IsSelected((int)MonkTalents.Ascension)) || Me.CurrentChi > 4),
-                    Spell.Cast("Jab", ret => !Me.HasAura("Muscle Memory") && Me.CurrentChi < Me.MaxChi))),
+                            Spell.Cast("Blackout Kick", ret => !Me.HasAura("Serpent's Zeal") && Me.HasAura("Muscle Memory")),
+                            Spell.Cast("Tiger Palm", ret => Me.HasAura("Muscle Memory") || (Me.CurrentChi > 3 && TalentManager.IsSelected((int)MonkTalents.Ascension)) || Me.CurrentChi > 4),
+                            Spell.Cast("Jab", ret => !Me.HasAura("Muscle Memory") && Me.CurrentChi < Me.MaxChi))),
                     //Spam
                     new Decorator(ret => !ChannelCheck() && healtarget.HealthPercent < 95,
                         new Sequence(
