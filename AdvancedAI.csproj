@@ -111,6 +111,7 @@
     <Compile Include="Helpers\Clusters.cs" />
     <Compile Include="Helpers\CombatLog.cs" />
     <Compile Include="Helpers\Common.cs" />
+    <Compile Include="Helpers\DeadlyBossMods.cs" />
     <Compile Include="Helpers\Dispelling.cs" />
     <Compile Include="Helpers\Extensions.cs" />
     <Compile Include="Helpers\Group.cs" />

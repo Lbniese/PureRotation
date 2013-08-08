@@ -84,10 +84,12 @@ namespace AdvancedAI.Spec
                             Spell.Cast("Tiger Palm", ret => Me.HasAura("Muscle Memory") || (Me.CurrentChi > 3 && TalentManager.IsSelected((int)MonkTalents.Ascension)) || Me.CurrentChi > 4),
                             Spell.Cast("Jab", ret => !Me.HasAura("Muscle Memory") && Me.CurrentChi < Me.MaxChi))),
                     //Spam
+                    new Decorator(ret => Me.CastingSpell.Name == "Chi Burst",
+                        new ActionAlwaysSucceed()),
                     new Decorator(ret => !ChannelCheck() && healtarget.HealthPercent < 95,
                         new Sequence(
                             new Action(ret => SpellManager.StopCasting()),
-                    Spell.Cast("Soothing Mist", on => healtarget, ret => !AdvancedAI.FistWeave && Me.CurrentChi < Me.MaxChi/*&& (Me.CurrentTarget.IsValid && Me.CurrentTarget != null && !Me.CurrentTarget.IsWithinMeleeRange)*/))),
+                            Spell.Cast("Soothing Mist", on => healtarget, ret => !AdvancedAI.FistWeave && Me.CurrentChi < Me.MaxChi/*&& (Me.CurrentTarget.IsValid && Me.CurrentTarget != null && !Me.CurrentTarget.IsWithinMeleeRange)*/))),
                     //Spell.Cast("Soothing Mist", on => healtarget, ret => healtarget.HealthPercent < 95 && !AdvancedAI.FistWeave, cancel => !ChannelCheck()),
                     //Spell.Cast("Soothing Mist", on => healtarget, ret => healtarget.HealthPercent < 95 && (Me.CurrentTarget.IsValid && Me.CurrentTarget != null && !Me.CurrentTarget.IsWithinMeleeRange))
                     new ActionAlwaysSucceed());
