@@ -49,6 +49,13 @@ namespace AdvancedAI.Class
             return new Action(ret => { Me.SetFocus(PinkDino); return RunStatus.Failure; });
         }
 
+        public static Composite TriplePunc()
+        {
+            return new Decorator(ret => DeadlyBossMods.FindBarByPartialId("Triple Puncture").TimeLeft.TotalSeconds < 3,
+                new PrioritySelector(
+                    Spell.Cast("Death Strike")));
+        }
+
         public static Composite HorridonHeroic()
         {
             switch (StyxWoW.Me.Class)
