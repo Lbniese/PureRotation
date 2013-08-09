@@ -36,15 +36,15 @@ namespace AdvancedAI.Spec
                     Common.CreateInterruptBehavior(),
                     Spell.Cast("Impending Victory", ret => Me.HealthPercent <= 90 && Me.HasAura("Victorious")),
                     Spell.Cast("Die by the Sword", ret => Me.HealthPercent <= 20),
-                    Item.CreateUsePotionAndHealthstone(50, 0),
+                    Item.UsePotionAndHealthstone(50),
                     new Throttle(
                         new Decorator(ret => Unit.NearbyUnfriendlyUnits.Count(u => u.DistanceSqr <= 8 * 8) >= 4,
                             CreateAoe())),
                     new Decorator(ret => AdvancedAI.Burst,
                         new PrioritySelector(
-                        Spell.Cast("Recklessness", ret => Me.CurrentTarget.IsBoss && Me.CurrentTarget.HasAuraExpired("Colossus Smash", 5)),
+                        Spell.Cast("Recklessness", ret => Me.CurrentTarget.IsBoss && Me.CurrentTarget.HasAura("Colossus Smash")),
                         Spell.Cast("Bloodbath"),
-                        Spell.Cast("Skull Banner", ret => Me.CurrentTarget.IsBoss && Me.HasAura("Recklessness")),
+                        Spell.Cast("Skull Banner", ret => Me.CurrentTarget.IsBoss && Me.CurrentTarget.HasAura("Colossus Smash")),
                         new Action(ret => { Item.UseHands(); return RunStatus.Failure; }))),
                     //new Action(ret => { Item.UseTrinkets(); return RunStatus.Failure; }),
                     Spell.Cast("Berserker Rage", ret => !Me.ActiveAuras.ContainsKey("Enrage")),
@@ -73,9 +73,9 @@ namespace AdvancedAI.Spec
             return new PrioritySelector(
                 new Decorator(ret => AdvancedAI.Burst,
                     new PrioritySelector(
-                        Spell.Cast("Recklessness", ret => Me.CurrentTarget.IsBoss && Me.CurrentTarget.HasAuraExpired("Colossus Smash", 5)),
+                        Spell.Cast("Recklessness", ret => Me.CurrentTarget.IsBoss && Me.CurrentTarget.HasAura("Colossus Smash")),
                         Spell.Cast("Bloodbath"),
-                        Spell.Cast("Skull Banner", ret => Me.CurrentTarget.IsBoss && Me.HasAura("Recklessness")),
+                        Spell.Cast("Skull Banner", ret => Me.CurrentTarget.IsBoss && Me.CurrentTarget.HasAura("Colossus Smash")),
                         new Action(ret => { Item.UseHands(); return RunStatus.Failure; }))),
                 Spell.Cast("Berserker Rage", ret => !Me.ActiveAuras.ContainsKey("Enrage")),
                 Spell.Cast("Sweeping Strikes"),
