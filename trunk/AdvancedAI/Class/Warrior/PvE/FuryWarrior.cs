@@ -1,7 +1,9 @@
 ﻿using CommonBehaviors.Actions;
 using Styx;
 using Styx.Common;
+using Styx.CommonBot;
 using Styx.TreeSharp;
+using Styx.WoWInternals;
 using Styx.WoWInternals.WoWObjects;
 using AdvancedAI.Helpers;
 using System.Linq;
@@ -9,7 +11,7 @@ using Action = Styx.TreeSharp.Action;
 
 namespace AdvancedAI.Spec
 {
-    class FuryWarrior// : AdvancedAI
+    class FuryWarrior
     {
         static LocalPlayer Me { get { return StyxWoW.Me; } }
         public static Composite CreateFWCombat
@@ -19,13 +21,15 @@ namespace AdvancedAI.Spec
                 return new PrioritySelector(
                     new Decorator(ret => AdvancedAI.PvPRot,
                         FuryWarriorPvP.CreateFWPvPCombat),
-                    // Interrupt please.
-                    Spell.Cast("Pummel",
-                        ret =>
-                        StyxWoW.Me.CurrentTarget.IsCasting &&
-                        StyxWoW.Me.CurrentTarget.CanInterruptCurrentSpellCast),
+                    new Decorator(ret => Me.HasAura("Dire Fixation"),
+                        new PrioritySelector(
+                            Class.BossMechs.HorridonHeroic())),
+                    Common.CreateInterruptBehavior(),
                     Spell.Cast("Impending Victory", ret => StyxWoW.Me.HealthPercent <= 90 && StyxWoW.Me.HasAura("Victorious")),
-                    // Kee SS up if we've got more than 2 mobs to get to killing.
+                    Spell.Cast("Berserker Rage", ret => !StyxWoW.Me.HasAura("Enraged") && Me.CurrentTarget.HasAura("Colossus Smash")),
+                    Spell.Cast("Colossus Smash", ret => Me.CurrentRage > 80 && Me.HasAura("Raging Blow") && Me.HasAura("Enraged")),
+                    HeroicLeap(),
+                    DemoBanner(),
                     new Decorator(ret => Unit.UnfriendlyMeleeUnits.Count() > 2,
                         CreateAoe()),
                     new Decorator(ret => StyxWoW.Me.CurrentTarget.HealthPercent <= 20,
@@ -33,26 +37,31 @@ namespace AdvancedAI.Spec
                     new Decorator(ret => StyxWoW.Me.CurrentTarget.HealthPercent > 20,
                         new PrioritySelector(
                             Item.UsePotionAndHealthstone(40),
-                            Spell.Cast("Blood Fury", ret => StyxWoW.Me.CurrentTarget.IsBoss),
-                            // Stack our crit CDs for the most efficiency.
-                            Spell.Cast("Recklessness", ret => StyxWoW.Me.CurrentTarget.IsBoss && StyxWoW.Me.HasAura("Skull Banner")),
-                            Spell.Cast("Avatar", ret => StyxWoW.Me.CurrentTarget.IsBoss && StyxWoW.Me.HasAura("Skull Banner")),
-                            Spell.Cast("Skull Banner", ret => StyxWoW.Me.CurrentTarget.IsBoss),
-                            new Action(ret => { Item.UseHands(); return RunStatus.Failure; }),
-                            // Only drop DC if we need to use HS for TFB. This lets us avoid breaking HS as a rage dump, when we don't want it to be one.
-                            Spell.Cast("Heroic Strike", ret => Me.CurrentRage >= 80),
-                            Spell.Cast("Bloodbath", ret => StyxWoW.Me.CurrentTarget.IsBoss),
-                            Spell.Cast("Berserker Rage", ret => !StyxWoW.Me.HasAura("Enraged")),
-                            Spell.Cast("Bloodthirst"),
-                            Spell.Cast("Colossus Smash"),
-                            Spell.Cast("Raging Blow"),
-                            Spell.Cast("Wild Strike", ret => StyxWoW.Me.HasAura("Bloodsurge", 1)),
-                            Spell.Cast("Dragon Roar"),
-                            //Cast("Storm Bolt"),
-                            Spell.Cast("Battle Shout", ret => StyxWoW.Me.RagePercent < 30),
-                            Spell.Cast("Heroic Throw"),
-                            // Don't use this in execute range, unless we need the heal. Thanks!
-                            Spell.Cast("Impending Victory", ret => StyxWoW.Me.CurrentTarget.HealthPercent > 20 || StyxWoW.Me.HealthPercent < 50))));
+                            new Decorator(ret => AdvancedAI.Burst,
+                                new PrioritySelector(
+                                    Spell.Cast("Blood Fury", ret => StyxWoW.Me.CurrentTarget.IsBoss),
+                                    Spell.Cast("Recklessness", ret => StyxWoW.Me.CurrentTarget.IsBoss),
+                                    Spell.Cast("Avatar", ret => StyxWoW.Me.CurrentTarget.IsBoss),
+                                    Spell.Cast("Bloodbath"),
+                                    Spell.Cast("Skull Banner", ret => StyxWoW.Me.CurrentTarget.IsBoss),
+                                    new Action(ret => { Item.UseHands(); return RunStatus.Failure; }))),
+                            new Decorator(ret => !Me.CurrentTarget.HasAura("Colossus Smash"),
+                                new PrioritySelector(
+                                    Spell.Cast("Bloodthirst"),
+                                    new Action(ret => { Spell.Cast("Heroic Strike", ctx => Me.CurrentRage > 105 && Spell.GetSpellCooldown("Colossus Smash").TotalSeconds >= 3); return RunStatus.Failure; }),
+                                    Spell.Cast("Raging Blow", ret => Me.HasAura("Raging Blow", 2) && Spell.GetSpellCooldown("Colossus Smash").TotalSeconds >= 3),
+                                    Spell.Cast("Wild Strike", ret => StyxWoW.Me.HasAura("Bloodsurge")),
+                                    Spell.Cast("Dragon Roar"),
+                                    Spell.Cast("Raging Blow", ret => Me.HasAura("Raging Blow", 1) && Spell.GetSpellCooldown("Colossus Smash").TotalSeconds >= 3),
+                                    Spell.Cast("Battle Shout", ret => StyxWoW.Me.RagePercent < 30 && Spell.GetSpellCooldown("Colossus Smash").TotalSeconds <= 2),
+                                    Spell.Cast("Shockwave"),
+                                    Spell.Cast("Wild Strike", ret => Spell.GetSpellCooldown("Colossus Smash").TotalSeconds >= 3 && Me.RagePercent >= 93))),
+                            new Decorator(ret => Me.CurrentTarget.HasAura("Colossus Smash"),
+                                new PrioritySelector(
+                                    new Action(ret => { Spell.Cast("Heroic Strike", ctx => Me.CurrentRage > 30); return RunStatus.Failure; }),
+                                    Spell.Cast("Bloodthirst"),
+                                    Spell.Cast("Raging Blow"),
+                                    Spell.Cast("Wild Strike", ret => Me.HasAura("Bloodsurge")))))));
             }
         }
 
@@ -70,41 +79,55 @@ namespace AdvancedAI.Spec
         private static Composite CreateAoe()
         {
             return new PrioritySelector(
-                Spell.Cast("Dragon Roar"),
-                //Cast("Shockwave"),
-                //Cast("Bladestorm", ret => UnfriendlyMeleeUnits.Count() >= 4),
-                // Basically, we want to pop RB when we have 1 less stacks then we do mobs around us.
-                // eg; if we have 3 mobs, we want 2 stacks of cleaver. This just ensures we have a minimum of 1, and a max of 3. (You can't have more than 3 stacks!)
-                Spell.Cast("Raging Blow",
-                    ret =>
-                    StyxWoW.Me.HasAura("Meat Cleaver", (int)MathEx.Clamp(1, 3, Unit.UnfriendlyMeleeUnits.Count() - 1))),
-                Spell.Cast("Whirlwind")
-                );
+                new Decorator(ret => Unit.UnfriendlyMeleeUnits.Count() >= 5,
+                    new PrioritySelector(
+                        Spell.Cast("Whirlwind"),
+                        Spell.Cast("Bloodthirst"),
+                        Spell.Cast("Raging Blow"))),
+                Spell.Cast("Whirlwind", ret => !StyxWoW.Me.HasAura("Meat Cleaver", (int)MathEx.Clamp(1, 3, Unit.UnfriendlyMeleeUnits.Count() - 1))),
+                Spell.Cast("Bloodthirst"),
+                Spell.Cast("Raging Blow", ret => StyxWoW.Me.HasAura("Meat Cleaver", (int)MathEx.Clamp(1, 3, Unit.UnfriendlyMeleeUnits.Count() - 1))),
+                Spell.Cast("Heroic Strike", ret => Me.CurrentRage >= 105 && Spell.GetSpellCooldown("Colossus Smash").TotalSeconds >= 3));
         }
 
         private static Composite CreateExecuteRange()
         {
             return new PrioritySelector(
-                // Pop all our CDs. Get ready to truck the mob.
-                Spell.Cast("Recklessness", ret => StyxWoW.Me.CurrentTarget.IsBoss),
-                Spell.Cast("Skull Banner", ret => StyxWoW.Me.CurrentTarget.IsBoss),
-                Spell.Cast("Avatar", ret => StyxWoW.Me.CurrentTarget.IsBoss),
-                Spell.Cast("Bloodbath", ret => StyxWoW.Me.CurrentTarget.IsBoss),
-                Spell.Cast("Berserker Rage", ret => !StyxWoW.Me.HasAura("Enraged")),
-                new Action(ret =>
-                {
-                    Item.UseTrinkets();
-                    return RunStatus.Failure;
-                }),
-                Spell.Cast("Colossus Smash"),
-                Spell.Cast("Dragon Roar"),
-                Spell.Cast("Execute"),
-                Spell.Cast("Bloodthirst"),
-                Spell.Cast("Storm Bolt"),
-                Spell.Cast("Battle Shout"),
-                // Don't leave our execute range!
-                new ActionAlwaysSucceed()
-                );
+                new Decorator(ret => !Me.CurrentTarget.HasAura("Colossus Smash"),
+                    new PrioritySelector(
+                        Spell.Cast("Bloodthirst"),
+                        Spell.Cast("Raging Blow"),
+                        new Decorator(ret => Me.RagePercent < 85,
+                            new Action(ret => RunStatus.Success)))),
+                new Decorator(ret => Me.CurrentTarget.HasAura("Colossus Smash"),
+                    new PrioritySelector(
+                        Spell.Cast("Execute"))));
+        }
+
+        private static Composite HeroicLeap()
+        {
+            return
+                new Decorator(ret => SpellManager.CanCast("Heroic Leap") &&
+                    Lua.GetReturnVal<bool>("return IsLeftControlKeyDown() and not GetCurrentKeyBoardFocus()", 0),
+                    new Action(ret =>
+                    {
+                        SpellManager.Cast("Heroic Leap");
+                        Lua.DoString("if SpellIsTargeting() then CameraOrSelectOrMoveStart() CameraOrSelectOrMoveStop() end");
+                        return;
+                    }));
+        }
+
+        private static Composite DemoBanner()
+        {
+            return
+                new Decorator(ret => SpellManager.CanCast("Demoralizing Banner") &&
+                    Lua.GetReturnVal<bool>("return IsLeftShiftKeyDown() and not GetCurrentKeyBoardFocus()", 0),
+                    new Action(ret =>
+                    {
+                        SpellManager.Cast("Demoralizing Banner");
+                        Lua.DoString("if SpellIsTargeting() then CameraOrSelectOrMoveStart() CameraOrSelectOrMoveStop() end");
+                        return;
+                    }));
         }
 
         #region WarriorTalents

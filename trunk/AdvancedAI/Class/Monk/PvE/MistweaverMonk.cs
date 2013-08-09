@@ -2,6 +2,7 @@
 using Styx;
 using Styx.CommonBot;
 using Styx.TreeSharp;
+using Styx.WoWInternals;
 using Styx.WoWInternals.WoWObjects;
 using AdvancedAI.Helpers;
 using System.Linq;
@@ -28,6 +29,9 @@ namespace AdvancedAI.Spec
                     Spell.Cast("Fortifying Brew", ret => Me.HealthPercent < 30),
                     Spell.Cast("Life Cocoon", on => CocoonTar),
                     Spell.Cast("Revival", ret => HealerManager.GetCountWithHealth(55) > 4 && AdvancedAI.Burst),
+                    new Decorator(ret => Lua.GetReturnVal<bool>("return IsLeftControlKeyDown() and not GetCurrentKeyBoardFocus()", 0),
+                        new PrioritySelector(
+                            Spell.CastOnGround("Healing Sphere", on => Me.Location))),
                     //Spell.CastOnGround("Healing Sphere", on => healtarget.Location, ret => healtarget.HealthPercent < 55 && Me.ManaPercent > 40, false),
                     new Action(ret => { Item.UseHands(); return RunStatus.Failure; }),
                         new Decorator(ret => Me.ManaPercent < 87,
