@@ -26,8 +26,8 @@ namespace AdvancedAI.Spec
                             Class.BossMechs.HorridonHeroic())),
                     Common.CreateInterruptBehavior(),
                     Spell.Cast("Impending Victory", ret => StyxWoW.Me.HealthPercent <= 90 && StyxWoW.Me.HasAura("Victorious")),
-                    Spell.Cast("Berserker Rage", ret => !StyxWoW.Me.HasAura("Enraged") && Me.CurrentTarget.HasAura("Colossus Smash")),
-                    Spell.Cast("Colossus Smash", ret => Me.CurrentRage > 80 && Me.HasAura("Raging Blow") && Me.HasAura("Enraged")),
+                    Spell.Cast("Berserker Rage", ret => !StyxWoW.Me.HasAura("Enrage") && Me.CurrentTarget.HasAura("Colossus Smash")),
+                    Spell.Cast("Colossus Smash", ret => Me.CurrentRage > 80 && Me.HasAura("Raging Blow!") && Me.HasAura("Enrage")),
                     HeroicLeap(),
                     DemoBanner(),
                     new Decorator(ret => Unit.UnfriendlyMeleeUnits.Count() > 2,
@@ -48,17 +48,17 @@ namespace AdvancedAI.Spec
                             new Decorator(ret => !Me.CurrentTarget.HasAura("Colossus Smash"),
                                 new PrioritySelector(
                                     Spell.Cast("Bloodthirst"),
-                                    new Action(ret => { Spell.Cast("Heroic Strike", ctx => Me.CurrentRage > 105 && Spell.GetSpellCooldown("Colossus Smash").TotalSeconds >= 3); return RunStatus.Failure; }),
-                                    Spell.Cast("Raging Blow", ret => Me.HasAura("Raging Blow", 2) && Spell.GetSpellCooldown("Colossus Smash").TotalSeconds >= 3),
+                                    Spell.Cast("Heroic Strike", ctx => Me.CurrentRage > 105 && ColossusSmashCheck()),
+                                    Spell.Cast("Raging Blow", ret => Me.HasAura("Raging Blow!", 2) && ColossusSmashCheck()),
                                     Spell.Cast("Wild Strike", ret => StyxWoW.Me.HasAura("Bloodsurge")),
-                                    Spell.Cast("Dragon Roar"),
-                                    Spell.Cast("Raging Blow", ret => Me.HasAura("Raging Blow", 1) && Spell.GetSpellCooldown("Colossus Smash").TotalSeconds >= 3),
+                                    Spell.Cast("Dragon Roar", ret => Me.CurrentTarget.Distance <= 8),
+                                    Spell.Cast("Raging Blow", ret => Me.HasAura("Raging Blow!", 1) && ColossusSmashCheck()),
                                     Spell.Cast("Battle Shout", ret => StyxWoW.Me.RagePercent < 30 && Spell.GetSpellCooldown("Colossus Smash").TotalSeconds <= 2),
                                     Spell.Cast("Shockwave"),
-                                    Spell.Cast("Wild Strike", ret => Spell.GetSpellCooldown("Colossus Smash").TotalSeconds >= 3 && Me.RagePercent >= 93))),
+                                    Spell.Cast("Wild Strike", ret => Me.CurrentRage >= 115 && ColossusSmashCheck()))),
                             new Decorator(ret => Me.CurrentTarget.HasAura("Colossus Smash"),
                                 new PrioritySelector(
-                                    new Action(ret => { Spell.Cast("Heroic Strike", ctx => Me.CurrentRage > 30); return RunStatus.Failure; }),
+                                    Spell.Cast("Heroic Strike", ctx => Me.CurrentRage > 30),
                                     Spell.Cast("Bloodthirst"),
                                     Spell.Cast("Raging Blow"),
                                     Spell.Cast("Wild Strike", ret => Me.HasAura("Bloodsurge")))))));
@@ -128,6 +128,12 @@ namespace AdvancedAI.Spec
                         Lua.DoString("if SpellIsTargeting() then CameraOrSelectOrMoveStart() CameraOrSelectOrMoveStop() end");
                         return;
                     }));
+        }
+
+        private static bool ColossusSmashCheck()
+        {
+            return (Spell.GetSpellCooldown("Colossus Smash").TotalSeconds >= 3 ||
+                    !SpellManager.Spells["Colossus Smash"].Cooldown);
         }
 
         #region WarriorTalents
