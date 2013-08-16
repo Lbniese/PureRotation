@@ -45,21 +45,34 @@ namespace AdvancedAI.Spec
                     Spell.Cast("Lifebloom", 
                         mov => false, 
                         on => healtarget,
-                        ret => healtarget.HasAura("Vengeance") && (LifebloomTank == null || (LifebloomTank != null && (!LifebloomTank.InLineOfSight || LifebloomTank.Distance > 40) && LifebloomTank.HealthPercent >= 10 && LifebloomTank.GetAuraTimeLeft("Lifebloom").TotalSeconds <= 1.5)) && (!Me.HasMyAura("Lifebloom", 3) || Me.GetAuraTimeLeft("Lifebloom").TotalSeconds <= 1.5)),
+                        ret => healtarget.HasAura("Vengeance") && 
+                               (!LifebloomTank.InLineOfSight || 
+                               LifebloomTank.Distance > 40) && 
+                               LifebloomTank.HealthPercent >= 10 && 
+                               LifebloomTank.GetAuraTimeLeft("Lifebloom").TotalSeconds <= 1.5 && 
+                               (!Me.HasMyAura("Lifebloom", 3) || 
+                               Me.GetAuraTimeLeft("Lifebloom").TotalSeconds <= 1.5)),
                     Spell.Cast("Lifebloom", 
                         mov => false, 
                         on => Me,
-                        ret => (LifebloomTank == null || (LifebloomTank != null && (!LifebloomTank.InLineOfSight || LifebloomTank.Distance > 40) && LifebloomTank.HealthPercent >= 10 && LifebloomTank.GetAuraTimeLeft("Lifebloom").TotalSeconds <= 1.5)) && (!Me.HasMyAura("Lifebloom", 3) || Me.GetAuraTimeLeft("Lifebloom").TotalSeconds <= 1.5)),
+                        ret => (!LifebloomTank.InLineOfSight || 
+                               LifebloomTank.Distance > 40) && 
+                               LifebloomTank.HealthPercent >= 10 && 
+                               LifebloomTank.GetAuraTimeLeft("Lifebloom").TotalSeconds <= 1.5 && 
+                               (!Me.HasMyAura("Lifebloom", 3) || 
+                               Me.GetAuraTimeLeft("Lifebloom").TotalSeconds <= 1.5)),
                     Spell.Cast("Swiftmend", 
                         mov => false, 
                         on => healtarget, 
-                        ret => healtarget.HealthPercent <= 35 && healtarget.HasAnyAura("Regrowth", "Rejuvenation")),
+                        ret => healtarget.HealthPercent <= 35 && 
+                               healtarget.HasAnyAura("Regrowth", "Rejuvenation")),
                     new Decorator(ret => SwiftmendTarget != null,
                         new PrioritySelector(
                             Spell.Cast("Rejuvenation", 
                                 mov => false, 
                                 on => SwiftmendTarget, 
-                                ret => !TalentManager.IsSelected((int)DruidTalents.SouloftheForest) && !SwiftmendTarget.HasAnyAura("Regrowth","Rejuvenation")),
+                                ret => !TalentManager.IsSelected((int)DruidTalents.SouloftheForest) && 
+                                       !SwiftmendTarget.HasAnyAura("Regrowth","Rejuvenation")),
                             Spell.Cast("Swiftmend", 
                                 mov => false, 
                                 on => SwiftmendTarget, 

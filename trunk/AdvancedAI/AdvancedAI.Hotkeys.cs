@@ -20,7 +20,7 @@ namespace AdvancedAI
         public static bool Aoe { get; set; }
         public static bool BossMechs { get; set; }
         public static bool FistWeave { get; set; }
-        public static bool Dispelling { get; set; }
+        public static bool Dispell { get; set; }
 
         protected virtual void UnregisterHotkeys()
         {
@@ -42,10 +42,10 @@ namespace AdvancedAI
                 ModifierKeys.Alt,
                 o =>
                 {
-                    Dispelling = !Dispelling;
-                    Logging.Write("Dispelling enabled: " + Dispelling);
+                    Dispell = !Dispell;
+                    Logging.Write("Dispelling enabled: " + Dispell);
                 });
-            Dispelling = true;
+            Dispell = true;
 
             HotkeysManager.Register("Toggle Interupt",
                 Keys.NumPad1,
