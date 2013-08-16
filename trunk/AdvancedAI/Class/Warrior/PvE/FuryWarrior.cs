@@ -1,5 +1,4 @@
-﻿using System.Windows.Forms;
-using Styx;
+﻿using Styx;
 using Styx.Common;
 using Styx.CommonBot;
 using Styx.TreeSharp;
