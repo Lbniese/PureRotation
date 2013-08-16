@@ -19,14 +19,23 @@ namespace AdvancedAI.Spec
 {
     class ProtectionWarrior
     {
-        LocalPlayer Me { get { return StyxWoW.Me; } }
+        static LocalPlayer Me { get { return StyxWoW.Me; } }
         internal static Composite CreatePWCombat 
         { 
             get 
             {
                 return new PrioritySelector(
                     new Decorator(ret => AdvancedAI.PvPRot,
-                        ProtectionWarriorPvP.CreatePWPvPCombat));
+                        ProtectionWarriorPvP.CreatePWPvPCombat),
+                    new Decorator(ret => Unit.UnfriendlyMeleeUnits.Count() > 2,
+                        CreateAoe()),    
+                        
+                    Spell.Cast("Shield Slam"),
+                    Spell.Cast("Revenge", ret => Me.RagePercent < 90),
+                    Spell.Cast("Devastate"),
+                    Spell.Cast("Thunder Clap", ret => Me.CurrentTarget.HasAura("Weakened Blows")),
+                    Spell.Cast("Commanding Shout"),
+                    Spell.Cast("Heroic Strike", ret => Me.RagePercent > 85));
             }
         }
 
@@ -38,6 +47,13 @@ namespace AdvancedAI.Spec
                     new Decorator(ret => AdvancedAI.PvPRot,
                         ProtectionWarriorPvP.CreatePWPvPBuffs));
             }
+        }
+
+        private static Composite CreateAoe()
+        {
+            return new PrioritySelector(
+                Spell.Cast("Thunder Clap", ret => Me.CurrentTarget.HasAura("Weakened Blows"))
+                );
         }
 
         #region WarriorTalents

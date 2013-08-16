@@ -1419,7 +1419,7 @@ namespace AdvancedAI.Helpers
                                 _IsSpellBeingQueued = allow == LagTolerance.Yes && (Spell.GcdActive || StyxWoW.Me.IsCasting || StyxWoW.Me.IsChanneling);
 
                                 //LogCast(spell.Name, _castOnUnit);
-                                Logging.Write(spell.Name, _castOnUnit);
+                                Logging.Write("{0} on {1}", spell.Name, _castOnUnit.SafeName());
                                 if (!SpellManager.Cast(spell, _castOnUnit))
                                 {
                                     Logging.Write("cast of {0} on {1} failed!", spell.Name, _castOnUnit.SafeName());

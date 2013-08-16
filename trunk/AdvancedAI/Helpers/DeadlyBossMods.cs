@@ -58,12 +58,14 @@ namespace AdvancedAI.Helpers
                         "t={} for bar in pairs(DBM.Bars.bars) do table.insert(t, bar.id) end return (table.concat(t,'@!@'))",
                         0);
 
-                foreach (string barId in barIds.Split(new[] {"@!@"}, StringSplitOptions.RemoveEmptyEntries))
-                {
-                    yield return new TimerBar(barId);
-                }
+                return barIds.Split(new[] {"@!@"}, StringSplitOptions.RemoveEmptyEntries).Select(barId => new TimerBar(barId));
             }
         }
+
+        //foreach (string barId in barIds.Split(new[] {"@!@"}, StringSplitOptions.RemoveEmptyEntries))
+        //        {
+        //            yield return new TimerBar(barId);
+        //        }
 
         public static TimerBar FindBarByPartialId(string id)
         {

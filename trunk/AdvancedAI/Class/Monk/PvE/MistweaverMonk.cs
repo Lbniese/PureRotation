@@ -36,8 +36,8 @@ namespace AdvancedAI.Spec
                     new Action(ret => { Item.UseHands(); return RunStatus.Failure; }),
                         new Decorator(ret => Me.ManaPercent < 87,
                             new PrioritySelector(
-                    new Action(ret => { Item.UseTrinkets(); return RunStatus.Failure; }),
-                    Spell.Cast("Mana Tea"))),
+                                new Action(ret => { Item.UseTrinkets(); return RunStatus.Failure; }),
+                                Spell.Cast("Mana Tea"))),
                     // Execute if we can
                     Spell.Cast("Touch of Death", ret => Me.CurrentChi >= 3 && Me.HasAura("Death Note")),
                     new Throttle(1, 1,

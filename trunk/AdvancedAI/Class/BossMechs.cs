@@ -51,9 +51,25 @@ namespace AdvancedAI.Class
 
         public static Composite TriplePunc()
         {
-            return new Decorator(ret => DeadlyBossMods.FindBarByPartialId("Triple Puncture").TimeLeft.TotalSeconds < 3,
-                new PrioritySelector(
-                    Spell.Cast("Death Strike")));
+            switch (StyxWoW.Me.Class)
+            {
+                case WoWClass.DeathKnight:
+                    return new PrioritySelector(
+                            Spell.Cast("Death Strike"));
+                case WoWClass.Druid:
+                    return new PrioritySelector(
+                        new Decorator(ret => DeadlyBossMods.FindBarByPartialId("Triple Puncture CD").TimeLeft.TotalSeconds < 3,
+                            Spell.Cast("Barkskin")));
+                case WoWClass.Paladin:
+                    return new PrioritySelector(
+                        new Decorator(ret => DeadlyBossMods.FindBarByPartialId("Triple Puncture CD").TimeLeft.TotalSeconds < 3,
+                            Spell.Cast("Sacred Shield")));
+                case WoWClass.Warrior:
+                    return new PrioritySelector(
+                        new Decorator(ret => DeadlyBossMods.FindBarByPartialId("Triple Puncture CD").TimeLeft.TotalSeconds < 3,
+                            Spell.Cast("Shield Block")));
+            }
+            return null;
         }
 
         public static Composite HorridonHeroic()
