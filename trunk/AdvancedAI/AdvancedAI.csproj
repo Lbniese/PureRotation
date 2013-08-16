@@ -107,7 +107,6 @@
     <Compile Include="GUI\Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
-    <Compile Include="Helpers\CircularBuffer.cs" />
     <Compile Include="Helpers\Clusters.cs" />
     <Compile Include="Helpers\CombatLog.cs" />
     <Compile Include="Helpers\Common.cs" />
@@ -125,7 +124,6 @@
     <Compile Include="Helpers\Throttle.cs" />
     <Compile Include="Helpers\Totems.cs" />
     <Compile Include="Helpers\Unit.cs" />
-    <Compile Include="Helpers\UnitOracle.cs" />
     <Compile Include="Lists\Auras.cs" />
     <Compile Include="Lists\BossList.cs" />
     <Compile Include="Lists\SpellList.CleanseBlacklist.cs" />
