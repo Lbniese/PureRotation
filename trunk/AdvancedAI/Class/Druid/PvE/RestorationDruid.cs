@@ -146,7 +146,7 @@ namespace AdvancedAI.Spec
                         mov => false,
                         on => LifebloomTank, 
                         ret => healtarget.GetPredictedHealthPercent() > 10 && 
-                               !HealManager.Tank.HasMyAura("Lifebloom", 3)),
+                               !LifebloomTank.HasMyAura("Lifebloom", 3)),
                     //Spell.CastOnGround("Wild Mushroom", ret => BestAoeTarget.Location, ret => Settings.Instance.EnableMushrooms && (MushroomCount < 3 || GetRadiusClusterCount(AnyMushrooom, NearbyPartyPlayers, 8f) == 0)),
                     Spell.Cast("Nourish", 
                         mov => true,
