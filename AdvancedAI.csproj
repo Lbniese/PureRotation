@@ -133,7 +133,6 @@
     <Compile Include="Lists\SpellList.PurgeWhitelist.cs" />
     <Compile Include="Managers\CachedUnits.cs" />
     <Compile Include="Managers\CacheManager.cs" />
-    <Compile Include="Managers\HealableUnit.cs" />
     <Compile Include="Managers\HealerManager.cs" />
     <Compile Include="Managers\HealManager.cs" />
     <Compile Include="Managers\MovementManager.cs" />
