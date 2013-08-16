@@ -350,6 +350,30 @@ namespace AdvancedAI.Managers
             return hotTarget;
         }
 
+        public static WoWUnit GetSwiftmendTarget
+        {
+            get
+            {
+                try
+                {
+                    return (from unit in Unit.NearbyFriendlyPlayers
+                            where unit.HasAnyAura("Rejuvenation", "Regrowth")
+                            orderby SwiftmendPriority(unit) ascending
+                            select unit).FirstOrDefault();
+                }
+                catch (Exception e)
+                {
+                    Logging.WriteDiagnostic("GetSwiftmentTarget error");
+                    return null;
+                }
+            }
+        }
+
+        private static double SwiftmendPriority(WoWUnit p)
+        {
+            return Unit.NearbyFriendlyPlayers.Count(u => u.Location.DistanceSqr(p.Location) < 8 * 8) * 1.0; 
+        }
+
         public static WoWPlayer GetUnbuffedTarget(string withoutBuff)
         {
             //return Instance.TargetList.FirstOrDefault(u => u != null && !u.ToPlayer().HasAura(withoutBuff)) as WoWPlayer;

@@ -221,7 +221,7 @@ namespace AdvancedAI.Helpers
                     break;
                 case WoWClass.Shaman:
                     if ( StyxWoW.Me.Specialization == WoWSpec.ShamanRestoration )
-                        prio.AddChild(Spell.Cast("Purify Spirit", on => _unitDispel, ret => !_unitDispel.HasAura("Reshape Life")));
+                        prio.AddChild(Spell.Cast("Purify Spirit", on => _unitDispel, ret => !_unitDispel.HasAura("Reshape Life") || !_unitDispel.HasAura("Ionization")));
                     else
                         prio.AddChild(Spell.Cast("Cleanse Spirit", on => _unitDispel));
                     break;

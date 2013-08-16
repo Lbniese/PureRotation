@@ -20,10 +20,11 @@ namespace AdvancedAI
         public static bool Aoe { get; set; }
         public static bool BossMechs { get; set; }
         public static bool FistWeave { get; set; }
+        public static bool Dispelling { get; set; }
 
         protected virtual void UnregisterHotkeys()
         {
-            HotkeysManager.Unregister("Ares Toggle Interrupt");
+            HotkeysManager.Unregister("Toggle Interrupt");
             HotkeysManager.Unregister("PvP Toggle");
             HotkeysManager.Unregister("Burst");
             HotkeysManager.Unregister("Hex Focus");
@@ -32,10 +33,21 @@ namespace AdvancedAI
             HotkeysManager.Unregister("AOE");
             HotkeysManager.Unregister("Boss Mechs");
             HotkeysManager.Unregister("Fist Weave");
+            HotkeysManager.Unregister("Dispelling");
         }
         protected virtual void RegisterHotkeys()
         {
-            HotkeysManager.Register("Ares Toggle Interrupt",
+            HotkeysManager.Register("Dispelling",
+                Keys.D,
+                ModifierKeys.Alt,
+                o =>
+                {
+                    Dispelling = !Dispelling;
+                    Logging.Write("Dispelling enabled: " + Dispelling);
+                });
+            Dispelling = true;
+
+            HotkeysManager.Register("Toggle Interupt",
                 Keys.NumPad1,
                 ModifierKeys.Alt,
                 o =>
@@ -43,7 +55,6 @@ namespace AdvancedAI
                     InterruptsEnabled = !InterruptsEnabled;
                     Logging.Write("Interrupts enabled: " + InterruptsEnabled);
                 });
-            // Default this to true please. Thanks!
             InterruptsEnabled = true;
 
             HotkeysManager.Register("PvP Toggle",

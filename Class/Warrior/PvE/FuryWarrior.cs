@@ -1,4 +1,5 @@
-﻿using Styx;
+﻿using System.Windows.Forms;
+using Styx;
 using Styx.Common;
 using Styx.CommonBot;
 using Styx.TreeSharp;
@@ -24,6 +25,7 @@ namespace AdvancedAI.Spec
                         new PrioritySelector(
                             Class.BossMechs.HorridonHeroic())),
                     Common.CreateInterruptBehavior(),
+                    Spell.Cast("Shattering Throw", ret => Me.CurrentTarget.IsBoss && Me.HasAnyAura("Heroism", "Bloodlust")),
                     Spell.Cast("Impending Victory", ret => StyxWoW.Me.HealthPercent <= 90 && StyxWoW.Me.HasAura("Victorious")),
                     Spell.Cast("Berserker Rage", ret => !StyxWoW.Me.HasAura("Enrage") && Me.CurrentTarget.HasAura("Colossus Smash")),
                     Spell.Cast("Colossus Smash", ret => Me.CurrentRage > 80 && Me.HasAura("Raging Blow!") && Me.HasAura("Enrage")),
@@ -86,7 +88,7 @@ namespace AdvancedAI.Spec
                 Spell.Cast("Whirlwind", ret => !StyxWoW.Me.HasAura("Meat Cleaver", (int)MathEx.Clamp(1, 3, Unit.UnfriendlyMeleeUnits.Count() - 1))),
                 Spell.Cast("Bloodthirst"),
                 Spell.Cast("Raging Blow", ret => StyxWoW.Me.HasAura("Meat Cleaver", (int)MathEx.Clamp(1, 3, Unit.UnfriendlyMeleeUnits.Count() - 1))),
-                Spell.Cast("Heroic Strike", ret => Me.CurrentRage >= 105 && Spell.GetSpellCooldown("Colossus Smash").TotalSeconds >= 3));
+                Spell.Cast("Cleave", ret => Me.CurrentRage >= 105 && Spell.GetSpellCooldown("Colossus Smash").TotalSeconds >= 3));
         }
 
         private static Composite CreateExecuteRange()
