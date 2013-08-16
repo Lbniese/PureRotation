@@ -31,10 +31,10 @@ namespace AdvancedAI.Helpers
 
         public static void Init()
         {
-            //SingularRoutine.OnWoWContextChanged += (orig, ne) =>
-            //{
+            AdvancedAI.OnWoWContextChanged += (orig, ne) =>
+            {
                 _cachedCapabilities = Capabilities;
-            //};
+            };
         }
 
         /// <summary>Gets the dispel capabilities of the current player.</summary>
