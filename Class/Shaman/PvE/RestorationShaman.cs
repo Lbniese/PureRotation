@@ -30,7 +30,7 @@ namespace AdvancedAI.Spec
             {
                 HealerManager.NeedHealTargeting = true;
                 var cancelHeal = Math.Max(95, Math.Max(93, Math.Max(55, 25)));
-                return new PrioritySelector(ctx => HealerManager.Instance.TargetList.Any(t => t.IsAlive),
+                return new PrioritySelector(ctx => HealerManager.Instance.TargetList.Any(t => t.IsAlive) && !Me.Mounted,
                     Spell.WaitForCastOrChannel(),
                     new Decorator(ret => AdvancedAI.PvPRot,
                         RestorationShamanPvP.CreateRSPvPCombat),
