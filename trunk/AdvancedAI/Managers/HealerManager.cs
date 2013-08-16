@@ -332,7 +332,7 @@ namespace AdvancedAI.Managers
         public static WoWUnit GetBestTankTargetForHOT( string hotName, float health = 100f)
         {
             WoWUnit hotTarget = null;
-            hotTarget = Group.Tanks.Where(u => u.IsAlive && u.Combat && u.HealthPercent < health && u.DistanceSqr < 40 * 40 && !u.HasMyAura(hotName) && u.InLineOfSpellSight).OrderBy(u => u.HealthPercent).FirstOrDefault();
+            hotTarget = Group.Tanks.Where(u => u.IsAlive && u.Combat && u.HealthPercent < health && u.DistanceSqr < 40 * 40 && u.InLineOfSpellSight).OrderBy(u => u.HealthPercent).FirstOrDefault();
             if (hotTarget != null)
                 Logging.WriteDiagnostic("GetBestTankTargetForHOT('{0}'): found tank {1} @ {2:F1}%, hasmyaura={3} with {4} ms left", hotName, hotTarget.SafeName(), hotTarget.HealthPercent, hotTarget.HasMyAura(hotName), (int)hotTarget.GetAuraTimeLeft("Riptide").TotalMilliseconds);
             return hotTarget;
@@ -372,6 +372,25 @@ namespace AdvancedAI.Managers
         private static double SwiftmendPriority(WoWUnit p)
         {
             return Unit.NearbyFriendlyPlayers.Count(u => u.Location.DistanceSqr(p.Location) < 8 * 8) * 1.0; 
+        }
+
+        public static WoWUnit Tank
+        {
+            get
+            {
+                try
+                {
+                    return (from unit in Unit.NearbyFriendlyPlayers
+                            where unit.IsMainTank() || unit.IsAssistTank()
+                            orderby unit.HealthPercent descending
+                            select unit).FirstOrDefault();
+                }
+                catch (Exception e)
+                {
+                    Logging.WriteDiagnostic("GetSwiftmentTarget error");
+                    return null;
+                }
+            }
         }
 
         public static WoWPlayer GetUnbuffedTarget(string withoutBuff)
