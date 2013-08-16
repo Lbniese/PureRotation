@@ -44,12 +44,12 @@ namespace AdvancedAI.Spec
                         ret => LifebloomTank.GetAuraTimeLeft("Lifebloom").TotalSeconds <= 1.5),
                     Spell.Cast("Lifebloom", 
                         mov => false, 
-                        on => LifebloomTank, 
-                        ret =>  LifebloomTank.HealthPercent >= 10 && LifebloomTank.GetAuraTimeLeft("Lifebloom").TotalSeconds <= 1.5 && (!Me.HasMyAura("Lifebloom", 3) || Me.GetAuraTimeLeft("Lifebloom").TotalSeconds <= 1.5)),
+                        on => healtarget,
+                        ret => healtarget.HasAura("Vengeance") && (LifebloomTank == null || (LifebloomTank != null && (!LifebloomTank.InLineOfSight || LifebloomTank.Distance > 40) && LifebloomTank.HealthPercent >= 10 && LifebloomTank.GetAuraTimeLeft("Lifebloom").TotalSeconds <= 1.5)) && (!Me.HasMyAura("Lifebloom", 3) || Me.GetAuraTimeLeft("Lifebloom").TotalSeconds <= 1.5)),
                     Spell.Cast("Lifebloom", 
                         mov => false, 
-                        on => Me, 
-                        ret => LifebloomTank.HealthPercent >= 10 && LifebloomTank.GetAuraTimeLeft("Lifebloom").TotalSeconds <= 1.5 && (!Me.HasMyAura("Lifebloom", 3) || Me.GetAuraTimeLeft("Lifebloom").TotalSeconds <= 1.5)),
+                        on => Me,
+                        ret => (LifebloomTank == null || (LifebloomTank != null && (!LifebloomTank.InLineOfSight || LifebloomTank.Distance > 40) && LifebloomTank.HealthPercent >= 10 && LifebloomTank.GetAuraTimeLeft("Lifebloom").TotalSeconds <= 1.5)) && (!Me.HasMyAura("Lifebloom", 3) || Me.GetAuraTimeLeft("Lifebloom").TotalSeconds <= 1.5)),
                     Spell.Cast("Swiftmend", 
                         mov => false, 
                         on => healtarget, 
@@ -183,8 +183,6 @@ namespace AdvancedAI.Spec
             {
                 return Clusters.GetBestUnitForCluster(Unit.NearbyFriendlyPlayers, ClusterType.Radius, 30f);
             }
-            //NearbyPartyUnits.Where(u => u.IsAlive && u.CanSelect && u.InLineOfSpellSight).OrderByDescending(HealManager.AoEPriority).FirstOrDefault();
-
         }
 
         private static IEnumerable<WoWPlayer> WildGrowthPlayers()
