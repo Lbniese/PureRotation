@@ -30,6 +30,7 @@ namespace AdvancedAI.Spec
         {
             get
             {
+                HealerManager.NeedHealTargeting = true;
                 return new PrioritySelector(
                     new Decorator(ret => AdvancedAI.PvPRot,
                         RestorationDruidPvP.CreateRDPvPCombat),
@@ -37,6 +38,10 @@ namespace AdvancedAI.Spec
                     Spell.Cast("Ironbark", on => healtarget, ret => healtarget.HealthPercent < 70 && healtarget.Combat && healtarget.HasAuraWithEffect(WoWApplyAuraType.ModDamagePercentTaken, -1, -10, -30)),
                     Spell.Cast("Might of Ursoc", ret => Me.HealthPercent < 30),
                     Spell.Cast("Innervate", on => Me, ret => Me.ManaPercent < 60 || (Me.HasAura("Hymn of Hope") && Me.ManaPercent < 80)),
+                    new Decorator(ret => AdvancedAI.Dispell,
+                        Dispelling.CreateDispelBehavior()),
+                    new Decorator(ret => AdvancedAI.InterruptsEnabled,
+                        Common.CreateInterruptBehavior()),
                     new Decorator(ret => AdvancedAI.Burst,
                         new PrioritySelector(
                             Spell.Cast("Force of Nature", ret => HealerManager.GetCountWithHealth(60) >= 5),
