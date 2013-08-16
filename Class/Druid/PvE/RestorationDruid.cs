@@ -14,7 +14,7 @@ namespace AdvancedAI.Spec
     {
         static LocalPlayer Me { get { return StyxWoW.Me; } }
         static WoWUnit healtarget { get { return HealerManager.FindLowestHealthTarget(); } }
-        static WoWUnit LifebloomTank { get { return HealerManager.GetBestTankTargetForHOT("Lifebloom"); } }
+        static WoWUnit LifebloomTank { get { return HealerManager.GetBestTankTargetForHOT("Lifebloom", 101); } }
         static WoWUnit RejuvTank { get { return HealerManager.GetBestTankTargetForHOT("Rejuvenation"); } }
         static WoWUnit RegrowthTank { get { return HealerManager.GetBestTankTargetForHOT("Regrowth"); } }
         static WoWUnit SwiftmendTarget { get { return HealerManager.GetSwiftmendTarget; } }
@@ -153,6 +153,7 @@ namespace AdvancedAI.Spec
                         RestorationDruidPvP.CreateRDPvPBuffs));
             }
         }
+
         #region Sotf
         public static Composite HandleSotF()
         {
@@ -203,6 +204,7 @@ namespace AdvancedAI.Spec
                                     ret => Me.HasAura("Soul of the Forest")));
         }
         #endregion
+
         #region WG
         public static WoWUnit BestWildGrowthTarget
         {
