@@ -34,8 +34,16 @@ namespace AdvancedAI.Spec
                 return new PrioritySelector(
                     new Decorator(ret => AdvancedAI.PvPRot,
                         RestorationDruidPvP.CreateRDPvPCombat),
-                    Spell.Cast("Barkskin", on => Me, ret => Me.HealthPercent < 60 && Me.Combat && !Me.HasAuraWithEffect(WoWApplyAuraType.ModRangedDamageTakenPct, -1, -10, -30)),
-                    Spell.Cast("Ironbark", on => healtarget, ret => healtarget.HealthPercent < 70 && healtarget.Combat && healtarget.HasAuraWithEffect(WoWApplyAuraType.ModDamagePercentTaken, -1, -10, -30)),
+                    Spell.Cast("Barkskin", 
+                        on => Me, 
+                        ret => Me.HealthPercent < 60 && 
+                               Me.Combat && 
+                               !Me.HasAuraWithEffect(WoWApplyAuraType.ModRangedDamageTakenPct, -1, -10, -30)),
+                    Spell.Cast("Ironbark", 
+                        on => healtarget, 
+                        ret => healtarget.HealthPercent < 70 && 
+                               healtarget.Combat && 
+                               healtarget.HasAuraWithEffect(WoWApplyAuraType.ModDamagePercentTaken, -1, -10, -30)),
                     Spell.Cast("Might of Ursoc", ret => Me.HealthPercent < 30),
                     Spell.Cast("Innervate", on => Me, ret => Me.ManaPercent < 60 || (Me.HasAura("Hymn of Hope") && Me.ManaPercent < 80)),
                     new Decorator(ret => AdvancedAI.Dispell,
