@@ -77,7 +77,7 @@ namespace AdvancedAI
                 Logging.Write("Burst enabled: " + Burst);
                 Lua.DoString("print('Burst Enabled: " + Burst + "')");
             });
-            Burst = false;
+            Burst = true;
 
             HotkeysManager.Register("Hex Focus",
             Keys.NumPad2,
