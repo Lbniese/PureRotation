@@ -67,15 +67,15 @@ namespace AdvancedAI.Spec
                                LifebloomTank.GetAuraTimeLeft("Lifebloom").TotalSeconds <= 1.5 && 
                                (!Me.HasMyAura("Lifebloom", 3) || 
                                Me.GetAuraTimeLeft("Lifebloom").TotalSeconds <= 1.5)),
-                    Spell.Cast("Lifebloom", 
-                        mov => false, 
-                        on => Me,
-                        ret => (!LifebloomTank.InLineOfSight || 
-                               LifebloomTank.Distance > 40) && 
-                               LifebloomTank.HealthPercent >= 10 && 
-                               LifebloomTank.GetAuraTimeLeft("Lifebloom").TotalSeconds <= 1.5 && 
-                               (!Me.HasMyAura("Lifebloom", 3) || 
-                               Me.GetAuraTimeLeft("Lifebloom").TotalSeconds <= 1.5)),
+                    //Spell.Cast("Lifebloom", 
+                    //    mov => false, 
+                    //    on => Me,
+                    //    ret => (!LifebloomTank.InLineOfSight || 
+                    //           LifebloomTank.Distance > 40) && 
+                    //           LifebloomTank.HealthPercent >= 10 && 
+                    //           LifebloomTank.GetAuraTimeLeft("Lifebloom").TotalSeconds <= 1.5 && 
+                    //           (!Me.HasMyAura("Lifebloom", 3) || 
+                    //           Me.GetAuraTimeLeft("Lifebloom").TotalSeconds <= 1.5)),
                     Spell.Cast("Swiftmend", 
                         mov => false, 
                         on => healtarget, 
