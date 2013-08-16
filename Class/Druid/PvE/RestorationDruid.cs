@@ -49,127 +49,98 @@ namespace AdvancedAI.Spec
                             Spell.Cast("Incarnation", ret => HealerManager.GetCountWithHealth(60) >= 5))),
                     Spell.Cast("Cenarion Ward", on => healtarget, ret => healtarget.HealthPercent < 90),
                     new Decorator(ret => TalentManager.IsSelected((int)DruidTalents.SouloftheForest), HandleSotF()),
-                    Spell.Cast("Healing Touch", 
-                        mov => false, 
-                        on => healtarget, 
-                        ret => Me.HasAura("Nature's Swiftness")),
+
+                    new Decorator(ret => healtarget.HealthPercent < 20,
+                        new Sequence(
+                            Spell.Cast("Nature's Swiftness"),
+                            Spell.Cast("Regrowth", on => healtarget))),
+
                     Spell.Cast("Lifebloom", 
-                        mov => false, 
                         on => LifebloomTank, 
-                        ret => LifebloomTank.GetAuraTimeLeft("Lifebloom").TotalSeconds <= 1.5 ||
-                        !healtarget.HasMyAura("Lifebloom", 3)),
-                    //Spell.Cast("Lifebloom", 
-                    //    mov => false, 
-                    //    on => healtarget,
-                    //    ret => healtarget.HasAura("Vengeance") && 
-                    //           (!LifebloomTank.InLineOfSight || 
-                    //           LifebloomTank.Distance > 40) && 
-                    //           LifebloomTank.HealthPercent >= 10 && 
-                    //           LifebloomTank.GetAuraTimeLeft("Lifebloom").TotalSeconds <= 1.5 && 
-                    //           (!Me.HasMyAura("Lifebloom", 3) || 
-                    //           Me.GetAuraTimeLeft("Lifebloom").TotalSeconds <= 1.5)),
-                    //Spell.Cast("Lifebloom", 
-                    //    mov => false, 
-                    //    on => Me,
-                    //    ret => (!LifebloomTank.InLineOfSight || 
-                    //           LifebloomTank.Distance > 40) && 
-                    //           LifebloomTank.HealthPercent >= 10 && 
-                    //           LifebloomTank.GetAuraTimeLeft("Lifebloom").TotalSeconds <= 1.5 && 
-                    //           (!Me.HasMyAura("Lifebloom", 3) || 
-                    //           Me.GetAuraTimeLeft("Lifebloom").TotalSeconds <= 1.5)),
+                        ret => LifebloomTank.GetAuraTimeLeft("Lifebloom").TotalSeconds >= 1.5 &&
+                               !LifebloomTank.HasMyAura("Lifebloom", 3) && 
+                               LifebloomTank.HealthPercent >= 10 ),
+
                     Spell.Cast("Swiftmend", 
-                        mov => false, 
                         on => healtarget, 
-                        ret => healtarget.HealthPercent <= 35 && 
+                        ret => healtarget.HealthPercent <= 60 && 
                                healtarget.HasAnyAura("Regrowth", "Rejuvenation")),
                     new Decorator(ret => SwiftmendTarget != null,
                         new PrioritySelector(
                             Spell.Cast("Rejuvenation", 
-                                mov => false, 
                                 on => SwiftmendTarget, 
-                                ret => !TalentManager.IsSelected((int)DruidTalents.SouloftheForest) && 
-                                       !SwiftmendTarget.HasAnyAura("Regrowth","Rejuvenation")),
+                                ret => !SwiftmendTarget.HasAnyAura("Regrowth","Rejuvenation")),
                             Spell.Cast("Swiftmend", 
-                                mov => false, 
                                 on => SwiftmendTarget, 
-                                ret => !TalentManager.IsSelected((int)DruidTalents.SouloftheForest) && 
-                                       SwiftmendTarget.HasAnyAura("Regrowth","Rejuvenation")))),
+                                ret => SwiftmendTarget.HasAnyAura("Regrowth","Rejuvenation")))),
+
                     new PrioritySelector(context => BestWildGrowthTarget,
                         Spell.Cast("Wild Growth", 
-                            mov => false,
                             on => healtarget,
-                            ret => !TalentManager.IsSelected((int)DruidTalents.SouloftheForest) && 
-                                   Clusters.GetClusterCount(healtarget, WildGrowthPlayers(), ClusterType.Radius, 30f) >= 5)),
+                            ret => Clusters.GetClusterCount(healtarget, WildGrowthPlayers(), ClusterType.Radius, 30f) >= 2)),
                     //Spell.Cast("Wild Mushroom: Bloom", ret => false, ret => Me, ret => MushroomCount == 3 && Settings.Instance.EnableMushrooms && GetRadiusClusterCount(AnyMushrooom, MushroomUnits(), 8f) >= Settings.Instance.AmountShroom),
                     Spell.Cast("Regrowth", 
-                        mov => true,
                         on => healtarget, 
-                        ret => Me.HasAura("Spiritual Innervation") && 
-                               healtarget.GetPredictedHealthPercent() <= 95, 
+                        ret => Me.HasAura("Spiritual Innervation") &&
+                               healtarget.HealthPercent <= 95, 
                         cancel => Me.GetAuraTimeLeft("Spiritual Innervation").TotalSeconds <= Me.CurrentCastTimeLeft.TotalSeconds),
                     Spell.Cast("Regrowth", 
-                        mov => true,
                         on => healtarget, 
                         ret => Me.HasAura("Clearcasting") && 
-                               healtarget.GetPredictedHealthPercent() <= 95, 
+                               healtarget.HealthPercent <= 80, 
                         cancel => Me.GetAuraTimeLeft("Clearcasting").TotalSeconds <= Me.CurrentCastTimeLeft.TotalSeconds),
                     Spell.Cast("Rejuvenation", 
-                        mov => false,
                         on => RejuvTank, 
                         ret => Me.ManaPercent > 30 && 
                                RejuvTank.GetAuraTimeLeft("Rejuvenation").TotalSeconds <= 1),
                     Spell.Cast("Rejuvenation", 
-                        mov => false, 
                         on => healtarget, 
-                        ret => !healtarget.HasMyAura("Rejuvenation") && 
-                               healtarget.GetPredictedHealthPercent() <= 85),
+                        ret => !healtarget.HasMyAura("Rejuvenation") &&
+                               healtarget.HealthPercent <= 90),
                     Spell.Cast("Regrowth", 
-                        mov => true,
                         on => healtarget, 
-                        ret => (!healtarget.HasAura("Regrowth") && 
-                               healtarget.GetPredictedHealthPercent() <= 50) || 
-                               (healtarget.GetPredictedHealthPercent() <= 35), 
+                        ret => (!healtarget.HasAura("Regrowth") &&
+                               healtarget.HealthPercent <= 50) ||
+                               (healtarget.HealthPercent <= 35), 
                         cancel => healtarget.HealthPercent > 70 && 
                                   !Me.HasAura("Clearcasting")),
                     Spell.Cast("Regrowth", 
-                        mov => true,
                         on => RegrowthTank, 
                         ret => Me.HasAura("Clearcasting"), 
                         cancel => Me.GetAuraTimeLeft("Clearcasting").TotalSeconds <= Me.CurrentCastTimeLeft.TotalSeconds),
                     Spell.Cast("Healing Touch", 
-                        mov => true,
-                        on => healtarget, 
-                        ret => healtarget.GetPredictedHealthPercent() <= 30, 
+                        on => healtarget,
+                        ret => healtarget.HealthPercent <= 70, 
                         cancel => healtarget.HealthPercent < 50 && 
                                   Me.CurrentCastTimeLeft.TotalSeconds > 0.5),
                     Spell.Cast("Lifebloom", 
-                        mov => false,
-                        on => LifebloomTank, 
-                        ret => healtarget.GetPredictedHealthPercent() > 10 && 
+                        on => LifebloomTank,
+                        ret => healtarget.HealthPercent > 10 && 
                                !LifebloomTank.HasMyAura("Lifebloom", 3)),
+
                     //Spell.CastOnGround("Wild Mushroom", ret => BestAoeTarget.Location, ret => Settings.Instance.EnableMushrooms && (MushroomCount < 3 || GetRadiusClusterCount(AnyMushrooom, NearbyPartyPlayers, 8f) == 0)),
                     Spell.Cast("Nourish", 
-                        mov => true,
                         on => healtarget, 
-                        ret => Me.HasAnyAura("Glyph of Rejuvenation", "Heroism", "Bloodlust", "Time Warp", "Ancient Hysteria") && 
-                               healtarget.GetPredictedHealthPercent() <= 99 && 
-                               healtarget.HasAnyAura("Rejuvenation", "Regrowth", "Wild Growth", "Lifebloom"), 
-                        cancel => healtarget.GetPredictedHealthPercent() <= 50 && 
-                                  Me.CurrentCastTimeLeft.TotalSeconds > Spell.GcdTimeLeft.TotalSeconds),
+                        ret => Me.HasAnyAura("Glyph of Rejuvenation", "Heroism", "Bloodlust", "Time Warp", "Ancient Hysteria") &&
+                               healtarget.HealthPercent <= 99 && 
+                               healtarget.HasAnyAura("Rejuvenation", "Regrowth", "Wild Growth", "Lifebloom"),
+                        cancel => healtarget.HealthPercent <= 50 && 
+                                  Me.CurrentCastTimeLeft.TotalSeconds > Spell.GcdTimeLeft.TotalSeconds)
                     //Mirabis Tank Styler
-                    Spell.Cast("Nourish", 
-                        mov => true,
-                        on => healtarget, 
-                        ret => true, 
-                        cancel => healtarget.GetPredictedHealthPercent(true) < 70),
-                    Spell.Cast("Regrowth", 
-                        mov => true,
-                        on => RegrowthTank, 
-                        ret => true, 
-                        cancel => (healtarget.GetPredictedHealthPercent(true) < 70 && 
-                                  RegrowthTank.HealthPercent > 60) || 
-                                  (RegrowthTank.HealthPercent > 60 && 
-                                  Me.CurrentCastTimeLeft.TotalSeconds < 0.4)));
+                    //Spell.Cast("Nourish", 
+                    //    mov => true,
+                    //    on => healtarget, 
+                    //    ret => healtarget.HealthPercent <= 90,
+                    //   cancel => healtarget.HealthPercent < 70),
+                    //Spell.Cast("Regrowth", 
+                    //    mov => true,
+                    //    on => RegrowthTank, 
+                    //    ret => true,
+                    //    cancel => (healtarget.HealthPercent < 70 && 
+                    //              RegrowthTank.HealthPercent > 60) || 
+                    //              (RegrowthTank.HealthPercent > 60 && 
+                    //              Me.CurrentCastTimeLeft.TotalSeconds < 0.4))
+                                  );
             }
         }
 
@@ -182,7 +153,7 @@ namespace AdvancedAI.Spec
                         RestorationDruidPvP.CreateRDPvPBuffs));
             }
         }
-
+        #region Sotf
         public static Composite HandleSotF()
         {
             return new PrioritySelector(
@@ -231,7 +202,8 @@ namespace AdvancedAI.Spec
                                     on => RejuvTank, 
                                     ret => Me.HasAura("Soul of the Forest")));
         }
-
+        #endregion
+        #region WG
         public static WoWUnit BestWildGrowthTarget
         {
             get
@@ -244,6 +216,7 @@ namespace AdvancedAI.Spec
         {
             return Unit.NearbyFriendlyPlayers.Where(u => u.IsAlive && u.InLineOfSpellSight && u.GetPredictedHealthPercent() <= 95).ToList();
         }
+        #endregion
 
         #region DruidTalents
         public enum DruidTalents
@@ -266,6 +239,19 @@ namespace AdvancedAI.Spec
             HeartoftheWild,//Tier 6
             DreamofCenarius,
             NaturesVigil
+        }
+        #endregion
+
+        #region NS target
+        public static WoWUnit NSTar
+        {
+            get
+            {
+                var tanks = Group.Tanks.OrderByDescending(u => u.HealthPercent).LastOrDefault();
+                if (tanks != null && tanks.IsAlive && tanks.IsValid && tanks.HealthPercent < 35 && tanks.Distance < 40)
+                    return tanks;
+                return null;
+            }
         }
         #endregion
     }
