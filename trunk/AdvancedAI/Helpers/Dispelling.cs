@@ -204,29 +204,29 @@ namespace AdvancedAI.Helpers
             switch ( StyxWoW.Me.Class)
             {
                 case WoWClass.Paladin:
-                    prio.AddChild( Spell.Cast( "Cleanse", on => _unitDispel));
+                    prio.AddChild( Spell.Cast( "Cleanse", on => _unitDispel, ret => Class.BossMechs.MechDispell()));
                     break;
 				case WoWClass.Monk:
-                    prio.AddChild( Spell.Cast( "Detox", on => _unitDispel));
+                    prio.AddChild(Spell.Cast("Detox", on => _unitDispel, ret => Class.BossMechs.MechDispell()));
                     break;
                 case WoWClass.Priest:
                     if ( StyxWoW.Me.Specialization == WoWSpec.PriestHoly || StyxWoW.Me.Specialization == WoWSpec.PriestDiscipline )
-                        prio.AddChild( Spell.Cast( "Purify", on => _unitDispel));
+                        prio.AddChild(Spell.Cast("Purify", on => _unitDispel, ret => Class.BossMechs.MechDispell()));
                     break;
                 case WoWClass.Druid:
                     if ( StyxWoW.Me.Specialization == WoWSpec.DruidRestoration )
-                        prio.AddChild( Spell.Cast( "Nature's Cure", on => _unitDispel));
-                    else 
-                        prio.AddChild( Spell.Cast( "Remove Corruption", on => _unitDispel));
+                        prio.AddChild(Spell.Cast("Nature's Cure", on => _unitDispel, ret => Class.BossMechs.MechDispell()));
+                    else
+                        prio.AddChild(Spell.Cast("Remove Corruption", on => _unitDispel, ret => Class.BossMechs.MechDispell()));
                     break;
                 case WoWClass.Shaman:
-                    if ( StyxWoW.Me.Specialization == WoWSpec.ShamanRestoration )
-                        prio.AddChild(Spell.Cast("Purify Spirit", on => _unitDispel, ret => !_unitDispel.HasAura("Reshape Life") || !_unitDispel.HasAura("Ionization")));
+                    if (StyxWoW.Me.Specialization == WoWSpec.ShamanRestoration)
+                        prio.AddChild(Spell.Cast("Purify Spirit", on => _unitDispel, ret => Class.BossMechs.MechDispell()));
                     else
-                        prio.AddChild(Spell.Cast("Cleanse Spirit", on => _unitDispel));
+                        prio.AddChild(Spell.Cast("Cleanse Spirit", on => _unitDispel, ret => Class.BossMechs.MechDispell()));
                     break;
                 case WoWClass.Mage:
-                    prio.AddChild(Spell.Cast("Remove Curse", on => _unitDispel));
+                    prio.AddChild(Spell.Cast("Remove Curse", on => _unitDispel, ret => Class.BossMechs.MechDispell()));
                     break;
             }
 
