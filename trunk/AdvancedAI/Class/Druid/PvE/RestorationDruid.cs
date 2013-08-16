@@ -57,9 +57,9 @@ namespace AdvancedAI.Spec
 
                     Spell.Cast("Lifebloom", 
                         on => LifebloomTank, 
-                        ret => LifebloomTank.GetAuraTimeLeft("Lifebloom").TotalSeconds >= 1.5 &&
-                               !LifebloomTank.HasMyAura("Lifebloom", 3) && 
-                               LifebloomTank.HealthPercent >= 10 ),
+                        ret => (LifebloomTank.GetAuraTimeLeft("Lifebloom").TotalSeconds >= 1.5 ||
+                               !LifebloomTank.HasMyAura("Lifebloom", 3)) && 
+                               LifebloomTank.HealthPercent >= 15 ),
 
                     Spell.Cast("Swiftmend", 
                         on => healtarget, 
