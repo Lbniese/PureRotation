@@ -56,17 +56,18 @@ namespace AdvancedAI.Spec
                     Spell.Cast("Lifebloom", 
                         mov => false, 
                         on => LifebloomTank, 
-                        ret => LifebloomTank.GetAuraTimeLeft("Lifebloom").TotalSeconds <= 1.5),
-                    Spell.Cast("Lifebloom", 
-                        mov => false, 
-                        on => healtarget,
-                        ret => healtarget.HasAura("Vengeance") && 
-                               (!LifebloomTank.InLineOfSight || 
-                               LifebloomTank.Distance > 40) && 
-                               LifebloomTank.HealthPercent >= 10 && 
-                               LifebloomTank.GetAuraTimeLeft("Lifebloom").TotalSeconds <= 1.5 && 
-                               (!Me.HasMyAura("Lifebloom", 3) || 
-                               Me.GetAuraTimeLeft("Lifebloom").TotalSeconds <= 1.5)),
+                        ret => LifebloomTank.GetAuraTimeLeft("Lifebloom").TotalSeconds <= 1.5 ||
+                        !healtarget.HasMyAura("Lifebloom", 3)),
+                    //Spell.Cast("Lifebloom", 
+                    //    mov => false, 
+                    //    on => healtarget,
+                    //    ret => healtarget.HasAura("Vengeance") && 
+                    //           (!LifebloomTank.InLineOfSight || 
+                    //           LifebloomTank.Distance > 40) && 
+                    //           LifebloomTank.HealthPercent >= 10 && 
+                    //           LifebloomTank.GetAuraTimeLeft("Lifebloom").TotalSeconds <= 1.5 && 
+                    //           (!Me.HasMyAura("Lifebloom", 3) || 
+                    //           Me.GetAuraTimeLeft("Lifebloom").TotalSeconds <= 1.5)),
                     //Spell.Cast("Lifebloom", 
                     //    mov => false, 
                     //    on => Me,
