@@ -196,13 +196,11 @@ namespace AdvancedAI.Spec
                                 Spell.Cast("Rejuvenation", 
                                     mov => false, 
                                     on => SwiftmendTarget, 
-                                    ret => !TalentManager.IsSelected((int)DruidTalents.SouloftheForest) && 
-                                           !SwiftmendTarget.HasAnyAura("Regrowth", "Rejuvenation")),
+                                    ret =>!SwiftmendTarget.HasAnyAura("Regrowth", "Rejuvenation")),
                                 Spell.Cast("Swiftmend", 
                                     mov => false, 
                                     on => SwiftmendTarget, 
-                                    ret => !TalentManager.IsSelected((int)DruidTalents.SouloftheForest) && 
-                                           SwiftmendTarget.HasAnyAura("Regrowth", "Rejuvenation")))),
+                                    ret => SwiftmendTarget.HasAnyAura("Regrowth", "Rejuvenation")))),
                      new PrioritySelector(context => BestWildGrowthTarget,
                          new Decorator(ret => SwiftmendTarget != null,
                              new PrioritySelector(
