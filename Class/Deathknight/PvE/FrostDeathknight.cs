@@ -81,7 +81,7 @@ namespace AdvancedAI.Spec
                             ret => Me.HasAura("Blood Charge", 10) &&
                             (Me.UnholyRuneCount == 0 || Me.DeathRuneCount == 0 || Me.FrostRuneCount == 0)),
 
-                    new Decorator(ret => Unit.NearbyUnfriendlyUnits.Count(u => u.DistanceSqr <= 10 * 10) >= 5,
+                    new Decorator(ret => Unit.NearbyUnfriendlyUnits.Count(u => u.DistanceSqr <= 10 * 10) >= 5 && AdvancedAI.Aoe,
                         CreateAoe()),
                    
                     //Cooldowns
@@ -111,12 +111,11 @@ namespace AdvancedAI.Spec
                             Spell.Cast("Soul Reaper", ret =>
                                     Me.CurrentTarget.HealthPercent <= 35 || Me.HasAura(138347) && Me.CurrentTarget.HealthPercent <= 45),
                             Spell.Cast("Howling Blast", ret =>
-                                    !Me.CurrentTarget.IsImmune(WoWSpellSchool.Frost) &&
                                     !Me.CurrentTarget.HasMyAura("Frost Fever")),
                             Spell.Cast("Plague Strike", ret =>
                                     !Me.CurrentTarget.HasAura("Blood Plague")),
                             Spell.Cast("Frost Strike", ret =>
-                                    !Me.CurrentTarget.IsImmune(WoWSpellSchool.Frost) && Me.HasAura("Killing Machine")),
+                                    Me.HasAura("Killing Machine")),
                             Spell.Cast("Howling Blast", ret =>
                                     Me.HasAura("Freezing Fog")),
                             Spell.Cast("Death Siphon", ret =>
@@ -142,10 +141,11 @@ namespace AdvancedAI.Spec
                     new Decorator(ctx => !IsDualWelding,
                         new PrioritySelector(
                             //Plague Leech is kinda hard to get to work with max dps rotations, have to have both Diseases up to make it work! 
-                            Spell.Cast("Plague Leech", ret =>
-                                    SpellManager.Spells["Outbreak"].CooldownTimeLeft.Seconds <= 1 && Me.CurrentTarget.HasAura("Blood Plague") && Me.CurrentTarget.HasAura("Frost Fever") ||
-                                    Me.HasAura("Freezing Fog") && StyxWoW.Me.CurrentTarget.GetAuraTimeLeft("Blood Plague", true).TotalSeconds <= 3 && Me.CurrentTarget.HasAura("Frost Fever") && Me.UnholyRuneCount >= 1 ||
-                                    Me.HasAura("Freezing Fog") && StyxWoW.Me.CurrentTarget.GetAuraTimeLeft("Blood Plague", true).TotalSeconds <= 3 && Me.CurrentTarget.HasAura("Frost Fever") && Me.DeathRuneCount >= 1),
+                            //Spell.Cast("Plague Leech", ret =>
+                            //        SpellManager.Spells["Outbreak"].CooldownTimeLeft.Seconds <= 1 && Me.CurrentTarget.HasAura("Blood Plague") && Me.CurrentTarget.HasAura("Frost Fever") ||
+                            //        Me.HasAura("Freezing Fog") && StyxWoW.Me.CurrentTarget.GetAuraTimeLeft("Blood Plague", true).TotalSeconds <= 3 && Me.CurrentTarget.HasAura("Frost Fever") && Me.UnholyRuneCount >= 1 ||
+                            //        Me.HasAura("Freezing Fog") && StyxWoW.Me.CurrentTarget.GetAuraTimeLeft("Blood Plague", true).TotalSeconds <= 3 && Me.CurrentTarget.HasAura("Frost Fever") && Me.DeathRuneCount >= 1),
+                            Spell.Cast("Plague Leech", ret => Me.CurrentTarget.GetAuraTimeLeft("Blood Plague", true).TotalSeconds < 1 && Me.CurrentTarget.HasAura("Frost Fever")),
                             Spell.Cast("Outbreak", ret =>
                                     Me.CurrentTarget.GetAuraTimeLeft("Blood Plague", true).TotalSeconds <= 3 ||
                                     Me.CurrentTarget.GetAuraTimeLeft("Frost Fever", true).TotalSeconds <= 3),
@@ -158,25 +158,29 @@ namespace AdvancedAI.Spec
                                     Me.HasAura("Blood Charge", 5)
                                     && (BloodRuneSlotsActive == 0 || FrostRuneSlotsActive == 0 || UnholyRuneSlotsActive == 0)),
                             Spell.Cast("Howling Blast", ret =>
-                                    !Me.CurrentTarget.IsImmune(WoWSpellSchool.Frost) &&
                                     !Me.CurrentTarget.HasMyAura("Frost Fever")),
                             Spell.Cast("Plague Strike", ret =>
                                     !Me.CurrentTarget.HasAura("Blood Plague")),
                             Spell.Cast("Howling Blast", ret =>
                                     Me.HasAura("Freezing Fog")),
                             Spell.Cast("Obliterate", ret =>
+                                    Me.HasAura("Killing Machine")),
+                            Spell.Cast("Frost Strike", ret =>
+                                    Me.RunicPowerPercent >= 76),
+                            Spell.Cast("Obliterate", ret =>
                                     Me.UnholyRuneCount >= 1 && Me.DeathRuneCount >= 1 ||
                                     Me.FrostRuneCount >= 1 && Me.DeathRuneCount >= 1 ||
                                     Me.UnholyRuneCount >= 1 && Me.FrostRuneCount >= 1),
-                            Spell.Cast("Obliterate", ret =>
-                                    Me.HasAura("Killing Machine")),
+                            Spell.Cast("Plague Leech", ret => Me.CurrentTarget.GetAuraTimeLeft("Blood Plague", true).TotalSeconds < 3 && Me.CurrentTarget.HasAura("Frost Fever")),
+
                             Spell.Cast("Frost Strike", ret =>
-                                    !Me.CurrentTarget.IsImmune(WoWSpellSchool.Frost) && !Me.HasAura("Killing Machine") && Me.UnholyRuneCount == 0 || Me.DeathRuneCount == 0 || Me.FrostRuneCount == 0),
+                                    !Me.HasAura("Killing Machine") && Me.UnholyRuneCount == 0 || Me.DeathRuneCount == 0 || Me.FrostRuneCount == 0),
                             Spell.Cast("Obliterate", ret =>
                                     Me.RunicPowerPercent <= 76),
                             Spell.Cast("Horn of Winter", ret =>
                                     Me.RunicPowerPercent <= 76),
                             Spell.Cast("Frost Strike"),
+                            Spell.Cast("Plague Leech", ret => Me.CurrentTarget.HasMyAura("Frost Fever") && Me.CurrentTarget.HasMyAura("Blood Plague")),
                             Spell.Cast("Empower Rune Weapon", ret =>
                                     AdvancedAI.Burst && Me.UnholyRuneCount == 0 && Me.DeathRuneCount == 0 && Me.FrostRuneCount == 0))));
             }
