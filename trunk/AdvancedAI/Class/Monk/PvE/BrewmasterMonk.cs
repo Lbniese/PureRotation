@@ -28,11 +28,9 @@ namespace AdvancedAI.Spec
                     new Throttle(1,
                         new Action(context => ResetVariables())),
                     /*Things to fix
-                     * energy capping - fixed (stole alex's code)
+                     * energy capping 
                      * need to check healing spheres 
-                     * need to work on chi wave to get more dmg/healing out it
-                     * chi capping? need to do more checking - fixed as far as i know
-                     * IsCurrentTank() code does not work
+                     * IsCurrentTank() code does not work (this would be nice to have working)
                     */
                     Spell.Cast("Spear Hand Strike", ret => StyxWoW.Me.CurrentTarget.IsCasting && StyxWoW.Me.CurrentTarget.CanInterruptCurrentSpellCast),
 
@@ -74,10 +72,7 @@ namespace AdvancedAI.Spec
                     Spell.Cast("Breath of Fire", ret => Me.CurrentChi >= 3 && Me.HasAura("Shuffle") && Me.GetAuraTimeLeft("Shuffle").TotalSeconds > 6.5 && Me.CurrentTarget.HasMyAura("Dizzying Haze")),
 
                     //Detox
-                    //Spell.Cast("Detox", on => DispelMe),
-                    //Dispelling.CreateDispelBehavior(),
                     CreateDispelBehavior(),
-                    //Spell.Cast("Detox", on => Me, ret => Dispelling.CanDispel(Me, DispelCapabilities.Disease) || Dispelling.CanDispel(Me, DispelCapabilities.Poison)),
 
                     Spell.Cast("Blackout Kick", ret => Me.CurrentChi >= 3),
 
@@ -109,7 +104,7 @@ namespace AdvancedAI.Spec
                     //Spell.Cast("Invoke Xuen, the White Tiger", ret => Me.CurrentTarget.IsBoss && IsCurrentTank()),
                     Spell.Cast("Tiger Palm", ret => Spell.GetSpellCooldown("Keg Smash").TotalSeconds >= 1 && Me.CurrentChi < 3 && Me.CurrentEnergy < 80),
                     new ActionAlwaysSucceed()
-                    //Spell.Cast("Tiger Palm", ret => Spell.GetSpellCooldown("Keg Smash").TotalSeconds >= 1 && Me.CurrentChi < 3 && Me.CurrentEnergy < 80)
+
                         );
             }
         }

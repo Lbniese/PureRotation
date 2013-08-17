@@ -163,6 +163,8 @@ namespace AdvancedAI.Spec
                                     !Me.CurrentTarget.HasMyAura("Blood Plague")),
                             Spell.Cast("Howling Blast", ret =>
                                     Me.HasAura("Freezing Fog")),
+                    new Decorator(ctx => Me.CurrentTarget.HasMyAura("Frost Fever") && Me.CurrentTarget.HasMyAura("Blood Plague"),
+                        new PrioritySelector(
                             Spell.Cast("Obliterate", ret =>
                                     Me.HasAura("Killing Machine")),
                             Spell.Cast("Frost Strike", ret =>
@@ -182,7 +184,9 @@ namespace AdvancedAI.Spec
                             Spell.Cast("Frost Strike"),
                             Spell.Cast("Plague Leech", ret => Me.CurrentTarget.HasMyAura("Frost Fever") && Me.CurrentTarget.HasMyAura("Blood Plague")),
                             Spell.Cast("Empower Rune Weapon", ret =>
-                                    AdvancedAI.Burst && Me.UnholyRuneCount == 0 && Me.DeathRuneCount == 0 && Me.FrostRuneCount == 0))));
+                                    AdvancedAI.Burst && Me.UnholyRuneCount == 0 && Me.DeathRuneCount == 0 && Me.FrostRuneCount == 0))
+                                    ))
+                                    ));
             }
         }
 
