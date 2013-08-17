@@ -160,7 +160,7 @@ namespace AdvancedAI.Spec
                             Spell.Cast("Howling Blast", ret =>
                                     !Me.CurrentTarget.HasMyAura("Frost Fever")),
                             Spell.Cast("Plague Strike", ret =>
-                                    !Me.CurrentTarget.HasAura("Blood Plague")),
+                                    !Me.CurrentTarget.HasMyAura("Blood Plague")),
                             Spell.Cast("Howling Blast", ret =>
                                     Me.HasAura("Freezing Fog")),
                             Spell.Cast("Obliterate", ret =>
@@ -171,7 +171,7 @@ namespace AdvancedAI.Spec
                                     Me.UnholyRuneCount >= 1 && Me.DeathRuneCount >= 1 ||
                                     Me.FrostRuneCount >= 1 && Me.DeathRuneCount >= 1 ||
                                     Me.UnholyRuneCount >= 1 && Me.FrostRuneCount >= 1),
-                            Spell.Cast("Plague Leech", ret => Me.CurrentTarget.GetAuraTimeLeft("Blood Plague", true).TotalSeconds < 3 && Me.CurrentTarget.HasAura("Frost Fever")),
+                            Spell.Cast("Plague Leech", ret => Me.CurrentTarget.GetAuraTimeLeft("Blood Plague", true).TotalSeconds < 3 && Me.CurrentTarget.HasMyAura("Frost Fever")),
 
                             Spell.Cast("Frost Strike", ret =>
                                     !Me.HasAura("Killing Machine") && Me.UnholyRuneCount == 0 || Me.DeathRuneCount == 0 || Me.FrostRuneCount == 0),
