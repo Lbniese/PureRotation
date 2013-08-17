@@ -99,9 +99,9 @@ namespace AdvancedAI.Spec
                         new PrioritySelector(
                             //Plague Leech is kinda hard to get to work with max dps rotations, have to have both Diseases up to make it work!   
                             Spell.Cast("Plague Leech", ret =>
-                                SpellManager.Spells["Outbreak"].CooldownTimeLeft.Seconds <= 1 && Me.CurrentTarget.HasAura("Blood Plague") ||
-                                    Me.CurrentTarget.GetAuraTimeLeft("Blood Plague", true).TotalSeconds <= 3 && Me.CurrentTarget.HasAura("Frost Fever") && Me.CurrentTarget.HasAura("Blood Plague") ||
-                                    Me.CurrentTarget.GetAuraTimeLeft("Frost Fever", true).TotalSeconds <= 3 && Me.CurrentTarget.HasAura("Blood Plague") && Me.CurrentTarget.HasAura("Frost Fever")),
+                                SpellManager.Spells["Outbreak"].CooldownTimeLeft.Seconds <= 1 && Me.CurrentTarget.HasMyAura("Blood Plague") ||
+                                    Me.CurrentTarget.GetAuraTimeLeft("Blood Plague", true).TotalSeconds <= 3 && Me.CurrentTarget.HasMyAura("Frost Fever") && Me.CurrentTarget.HasMyAura("Blood Plague") ||
+                                    Me.CurrentTarget.GetAuraTimeLeft("Frost Fever", true).TotalSeconds <= 3 && Me.CurrentTarget.HasMyAura("Blood Plague") && Me.CurrentTarget.HasMyAura("Frost Fever")),
                             Spell.Cast("Outbreak", ret =>
                                     Me.CurrentTarget.GetAuraTimeLeft("Blood Plague", true).TotalSeconds <= 3 ||
                                     Me.CurrentTarget.GetAuraTimeLeft("Frost Fever", true).TotalSeconds <= 3),
@@ -113,7 +113,7 @@ namespace AdvancedAI.Spec
                             Spell.Cast("Howling Blast", ret =>
                                     !Me.CurrentTarget.HasMyAura("Frost Fever")),
                             Spell.Cast("Plague Strike", ret =>
-                                    !Me.CurrentTarget.HasAura("Blood Plague")),
+                                    !Me.CurrentTarget.HasMyAura("Blood Plague")),
                             Spell.Cast("Frost Strike", ret =>
                                     Me.HasAura("Killing Machine")),
                             Spell.Cast("Howling Blast", ret =>
@@ -145,7 +145,7 @@ namespace AdvancedAI.Spec
                             //        SpellManager.Spells["Outbreak"].CooldownTimeLeft.Seconds <= 1 && Me.CurrentTarget.HasAura("Blood Plague") && Me.CurrentTarget.HasAura("Frost Fever") ||
                             //        Me.HasAura("Freezing Fog") && StyxWoW.Me.CurrentTarget.GetAuraTimeLeft("Blood Plague", true).TotalSeconds <= 3 && Me.CurrentTarget.HasAura("Frost Fever") && Me.UnholyRuneCount >= 1 ||
                             //        Me.HasAura("Freezing Fog") && StyxWoW.Me.CurrentTarget.GetAuraTimeLeft("Blood Plague", true).TotalSeconds <= 3 && Me.CurrentTarget.HasAura("Frost Fever") && Me.DeathRuneCount >= 1),
-                            Spell.Cast("Plague Leech", ret => Me.CurrentTarget.GetAuraTimeLeft("Blood Plague", true).TotalSeconds < 1 && Me.CurrentTarget.HasAura("Frost Fever")),
+                            Spell.Cast("Plague Leech", ret => Me.CurrentTarget.GetAuraTimeLeft("Blood Plague", true).TotalSeconds < 1 && Me.CurrentTarget.HasMyAura("Frost Fever")),
                             Spell.Cast("Outbreak", ret =>
                                     Me.CurrentTarget.GetAuraTimeLeft("Blood Plague", true).TotalSeconds <= 3 ||
                                     Me.CurrentTarget.GetAuraTimeLeft("Frost Fever", true).TotalSeconds <= 3),
