@@ -2,6 +2,7 @@
 using AdvancedAI;
 using CommonBehaviors.Actions;
 using Styx;
+using Styx.Common;
 using Styx.TreeSharp;
 using Styx.WoWInternals;
 using Styx.WoWInternals.WoWObjects;
@@ -51,7 +52,8 @@ namespace AdvancedAI.Spec
                         Movement.CreateFaceTargetBehavior(70f, false)),
                     CreateChargeBehavior(),
                     Spell.Cast("Rallying Cry", ret => Me.HealthPercent <= 30),
-                    CreateInterruptSpellCast(on => BestInterrupt),
+                    new Decorator(ret => BestInterrupt.IsCasting && BestInterrupt.CanInterruptCurrentSpellCast && Interuptdelay(),
+                        CreateInterruptSpellCast(on => BestInterrupt)),
                     Spell.Cast("Impending Victory", ret => Me.HealthPercent <= 90 && Me.HasAura("Victorious")),
                     ShatterBubbles(),
                     Spell.Cast("Piercing Howl", ret => !Me.CurrentTarget.IsStunned() && !Me.CurrentTarget.IsCrowdControlled() && !Me.CurrentTarget.HasAuraWithEffectsing(WoWApplyAuraType.ModDecreaseSpeed) && !Me.CurrentTarget.HasAnyAura("Piercing Howl", "Hamsting")),
@@ -171,12 +173,15 @@ namespace AdvancedAI.Spec
                                 where unit.IsPlayer
                                 where unit.IsHostile
                                 where unit.InLineOfSight
-                                where unit.IsCasting
-                                where unit.CanInterruptCurrentSpellCast
                                 where unit.Distance <= 10
                                 select unit).FirstOrDefault();
                 return bestInt;
             }
+        }
+
+        public static bool Interuptdelay()
+        {
+            return (Me.CurrentCastTimeLeft.TotalSeconds / Me.CurrentTarget.CastingSpell.CastTime) < MathEx.Random(10, 70);
         }
         #endregion
 

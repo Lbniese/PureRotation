@@ -1,10 +1,7 @@
-﻿using System.Drawing;
-using AdvancedAI.Managers;
+﻿using AdvancedAI.Managers;
 using CommonBehaviors.Actions;
 using Styx;
-using Styx.Common;
 using Styx.CommonBot;
-using Styx.Helpers;
 using Styx.TreeSharp;
 using Styx.WoWInternals;
 using Styx.WoWInternals.WoWObjects;
@@ -13,8 +10,6 @@ using AdvancedAI.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Action = Styx.TreeSharp.Action;
 
 namespace AdvancedAI.Spec
@@ -42,19 +37,25 @@ namespace AdvancedAI.Spec
                             new Decorator(ret => AdvancedAI.Dispell,
                                 Dispelling.CreateDispelBehavior()),
                             Item.UsePotionAndHealthstone(40),
-                            Spell.Cast("Earth Shield", on => GetBestEarthShieldTargetInstance(), ret => !GetBestEarthShieldTargetInstance().HasAura("Earth Shield")),
+                            new Throttle(1, 1,
+                                new PrioritySelector(
+                                    Spell.Cast("Earth Shield", 
+                                        on => GetBestEarthShieldTargetInstance(),
+                                        ret => !GetBestEarthShieldTargetInstance().HasAura("Earth Shield")))),
                             Spell.Cast("Spirit Link Totem", 
                                 on => healtarget,
                                 ret => HealerManager.Instance.TargetList.Count(p => p.GetPredictedHealthPercent() < 40 && p.Distance <= Totems.GetTotemRange(WoWTotem.SpiritLink)) >= 3 && AdvancedAI.Burst),
                             new Decorator(ret => healtarget.HealthPercent < 25,
                                 new Sequence(
                                     Spell.Cast("Ancestral Swiftness"),
-                                    Spell.Cast("Greater Healing Wave", on => healtarget))),
+                                    Spell.Cast("Greater Healing Wave", 
+                                        on => healtarget))),
                             Spell.Cast("Healing Tide Totem",
                                 ret => Me.Combat && HealerManager.Instance.TargetList.Count(p => p.GetPredictedHealthPercent() < 60 && p.Distance <= Totems.GetTotemRange(WoWTotem.HealingTide)) >= (Me.GroupInfo.IsInRaid ? 3 : 2) && AdvancedAI.Burst),
                             Spell.Cast("Healing Stream Totem",
-                                ret => Me.Combat && !Totems.Exist(WoWTotemType.Water) && HealerManager.Instance.TargetList.Any(p => p.GetPredictedHealthPercent() < 80 && p.Distance <= Totems.GetTotemRange(WoWTotem.HealingTide))),
-                            Spell.Cast("Mana Tide Totem", ret => !Totems.Exist(WoWTotemType.Water) && Me.ManaPercent < 80),
+                                ret => Me.Combat && !Totems.Exist(WoWTotemType.Water) && HealerManager.Instance.TargetList.Any(p => p.GetPredictedHealthPercent() < 95 && p.Distance <= Totems.GetTotemRange(WoWTotem.HealingTide))),
+                            Spell.Cast("Mana Tide Totem", 
+                                ret => !Totems.Exist(WoWTotemType.Water) && Me.ManaPercent < 80),
                             HealingRain(),
                             ChainHeal(),
                             Spell.Cast("Greater Healing Wave", 
@@ -76,8 +77,8 @@ namespace AdvancedAI.Spec
                                 Common.CreateInterruptBehavior()),
                             //Totems.CreateTotemsBehavior(),
                             Spell.Cast("Lightning Bolt",
-                                on => Me.CurrentTarget, 
-                                ret => TalentManager.HasGlyph("Telluric Currents") && Me.CurrentTarget.IsHostile, 
+                                on => BoltTar(), 
+                                ret => TalentManager.HasGlyph("Telluric Currents"), 
                                 cancel => healtarget.HealthPercent < 70))));
             }
         }
@@ -100,14 +101,12 @@ namespace AdvancedAI.Spec
         {
             WoWUnit target = null;
 
-            if (HealerManager.Instance.TargetList.Any(m => m.HasMyAura("Earth Shield")))
+            if (Unit.NearbyFriendlyPlayers.Any(m => m.HasMyAura("Earth Shield")))
                 return null;
 
-            if (IsValidEarthShieldTarget(RaFHelper.Leader))
-                target = RaFHelper.Leader;
-            else
+            if (Me.GroupInfo.IsInParty)
             {
-                target = Group.Tanks.FirstOrDefault(t => IsValidEarthShieldTarget(t));
+                target = Group.Tanks.FirstOrDefault(IsValidEarthShieldTarget);
                 if (Me.Combat && target == null)
                 {
                     target = HealerManager.Instance.TargetList.Where(u => u.Combat && IsValidEarthShieldTarget(u))
@@ -123,12 +122,8 @@ namespace AdvancedAI.Spec
         private enum Imbue
         {
             None = 0,
-
             Flametongue = 5,
-            Windfury = 283,
             Earthliving = 3345,
-            Frostbrand = 2,
-            Rockbiter = 3021
         }
 
         private static Decorator CreateShamanImbueMainHandBehavior(params Imbue[] imbueList)
@@ -224,7 +219,7 @@ namespace AdvancedAI.Spec
         public static bool IsImbuedForDPS(WoWItem item)
         {
             Imbue imb = GetImbue(item);
-            return imb == Imbue.Flametongue || imb == Imbue.Windfury;
+            return imb == Imbue.Flametongue;
         }
 
         public static bool IsImbuedForHealing(WoWItem item)
@@ -234,7 +229,7 @@ namespace AdvancedAI.Spec
 
         private static bool IsValidEarthShieldTarget(WoWUnit unit)
         {
-            if (unit == null || !unit.IsValid || !unit.IsAlive || !Unit.GroupMembers.Any(g => g.Guid == unit.Guid) || unit.Distance > 99)
+            if (unit == null || !unit.IsValid || !unit.IsAlive || Unit.GroupMembers.All(g => g.Guid != unit.Guid) || unit.Distance > 99)
                 return false;
 
             return unit.HasMyAura("Earth Shield") || !unit.HasAnyAura("Earth Shield", "Water Shield", "Lightning Shield");
@@ -418,12 +413,8 @@ namespace AdvancedAI.Spec
                 .Select(p => new
                 {
                     Player = p,
-                    Count = coveredRainTargets
-                        .Where(pp => pp.Location.DistanceSqr(p.Location) < 10 * 10)
-                        .Count(),
-                    Covered = coveredTargets
-                        .Where(pp => pp.Location.DistanceSqr(p.Location) < 10 * 10)
-                        .Count()
+                    Count = coveredRainTargets.Count(pp => pp.Location.DistanceSqr(p.Location) < 10 * 10),
+                    Covered = coveredTargets.Count(pp => pp.Location.DistanceSqr(p.Location) < 10 * 10)
                 })
                 .OrderByDescending(v => v.Count)
                 .ThenByDescending(v => v.Covered)
@@ -481,9 +472,14 @@ namespace AdvancedAI.Spec
 
         private static WoWUnit GetBestRiptideTankTarget()
         {
-            WoWUnit ripTarget = null;
-            ripTarget = Group.Tanks.Where(u => !u.HasAura("Reshape Life") && !u.HasAura("Parasitic Growth") && u.IsAlive && u.Combat && u.DistanceSqr < 40 * 40 && !u.HasMyAura("Riptide") && u.InLineOfSpellSight).OrderBy(u => u.HealthPercent).FirstOrDefault();
+            WoWUnit ripTarget = Group.Tanks.Where(u => !u.HasAura("Reshape Life") && !u.HasAura("Parasitic Growth") && u.IsAlive && u.Combat && u.DistanceSqr < 40 * 40 && !u.HasMyAura("Riptide") && u.InLineOfSpellSight).OrderBy(u => u.HealthPercent).FirstOrDefault();
             return ripTarget;
+        }
+
+        private static WoWUnit BoltTar()
+        {
+            var bolttarget = Unit.NearbyUnitsInCombatWithMe.FirstOrDefault(u => u.IsTargetingUs() && u.IsHostile && Me.IsSafelyFacing(u));
+            return bolttarget;
         }
 
         #region ShamanTalents
