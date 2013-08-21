@@ -69,6 +69,13 @@ namespace AdvancedAI.Helpers
 #endif
         }
 
+        public static bool Interuptdelay()
+        {
+            return Me.CurrentTarget.IsCasting && Me.CurrentTarget.CanInterruptCurrentSpellCast &&
+                   (Me.CurrentCastTimeLeft.TotalSeconds/Me.CurrentTarget.CastingSpell.CastTime) < MathEx.Random(10, 70);
+        }
+
+
         private static WoWUnit _unitInterrupt = null;
 
         /// <summary>Creates an interrupt spell cast composite. This attempts to use spells in order of range (shortest to longest).  
