@@ -52,8 +52,7 @@ namespace AdvancedAI.Spec
                         Movement.CreateFaceTargetBehavior(70f, false)),
                     CreateChargeBehavior(),
                     Spell.Cast("Rallying Cry", ret => Me.HealthPercent <= 30),
-                    new Decorator(ret => BestInterrupt.IsCasting && BestInterrupt.CanInterruptCurrentSpellCast && Interuptdelay(),
-                        CreateInterruptSpellCast(on => BestInterrupt)),
+                    CreateInterruptSpellCast(on => BestInterrupt),
                     Spell.Cast("Impending Victory", ret => Me.HealthPercent <= 90 && Me.HasAura("Victorious")),
                     ShatterBubbles(),
                     Spell.Cast("Piercing Howl", ret => !Me.CurrentTarget.IsStunned() && !Me.CurrentTarget.IsCrowdControlled() && !Me.CurrentTarget.HasAuraWithEffectsing(WoWApplyAuraType.ModDecreaseSpeed) && !Me.CurrentTarget.HasAnyAura("Piercing Howl", "Hamsting")),
@@ -174,14 +173,17 @@ namespace AdvancedAI.Spec
                                 where unit.IsHostile
                                 where unit.InLineOfSight
                                 where unit.Distance <= 10
+                                where unit.IsCasting
+                                where unit.CanInterruptCurrentSpellCast
+                                where Interuptdelay(unit)
                                 select unit).FirstOrDefault();
                 return bestInt;
             }
         }
 
-        public static bool Interuptdelay()
+        public static bool Interuptdelay(WoWUnit inttar)
         {
-            return (Me.CurrentCastTimeLeft.TotalSeconds / Me.CurrentTarget.CastingSpell.CastTime) < MathEx.Random(10, 70);
+            return (inttar.CurrentCastTimeLeft.TotalSeconds / inttar.CastingSpell.CastTime) < MathEx.Random(10, 70);
         }
         #endregion
 
