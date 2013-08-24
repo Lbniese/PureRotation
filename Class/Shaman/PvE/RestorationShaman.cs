@@ -1,4 +1,6 @@
-﻿using AdvancedAI.Managers;
+﻿using System.Globalization;
+using System.Windows.Forms;
+using AdvancedAI.Managers;
 using CommonBehaviors.Actions;
 using Styx;
 using Styx.Common;
@@ -12,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Action = Styx.TreeSharp.Action;
+
 
 namespace AdvancedAI.Spec
 {
@@ -61,15 +64,15 @@ namespace AdvancedAI.Spec
                             ChainHeal(),
                             Spell.Cast("Greater Healing Wave", 
                                 on => healtarget,
-                                ret => healtarget.HealthPercent < 55,
+                                ret => AvegreaterhealingWave() < Deficit(),//55
                                 cancel => healtarget.HealthPercent > cancelHeal),
                             Spell.Cast("Healing Wave", 
                                 on => healtarget,
-                                ret => healtarget.HealthPercent < 93,
+                                ret => AvehealingWave() < Deficit(),//93
                                 cancel => healtarget.HealthPercent > cancelHeal),
                             Spell.Cast("Healing Surge",
                                 on => healtarget,
-                                ret => healtarget.HealthPercent < 25,
+                                ret => AvehealingSurge() < Deficit(),//25
                                 cancel => healtarget.HealthPercent > cancelHeal),
                             Spell.Cast("Ascendance",
                                 ret => HealerManager.Instance.TargetList.Count(p => p.GetPredictedHealthPercent() < 50) >= 4 && !Me.HasAura("Ascendance") && AdvancedAI.Burst),
@@ -485,100 +488,66 @@ namespace AdvancedAI.Spec
 
         #region Spell math
 
-        private static float _spellPower = Me.SpellPowerModifierPercent;
-        private static float _haste = Me.HasteModifier;
+        //private static float _spellPower = Me.SpellPowerModifierPercent;
+        //private static float _haste = Me.HasteModifier;
         // && SpellManager.Spells["Healing Wave"].SpellEffect1.Amplitude > 10
 
-        public static float SpellPower(LocalPlayer me)
-        {
-            _secondaryStats.Refresh();
-            return _secondaryStats.SpellPower;
-        }
 
         //where Mastery Bonus = (-1 x % Mastery x Target HP) + % Mastery |||| 4.0
         //Mastery bonus on heal = (1 – (% HP of Target/100)) x Maximum Mastery contribution |||| 5.0
-        private double _masteryBonus = (1 - (healtarget.HealthPercent / 100)) * _secondaryStats.MasteryCR;
+        private double _masteryBonus = (1 - (healtarget.HealthPercent / 100)) * LuaCore._secondaryStats.MasteryCR;
 
         private double _averageHeal(string healname)
         {
             double heal = SpellManager.Spells[healname].SpellEffect1.Amplitude;
-            var average = _secondaryStats.Crit*(heal*_secondaryStats.MasteryCR*1.5*1.286) +
-                                      (_secondaryStats.Crit - 100)*(heal*_secondaryStats.MasteryCR);
+            var average = Me.CritChance()*(heal*LuaCore._secondaryStats.MasteryCR*1.5*1.286) +
+                                      (LuaCore._secondaryStats.Crit - 100)*(heal*LuaCore._secondaryStats.MasteryCR);
             return average;
+        }
+
+        private float _healingWave = 0; //drdamage holds the key
+        //ave base = 8345 [+ 75.6% of Spell power].
+        //8345 * (33314(sp) * .756(75.6%) = 33530
+        //33530 * 1.25(125%) = 41912 (wow tool tip number - ave hit)
+        //41912 * 2.00(200% crit) = 83825 (ave crit)
+        //(83825 * .14(crit chance)) + (41912 * .86(crit chance - 100)) = 47780 Average total
+
+        //In Code:
+        private static double AvehealingWave()
+        {
+            const int healingwaveBase = 8345;
+            var avehit = healingwaveBase * (LuaCore.SpellPower * .756) * 1.25;
+            var avecrit = avehit*2;
+            var avetotal = (avecrit * Me.CritPercent) + (avecrit * (Me.CritPercent - 100));
+            return avetotal;
+        }
+
+        private static double AvegreaterhealingWave()
+        {
+            const int greaterhealingwaveBase = 15181;
+            var avehit = greaterhealingwaveBase * (LuaCore.SpellPower * 1.377) * 1.25;
+            var avecrit = avehit * 2;
+            var avetotal = (avecrit * Me.CritPercent) + (avecrit * (Me.CritPercent - 100));
+            return avetotal;
+        }
+
+        private static double AvehealingSurge()
+        {
+            const int healingsurgeBase = 12519;
+            var avehit = healingsurgeBase * (LuaCore.SpellPower * 1.135) * 1.25;
+            var avecrit = avehit * 2;
+            var avetotal = (avecrit * Me.CritPercent) + (avecrit * (Me.CritPercent - 100));
+            return avetotal;
+        }
+
+        private static double Deficit()
+        {
+            return healtarget.MaxHealth - healtarget.CurrentHealth;
         }
 
         //private double _average = _secondaryStats.Crit*(heal*_secondaryStats.MasteryCR*1.5*1.286) +
         //                              (_secondaryStats.Crit - 100)*(heal*_secondaryStats.MasteryCR);
         //Average Heal = Probability of a Crit Heal x (Base Heal x Mastery Bonus x 1.5 x 1.286) + Probability of a Non-Crit Heal x (Base Heal x Mastery Bonus)
-
-
-        internal static SecondaryStats _secondaryStats;
-
-        internal class SecondaryStats
-        {
-            public float MeleeHit { get; set; }
-
-            public float SpellHit { get; set; }
-
-            public float Expertise { get; set; }
-
-            public float MeleeHaste { get; set; }
-
-            public float SpellHaste { get; set; }
-
-            public float SpellPen { get; set; }
-
-            public float Mastery { get; set; }
-
-            public float MasteryCR { get; set; }
-
-            public float Crit { get; set; }
-
-            public float Resilience { get; set; }
-
-            public float PvpPower { get; set; }
-
-            public float AttackPower { get; set; }
-
-            public float Power { get; set; }
-
-            public float Intellect { get; set; }
-
-            public float SpellPower { get; set; }
-
-            public SecondaryStats()
-            {
-                Refresh();
-            }
-
-            public void Refresh()
-            {
-                try
-                {
-                    MeleeHit = Styx.WoWInternals.Lua.GetReturnVal<float>("return GetCombatRating(CR_HIT_MELEE)", 0);
-                    SpellHit = Styx.WoWInternals.Lua.GetReturnVal<float>("return GetCombatRating(CR_HIT_SPELL)", 0);
-                    Expertise = StyxWoW.Me.Expertise;
-                    MeleeHaste = Styx.WoWInternals.Lua.GetReturnVal<float>("return GetCombatRating(CR_HASTE_MELEE)", 0);
-                    SpellHaste = Styx.WoWInternals.Lua.GetReturnVal<float>("return GetCombatRating(CR_HASTE_SPELL)", 0);
-                    SpellPen = Styx.WoWInternals.Lua.GetReturnVal<float>("return GetSpellPenetration()", 0);
-                    Mastery = StyxWoW.Me.Mastery;
-                    MasteryCR = Styx.WoWInternals.Lua.GetReturnVal<float>("return GetCombatRating(CR_MASTERY)", 0);
-                    Crit = StyxWoW.Me.CritPercent;
-                    Resilience = Styx.WoWInternals.Lua.GetReturnVal<float>("return GetCombatRating(COMBAT_RATING_RESILIENCE_CRIT_TAKEN)", 0);
-                    PvpPower = Styx.WoWInternals.Lua.GetReturnVal<float>("return GetCombatRating(CR_PVP_POWER)", 0);
-                    AttackPower = StyxWoW.Me.AttackPower;
-                    Power = Styx.WoWInternals.Lua.GetReturnVal<float>("return select(7,UnitDamage(\"player\"))", 0);
-                    Intellect = StyxWoW.Me.Intellect;
-                    SpellPower = Styx.WoWInternals.Lua.GetReturnVal<float>("return math.max(GetSpellBonusDamage(1),GetSpellBonusDamage(2),GetSpellBonusDamage(3),GetSpellBonusDamage(4),GetSpellBonusDamage(5),GetSpellBonusDamage(6),GetSpellBonusDamage(7))", 0);
-                }
-                catch
-                {
-                    Logging.Write(" Lua Failed in SecondaryStats");
-                }
-
-            }
-        }
-
         #endregion
 
         #region ShamanTalents

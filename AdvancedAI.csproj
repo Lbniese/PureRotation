@@ -117,6 +117,7 @@
     <Compile Include="Helpers\Item.cs" />
     <Compile Include="Helpers\KeyboardPolling.cs" />
     <Compile Include="Helpers\Kite.cs" />
+    <Compile Include="Helpers\LuaCore.cs" />
     <Compile Include="Helpers\Movement.cs" />
     <Compile Include="Helpers\Party.cs" />
     <Compile Include="Helpers\Pet.cs" />
