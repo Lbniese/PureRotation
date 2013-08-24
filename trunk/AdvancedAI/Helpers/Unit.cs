@@ -61,6 +61,18 @@ namespace AdvancedAI.Helpers
             return unit.GetAllAuras().Any(a => a.Spell.SpellEffects.Any(e => e.AuraType == WoWApplyAuraType.ModDecreaseSpeed));
         }
 
+        public static float SpellPower(this LocalPlayer me)
+        {
+            LuaCore._secondaryStats.Refresh();
+            return LuaCore._secondaryStats.SpellPower;
+        }
+
+        public static float CritChance(this LocalPlayer me)
+        {
+            LuaCore._secondaryStats.Refresh();
+            return LuaCore._secondaryStats.SpellPower;
+        }
+
         public static bool IsMelee(this WoWUnit unit)
         {
             if (unit.Class == WoWClass.DeathKnight

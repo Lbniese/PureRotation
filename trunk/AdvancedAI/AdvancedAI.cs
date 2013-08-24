@@ -42,6 +42,7 @@ namespace AdvancedAI
         {
             RegisterHotkeys();
             TalentManager.Update();
+            LuaCore.PopulateSecondryStats();
             UpdateContext();
             // NOTE: Hook these events AFTER the context update.
             OnWoWContextChanged += (orig, ne) =>
