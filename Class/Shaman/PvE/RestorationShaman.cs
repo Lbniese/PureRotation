@@ -29,11 +29,11 @@ namespace AdvancedAI.Spec
             {
                 HealerManager.NeedHealTargeting = true;
                 var cancelHeal = Math.Max(95, Math.Max(93, Math.Max(55, 25)));
-                return new PrioritySelector(ctx => HealerManager.Instance.TargetList.Any(t => t.IsAlive) && !Me.Mounted,
+                return new PrioritySelector(
                     Spell.WaitForCastOrChannel(),
                     new Decorator(ret => AdvancedAI.PvPRot,
                         RestorationShamanPvP.CreateRSPvPCombat),
-                    new Decorator(ret => Me.Combat || healtarget.Combat || healtarget.GetPredictedHealthPercent() <= 99,
+                    new Decorator(ret => (Me.Combat || healtarget.Combat || healtarget.GetPredictedHealthPercent() <= 99) && !Me.Mounted,
                         new PrioritySelector(
                             //Totems.CreateTotemsBehavior(),
                             RollRiptide(),
@@ -495,7 +495,33 @@ namespace AdvancedAI.Spec
 
         //where Mastery Bonus = (-1 x % Mastery x Target HP) + % Mastery |||| 4.0
         //Mastery bonus on heal = (1 – (% HP of Target/100)) x Maximum Mastery contribution |||| 5.0
-        private double _masteryBonus = (1 - (healtarget.HealthPercent / 100)) * LuaCore._secondaryStats.MasteryCR;
+        private static readonly double MasteryBonus = (1 - (healtarget.HealthPercent / 100)) * TotalMastery();
+        //At lvl90 it works as following 600 Mastery = 1 point of Mastery = 3% of the effect of mastery (for detailed information refer to #10 , with my thanks to Bink )
+        //% Healing Increase = (-1 x Max Deep Healing % x HP of target) + (Max Deep Healing %)
+
+        //Our base Mastery percentage with 0 Mastery rating in our gear for MoP is 39%. The reason behind this is 
+        //that every lvl90 Resto Shaman has a base mastery of 24% and for MoP we get another 15% ( 3000mastery rating 
+        //through our passive Grace of Air raid buff) added to that, bringing us to a total of 39% of Mastery.
+
+        //8680 with gear
+        //8680 - 3000(base) = 5680 mastery from gear
+        //3000/.15 = 5680/x
+        //852 = 3000(x)
+        //x = .284(28.4%)
+        //28.4 + 24 + 15 == 67.4 (total mastery)
+
+        //mastery - 3000 = mastery from gear
+        //mastery from gear * .15 = var1
+        //var1/3000 = Mastery percent from gear
+        //mastery from gear + base 90 mastery + grace of air mastery  = total mastery %
+        private static double TotalMastery()
+        {
+            var masteryfromgear = LuaCore.Mastery - 3000;
+            var var1 = masteryfromgear*.15;
+            var masterypctfromgear = var1/3000;
+            return masterypctfromgear + 24 + 15;
+        }
+
 
         private double _averageHeal(string healname)
         {
@@ -519,6 +545,7 @@ namespace AdvancedAI.Spec
             var avehit = healingwaveBase * (LuaCore.SpellPower * .756) * 1.25;
             var avecrit = avehit*2;
             var avetotal = (avecrit * Me.CritPercent) + (avecrit * (Me.CritPercent - 100));
+            var avetotalwithmastery = (avetotal * MasteryBonus) + avetotal;
             return avetotal;
         }
 
@@ -528,6 +555,7 @@ namespace AdvancedAI.Spec
             var avehit = greaterhealingwaveBase * (LuaCore.SpellPower * 1.377) * 1.25;
             var avecrit = avehit * 2;
             var avetotal = (avecrit * Me.CritPercent) + (avecrit * (Me.CritPercent - 100));
+            var avetotalwithmastery = (avetotal * MasteryBonus) + avetotal;
             return avetotal;
         }
 
@@ -537,6 +565,7 @@ namespace AdvancedAI.Spec
             var avehit = healingsurgeBase * (LuaCore.SpellPower * 1.135) * 1.25;
             var avecrit = avehit * 2;
             var avetotal = (avecrit * Me.CritPercent) + (avecrit * (Me.CritPercent - 100));
+            var avetotalwithmastery = (avetotal*MasteryBonus) + avetotal;
             return avetotal;
         }
 

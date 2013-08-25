@@ -375,6 +375,25 @@ namespace AdvancedAI.Helpers
             }
         }
 
+        public static double Mastery
+        {
+            get
+            {
+                try
+                {
+                    using (StyxWoW.Memory.AcquireFrame())
+                    {
+                        return Lua.GetReturnVal<float>("return GetCombatRating(CR_MASTERY)", 0);
+                    }
+                }
+                catch
+                {
+                    Logging.Write("Lua Failed in Mastery");
+                    return 0;
+                }
+            }
+        }
+
         public static int RuneType(uint IdNumber)
         {
             {

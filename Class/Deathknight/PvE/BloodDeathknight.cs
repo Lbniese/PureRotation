@@ -29,8 +29,9 @@ namespace AdvancedAI.Spec
                     CreateApplyDiseases(),
                     CreateBDKBuffs,
                     new Action(ret => { Item.UseHands(); return RunStatus.Failure; }),
-                    new Decorator(ret => AdvancedAI.BossMechs && DeadlyBossMods.Bars.Count(u => DeadlyBossMods.FindBarByPartialId("Evil Spell").Id == u.Id) > 0 && DeadlyBossMods.FindBarByPartialId("Evil Spell").TimeLeft.TotalSeconds < 10, // DeadlyBossMods.FindBarByPartialId("Triple Puncture CD").TimeLeft.TotalSeconds < 3,
-                        Spell.Cast("Strangulate")),
+                    //new Decorator(ret => DeadlyBossMods.FindBarByPartialId("Evil Spell").,
+                    //    new Decorator(ret => DeadlyBossMods.FindBarByPartialId("Evil Spell").TimeLeft.TotalSeconds < 10, // DeadlyBossMods.FindBarByPartialId("Triple Puncture CD").TimeLeft.TotalSeconds < 3,
+                    //        Spell.Cast("Strangulate"))),
                     new Throttle(1, 2,
                         new PrioritySelector(
                             Spell.Cast("Blood Boil",
