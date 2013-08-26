@@ -42,7 +42,7 @@ namespace AdvancedAI.Spec
                                 Spell.Cast("Execution Sentence", ret => Me.CurrentTarget.IsBoss),
                                 Spell.Cast("Holy Prism"),
                                 Spell.CastOnGround("Light's Hammer", on => Me.CurrentTarget.Location, ret => Me.CurrentTarget.IsBoss),
-                                Spell.Cast("Divine Storm", ret => Unit.NearbyUnfriendlyUnits.Count(u => u.DistanceSqr <= 8 * 8) >= 2 && Me.HasAura("Inquisition") && (Me.CurrentHolyPower == 5 || Me.HasAura("Divine Purpose"))),
+                                Spell.Cast("Divine Storm", ret => Clusters.GetClusterCount(Me, Unit.NearbyUnfriendlyUnits, ClusterType.Radius, 8f) >= 2 && (Me.CurrentHolyPower == 5 || Me.HasAura("Divine Purpose"))),
                                 Spell.Cast("Templar's Verdict", ret => Me.CurrentHolyPower == 5 || Me.HasAura("Divine Purpose")))),
                         Spell.Cast("Hammer of Wrath", ret => Me.CurrentHolyPower <= 4),
                         Spell.Cast("Exorcism", ret => Me.CurrentHolyPower <= 4),
