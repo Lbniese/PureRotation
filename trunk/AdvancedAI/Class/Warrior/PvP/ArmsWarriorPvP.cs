@@ -52,7 +52,9 @@ namespace AdvancedAI.Spec
                         Movement.CreateFaceTargetBehavior(70f, false)),
                     CreateChargeBehavior(),
                     Spell.Cast("Rallying Cry", ret => Me.HealthPercent <= 30),
-                    CreateInterruptSpellCast(on => BestInterrupt),
+                    new Throttle(
+                        new PrioritySelector(
+                            CreateInterruptSpellCast(on => BestInterrupt))),
                     Spell.Cast("Impending Victory", ret => Me.HealthPercent <= 90 && Me.HasAura("Victorious")),
                     ShatterBubbles(),
                     Spell.Cast("Piercing Howl", ret => !Me.CurrentTarget.IsStunned() && !Me.CurrentTarget.IsCrowdControlled() && !Me.CurrentTarget.HasAuraWithEffectsing(WoWApplyAuraType.ModDecreaseSpeed) && !Me.CurrentTarget.HasAnyAura("Piercing Howl", "Hamsting")),
@@ -170,7 +172,7 @@ namespace AdvancedAI.Spec
                 var bestInt = (from unit in ObjectManager.GetObjectsOfType<WoWPlayer>(false)
                                 where unit.IsAlive
                                 where unit.IsPlayer
-                                where unit.IsHostile
+                                where !unit.IsInMyPartyOrRaid
                                 where unit.InLineOfSight
                                 where unit.Distance <= 10
                                 where unit.IsCasting

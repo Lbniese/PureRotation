@@ -1177,13 +1177,9 @@ namespace AdvancedAI.Helpers
                     new Action(ret =>
                     {
                         origSpot = new WoWPoint(Me.Location.X, Me.Location.Y, Me.Location.Z);
-                        if (dir == Direction.Frontwards)
-                            needFacing = Styx.Helpers.WoWMathHelper.CalculateNeededFacing(Me.Location, safeSpot);
-                        else
-                            needFacing = Styx.Helpers.WoWMathHelper.CalculateNeededFacing(safeSpot, Me.Location);
-
+                        needFacing = dir == Direction.Frontwards ? WoWMathHelper.CalculateNeededFacing(Me.Location, safeSpot) : WoWMathHelper.CalculateNeededFacing(safeSpot, Me.Location);
                         needFacing = WoWMathHelper.NormalizeRadian(needFacing);
-                        float rotation = WoWMathHelper.NormalizeRadian(Math.Abs(needFacing - Me.RenderFacing));
+                        var rotation = WoWMathHelper.NormalizeRadian(Math.Abs(needFacing - Me.RenderFacing));
                         Logging.WriteDiagnostic("DIS: turning {0:F0} degrees {1} safe landing spot",
                             WoWMathHelper.RadiansToDegrees(rotation), dir == Direction.Frontwards ? "towards" : "away from");
                         //Logger.WriteDebug(Color.Cyan, "DIS: turning {0:F0} degrees {1} safe landing spot",
@@ -1264,7 +1260,7 @@ namespace AdvancedAI.Helpers
 
             if (!Me.IsInInstance || !Me.CurrentMap.IsBattleground)
             {
-                List<WoWUnit> attackers = SafeArea.AllEnemyMobsAttackingMe.ToList();
+                var attackers = SafeArea.AllEnemyMobsAttackingMe.ToList();
                 if ((attackers.Sum(a => a.MaxHealth) / 3) < Me.MaxHealth && Me.HealthPercent > 40)
                 {
                     return false;
@@ -1290,8 +1286,7 @@ namespace AdvancedAI.Helpers
             if (mobToGetAwayFrom.Distance > mobToGetAwayFrom.MeleeDistance() + 3f)
                 return false;
 
-            SafeArea sa = new SafeArea();
-            sa.MinScanDistance = distance;    // average distance on flat ground
+            var sa = new SafeArea {MinScanDistance = distance};
             sa.MaxScanDistance = sa.MinScanDistance;
             sa.RaysToCheck = 36;
             sa.LineOfSightMob = Target;
