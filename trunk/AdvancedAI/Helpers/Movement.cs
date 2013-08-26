@@ -295,7 +295,7 @@ namespace AdvancedAI.Helpers
             }
             else
             {
-                float preferredDistance = Spell.MeleeDistance(unit) - 1f;
+                var preferredDistance = unit.MeleeDistance() - 1f;
                 if (unit.Distance <= preferredDistance)
                     return true;
             }

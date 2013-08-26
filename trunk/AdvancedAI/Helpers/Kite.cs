@@ -83,8 +83,8 @@ namespace AdvancedAI.Helpers
                                     new Sequence(
                                         new Action(ret => Logging.WriteDiagnostic("BP: entering SlowAttack behavior")),
                                             //Logger.WriteDebug(Color.Cyan, "BP: entering SlowAttack behavior")),
-                                        slowAttack ?? new Action(r => { return RunStatus.Failure; }),
-                                        new Action(r => { return RunStatus.Failure; })
+                                        slowAttack ?? new Action(r => RunStatus.Failure),
+                                        new Action(r => RunStatus.Failure)
                                         ),
                                     new Action(ret =>
                                     {
@@ -409,8 +409,8 @@ namespace AdvancedAI.Helpers
                                 new PrioritySelector(
                                     new Sequence(
                                         new ActionDebugString("JT: entering Attack behavior"),
-                                        jumpturnAttack ?? new Action( r => { return RunStatus.Failure; } ),
-                                        new Action( r => { return RunStatus.Failure; } )
+                                        jumpturnAttack ?? new Action( r => RunStatus.Failure),
+                                        new Action( r => RunStatus.Failure)
                                         ),
                                     new Action(ret =>
                                     {
@@ -853,7 +853,7 @@ namespace AdvancedAI.Helpers
             if (!u.IsPlayer)
                 return u.IsHostile || u.Aggro || u.PetAggro;
 
-            WoWPlayer p = u.ToPlayer();
+            var p = u.ToPlayer();
 /* // not supported currently
             if (Battlegrounds.IsInsideBattleground)
                 return p.BattlefieldArenaFaction != Me.BattlefieldArenaFaction;
@@ -934,16 +934,16 @@ namespace AdvancedAI.Helpers
             WoWPoint ptAdjOrigin = ptOrigin;
             // ptAdjOrigin.Z += 1f;   // comment out origin adjustment since using GetTraceLinePos()
 
-            WoWPoint ptDestination = new WoWPoint();
-            List<WoWPoint> mobLocations = new List<WoWPoint>();
-            float arcIncrement = ((float)Math.PI * 2) / RaysToCheck;
+            var ptDestination = new WoWPoint();
+            var mobLocations = new List<WoWPoint>();
+            var arcIncrement = ((float)Math.PI * 2) / RaysToCheck;
             
             mobLocations = AllEnemyMobLocationsToCheck;
             double minSafeDistSqr = MinSafeDistance * MinSafeDistance;
 
-            float baseDestinationFacing = MobToRunFrom == null ?
+            var baseDestinationFacing = MobToRunFrom == null ?
                                             Me.RenderFacing + (float)Math.PI
-                                            : Styx.Helpers.WoWMathHelper.CalculateNeededFacing(MobToRunFrom.Location, Me.Location);
+                                            : WoWMathHelper.CalculateNeededFacing(MobToRunFrom.Location, Me.Location);
 
             // Logger.WriteDebug( Color.Cyan, "SafeArea: search near {0:F0}d @ {1:F1} yds for mob free area", RadiansToDegrees(baseDestinationFacing), MinSafeDistance);
 
@@ -1123,7 +1123,7 @@ namespace AdvancedAI.Helpers
     {
         public static bool IsDirectlyFacing(this WoWUnit u, float radians)
         {
-            float diff = Math.Abs(u.RenderFacing - radians);
+            var diff = Math.Abs(u.RenderFacing - radians);
             if (diff > Math.PI)
                 diff = (float)(2 * Math.PI) - diff;
             return diff < SafeArea.ONE_DEGREE_AS_RADIAN;
