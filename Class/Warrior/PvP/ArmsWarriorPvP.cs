@@ -185,7 +185,9 @@ namespace AdvancedAI.Spec
 
         public static bool Interuptdelay(WoWUnit inttar)
         {
-            return (inttar.CurrentCastTimeLeft.TotalSeconds / inttar.CastingSpell.CastTime) < MathEx.Random(.1, .5);
+            var starttime = inttar.CurrentCastStartTime.Second;
+            var endtime = inttar.CurrentCastEndTime.Second;
+            return (endtime - starttime) / inttar.CurrentCastTimeLeft.TotalSeconds < .5;
         }
         #endregion
 
