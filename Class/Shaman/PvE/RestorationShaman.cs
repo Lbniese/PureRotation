@@ -528,14 +528,14 @@ namespace AdvancedAI.Spec
         //41912 * 2.00(200% crit) = 83825 (ave crit)
         //(83825 * .14(crit chance)) + (41912 * .86(crit chance - 100)) = 47780 Average total
 
-        //In Code:
+        //In Code: (Mastery was not nesisary)
         private static double AvehealingWave()
         {
             const int healingwaveBase = 8345;
             var avehit = healingwaveBase * (LuaCore.SpellPower * .756) * 1.25;
             var avecrit = avehit*2;
             var avetotal = (avecrit * Me.CritPercent) + (avecrit * (Me.CritPercent - 100));
-            var avetotalwithmastery = (avetotal * MasteryBonus) + avetotal;
+            //var avetotalwithmastery = (avetotal * MasteryBonus) + avetotal;
             return avetotal;
         }
 
@@ -545,7 +545,7 @@ namespace AdvancedAI.Spec
             var avehit = greaterhealingwaveBase * (LuaCore.SpellPower * 1.377) * 1.25;
             var avecrit = avehit * 2;
             var avetotal = (avecrit * Me.CritPercent) + (avecrit * (Me.CritPercent - 100));
-            var avetotalwithmastery = (avetotal * MasteryBonus) + avetotal;
+            //var avetotalwithmastery = (avetotal * MasteryBonus) + avetotal;
             return avetotal;
         }
 
@@ -555,7 +555,7 @@ namespace AdvancedAI.Spec
             var avehit = healingsurgeBase * (LuaCore.SpellPower * 1.135) * 1.25;
             var avecrit = avehit * 2;
             var avetotal = (avecrit * Me.CritPercent) + (avecrit * (Me.CritPercent - 100));
-            var avetotalwithmastery = (avetotal*MasteryBonus) + avetotal;
+            //var avetotalwithmastery = (avetotal*MasteryBonus) + avetotal;
             return avetotal;
         }
 
