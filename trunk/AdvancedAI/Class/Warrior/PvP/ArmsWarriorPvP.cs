@@ -177,7 +177,7 @@ namespace AdvancedAI.Spec
                                 where unit.Distance <= 10
                                 where unit.IsCasting
                                 where unit.CanInterruptCurrentSpellCast
-                                where Interuptdelay(unit)
+                                where unit.CurrentCastTimeLeft.TotalSeconds < .6
                                 select unit).FirstOrDefault();
                 return bestInt;
             }
