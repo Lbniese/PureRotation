@@ -222,7 +222,7 @@ namespace AdvancedAI.Spec
 
         public static bool IsImbuedForDPS(WoWItem item)
         {
-            var imb = GetImbue(item);
+            Imbue imb = GetImbue(item);
             return imb == Imbue.Flametongue;
         }
 
@@ -274,7 +274,7 @@ namespace AdvancedAI.Spec
             return new PrioritySelector(
                 Spell.Cast("Riptide", on =>
                 {
-                    var unit = GetBestRiptideTankTarget();
+                    WoWUnit unit = GetBestRiptideTankTarget();
                     _doNotHeal = new[] { "Reshape Life", "Parasitic Growth", "Cyclone", "Dominate Mind", "Agressive Behavior", "Beast of Nightmares", "Corrupted Healing" };
                     if (unit != null && Spell.CanCastHack("Riptide", unit, skipWowCheck: true) && !unit.HasAnyAura(_doNotHeal))
                     {
@@ -291,7 +291,7 @@ namespace AdvancedAI.Spec
                 new PrioritySelector(
                     Spell.Cast("Riptide", on =>
                     {
-                        var unit = GetBestRiptideTarget();
+                        WoWUnit unit = GetBestRiptideTarget();
                         return unit;
                     }, ret => !GetBestRiptideTarget().HasMyAura("Riptide"))));
         }
@@ -304,19 +304,27 @@ namespace AdvancedAI.Spec
                 const int GHW = 77472;
                 const int HS = 8004;
 
+                if (Me.Level < 50 || Me.Specialization != WoWSpec.ShamanRestoration)
+                    return false;
+
                 // WoWAura tw = Me.GetAuraByName("Tidal Waves");
-                var stacks = Me.GetAuraStacks("Tidal Waves");
+                uint stacks = Me.GetAuraStacks("Tidal Waves");
 
                 // 2 stacks means we don't have an issue
                 if (stacks >= 2)
                 {
-                    return false;
+                    return false;//
                 }
 
                 // 1 stack? special case and a spell that will consume it is in progress or our audit count shows its gone
-                var castId = Me.CastingSpellId;
-                var castname = Me.CastingSpell == null ? "(none)" : Me.CastingSpell.Name;
-                return stacks != 1 || castId == HW || castId == GHW || castId == HS;
+                int castId = Me.CastingSpellId;
+                string castname = Me.CastingSpell == null ? "(none)" : Me.CastingSpell.Name;
+                if (stacks == 1 && castId != HW && castId != GHW && castId != HS)
+                {
+                    return false;
+                }
+
+                return true;
             }
         }
 
@@ -324,7 +332,8 @@ namespace AdvancedAI.Spec
         {
             return new Decorator(ret =>
                     {
-                        var rollCount = HealerManager.Instance.TargetList.Count(u => u.IsAlive && u.HasMyAura("Riptide"));
+                        int rollCount = HealerManager.Instance.TargetList.Count(u => u.IsAlive && u.HasMyAura("Riptide"));
+                        // Logger.WriteDebug("GetBestRiptideTarget:  currently {0} group members have my Riptide", rollCount);
                         return rollCount < 2;
                     },
                 new PrioritySelector(
@@ -334,14 +343,14 @@ namespace AdvancedAI.Spec
                             if (GetBestRiptideTankTarget() != null)
                                 return null;
                             // get the best target from all wowunits in our group
-                            var unit = GetBestRiptideTarget();
+                            WoWUnit unit = GetBestRiptideTarget();
                             return unit;
                         }, ret => !GetBestRiptideTarget().HasMyAura("Riptide"))));
         }
 
         private static WoWUnit GetBestRiptideTarget()
         {
-            var ripTarget = Clusters.GetBestUnitForCluster(ChainHealPlayers, ClusterType.Chained, ChainHealHopRange);
+            WoWUnit ripTarget = Clusters.GetBestUnitForCluster(ChainHealPlayers, ClusterType.Chained, ChainHealHopRange);
             return ripTarget;
         }
 
@@ -363,8 +372,8 @@ namespace AdvancedAI.Spec
                 .DefaultIfEmpty(null)
                 .FirstOrDefault();
 
-            var target = targetInfo == null ? null : targetInfo.Unit;
-            var count = targetInfo == null ? 0 : targetInfo.Count;
+            WoWUnit target = targetInfo == null ? null : targetInfo.Unit;
+            int count = targetInfo == null ? 0 : targetInfo.Count;
 
             // too few hops? then search any group member
             if (count < 3)
@@ -395,10 +404,10 @@ namespace AdvancedAI.Spec
             // note: expensive, but worth it to optimize placement of Healing Rain by
             // finding location with most heals, but if tied one with most living targets also
             // build temp list of targets that could use heal and are in range + radius
-            var coveredTargets = HealerManager.Instance.TargetList
+            List<WoWUnit> coveredTargets = HealerManager.Instance.TargetList
                 .Where(u => u.IsAlive && u.DistanceSqr < 50 * 50)
                 .ToList();
-            var coveredRainTargets = coveredTargets
+            List<WoWUnit> coveredRainTargets = coveredTargets
                 .Where(u => u.HealthPercent < 95)
                 .ToList();
 
@@ -447,9 +456,10 @@ namespace AdvancedAI.Spec
         {
             get
             {
+                // TODO: Decide if we want to do this differently to ensure we take into account the T12 4pc bonus. (Not removing RT when using CH)
                 return HealerManager.Instance.TargetList
                     .Where(u => u.IsAlive && u.DistanceSqr < 40 * 40 && u.GetPredictedHealthPercent() < 90)
-                    .Select(u => u);
+                    .Select(u => (WoWUnit)u);
             }
         }
 
@@ -457,9 +467,10 @@ namespace AdvancedAI.Spec
         {
             get
             {
+                // TODO: Decide if we want to do this differently to ensure we take into account the T12 4pc bonus. (Not removing RT when using CH)
                 return HealerManager.Instance.TargetList
                     .Where(u => u.IsAlive && u.DistanceSqr < 40 * 40 && u.GetPredictedHealthPercent() < 90 && u.HasMyAura("Riptide"))
-                    .Select(u => u);
+                    .Select(u => (WoWUnit)u);
             }
         }
 
@@ -508,8 +519,7 @@ namespace AdvancedAI.Spec
             var masteryfromgear = LuaCore.Mastery - 3000;
             var var1 = masteryfromgear*.15;
             var masterypctfromgear = var1/3000;
-            return (masterypctfromgear + 24 + 15)/100;
-            
+            return masterypctfromgear + 24 + 15;
         }
 
 
@@ -521,21 +531,21 @@ namespace AdvancedAI.Spec
             return average;
         }
 
-        //private float _healingWave = 0; //drdamage holds the key
+        private float _healingWave = 0; //drdamage holds the key
         //ave base = 8345 [+ 75.6% of Spell power].
         //8345 * (33314(sp) * .756(75.6%) = 33530
         //33530 * 1.25(125%) = 41912 (wow tool tip number - ave hit)
         //41912 * 2.00(200% crit) = 83825 (ave crit)
         //(83825 * .14(crit chance)) + (41912 * .86(crit chance - 100)) = 47780 Average total
 
-        //In Code: (Mastery was not nesisary)
+        //In Code:
         private static double AvehealingWave()
         {
             const int healingwaveBase = 8345;
             var avehit = healingwaveBase * (LuaCore.SpellPower * .756) * 1.25;
             var avecrit = avehit*2;
             var avetotal = (avecrit * Me.CritPercent) + (avecrit * (Me.CritPercent - 100));
-            //var avetotalwithmastery = (avetotal * MasteryBonus) + avetotal;
+            var avetotalwithmastery = (avetotal * MasteryBonus) + avetotal;
             return avetotal;
         }
 
@@ -545,7 +555,7 @@ namespace AdvancedAI.Spec
             var avehit = greaterhealingwaveBase * (LuaCore.SpellPower * 1.377) * 1.25;
             var avecrit = avehit * 2;
             var avetotal = (avecrit * Me.CritPercent) + (avecrit * (Me.CritPercent - 100));
-            //var avetotalwithmastery = (avetotal * MasteryBonus) + avetotal;
+            var avetotalwithmastery = (avetotal * MasteryBonus) + avetotal;
             return avetotal;
         }
 
@@ -555,7 +565,7 @@ namespace AdvancedAI.Spec
             var avehit = healingsurgeBase * (LuaCore.SpellPower * 1.135) * 1.25;
             var avecrit = avehit * 2;
             var avetotal = (avecrit * Me.CritPercent) + (avecrit * (Me.CritPercent - 100));
-            //var avetotalwithmastery = (avetotal*MasteryBonus) + avetotal;
+            var avetotalwithmastery = (avetotal*MasteryBonus) + avetotal;
             return avetotal;
         }
 
