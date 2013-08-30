@@ -495,7 +495,7 @@ namespace AdvancedAI.Spec
 
         //where Mastery Bonus = (-1 x % Mastery x Target HP) + % Mastery |||| 4.0
         //Mastery bonus on heal = (1 – (% HP of Target/100)) x Maximum Mastery contribution |||| 5.0
-        private static readonly double MasteryBonus = (1 - (healtarget.HealthPercent / 100)) * TotalMastery();
+        //private static readonly double MasteryBonus = (1 - (healtarget.HealthPercent / 100)) * TotalMastery();
         //At lvl90 it works as following 600 Mastery = 1 point of Mastery = 3% of the effect of mastery (for detailed information refer to #10 , with my thanks to Bink )
         //% Healing Increase = (-1 x Max Deep Healing % x HP of target) + (Max Deep Healing %)
 
@@ -514,13 +514,13 @@ namespace AdvancedAI.Spec
         //mastery from gear * .15 = var1
         //var1/3000 = Mastery percent from gear
         //mastery from gear + base 90 mastery + grace of air mastery  = total mastery %
-        private static double TotalMastery()
-        {
-            var masteryfromgear = LuaCore.Mastery - 3000;
-            var var1 = masteryfromgear*.15;
-            var masterypctfromgear = var1/3000;
-            return masterypctfromgear + 24 + 15;
-        }
+        //private static double TotalMastery()
+        //{
+        //    var masteryfromgear = LuaCore.Mastery - 3000;
+        //    var var1 = masteryfromgear*.15;
+        //    var masterypctfromgear = var1/3000;
+        //    return masterypctfromgear + 24 + 15;
+        //}
 
 
         private double _averageHeal(string healname)
@@ -545,7 +545,7 @@ namespace AdvancedAI.Spec
             var avehit = healingwaveBase * (LuaCore.SpellPower * .756) * 1.25;
             var avecrit = avehit*2;
             var avetotal = (avecrit * Me.CritPercent) + (avecrit * (Me.CritPercent - 100));
-            var avetotalwithmastery = (avetotal * MasteryBonus) + avetotal;
+            //var avetotalwithmastery = (avetotal * MasteryBonus) + avetotal;
             return avetotal;
         }
 
@@ -555,7 +555,7 @@ namespace AdvancedAI.Spec
             var avehit = greaterhealingwaveBase * (LuaCore.SpellPower * 1.377) * 1.25;
             var avecrit = avehit * 2;
             var avetotal = (avecrit * Me.CritPercent) + (avecrit * (Me.CritPercent - 100));
-            var avetotalwithmastery = (avetotal * MasteryBonus) + avetotal;
+            //var avetotalwithmastery = (avetotal * MasteryBonus) + avetotal;
             return avetotal;
         }
 
@@ -565,7 +565,7 @@ namespace AdvancedAI.Spec
             var avehit = healingsurgeBase * (LuaCore.SpellPower * 1.135) * 1.25;
             var avecrit = avehit * 2;
             var avetotal = (avecrit * Me.CritPercent) + (avecrit * (Me.CritPercent - 100));
-            var avetotalwithmastery = (avetotal*MasteryBonus) + avetotal;
+            //var avetotalwithmastery = (avetotal*MasteryBonus) + avetotal;
             return avetotal;
         }
 
