@@ -539,23 +539,24 @@ namespace AdvancedAI.Helpers
         /// <returns></returns>
         public static TimeSpan GetAuraTimeLeft(this WoWUnit onUnit, string auraName, bool fromMyAura = true)
         {
-            var wantedAura =
-                onUnit.GetAllAuras().FirstOrDefault(a => a != null && a.Name == auraName && a.TimeLeft > TimeSpan.Zero && (!fromMyAura || a.CreatorGuid == StyxWoW.Me.Guid));
+            WoWAura wantedAura =
+                onUnit.GetAllAuras().Where(a => a != null && a.Name == auraName && a.TimeLeft > TimeSpan.Zero && (!fromMyAura || a.CreatorGuid == StyxWoW.Me.Guid)).FirstOrDefault();
 
             return wantedAura != null ? wantedAura.TimeLeft : TimeSpan.Zero;
         }
 
         public static TimeSpan GetAuraTimeLeft(this WoWUnit onUnit, int auraID, bool fromMyAura = true)
         {
-            var wantedAura =onUnit.GetAllAuras().FirstOrDefault(a => a.SpellId == auraID && a.TimeLeft > TimeSpan.Zero && (!fromMyAura || a.CreatorGuid == StyxWoW.Me.Guid));
+            WoWAura wantedAura =onUnit.GetAllAuras()
+                .Where(a => a.SpellId == auraID && a.TimeLeft > TimeSpan.Zero && (!fromMyAura || a.CreatorGuid == StyxWoW.Me.Guid)).FirstOrDefault();
 
             return wantedAura != null ? wantedAura.TimeLeft : TimeSpan.Zero;
         }
 
         public static uint GetAuraStacks(this WoWUnit onUnit, string auraName, bool fromMyAura = true)
         {
-            var wantedAura =
-                onUnit.GetAllAuras().FirstOrDefault(a => a.Name == auraName && a.TimeLeft > TimeSpan.Zero && (!fromMyAura || a.CreatorGuid == StyxWoW.Me.Guid));
+            WoWAura wantedAura =
+                onUnit.GetAllAuras().Where(a => a.Name == auraName && a.TimeLeft > TimeSpan.Zero && (!fromMyAura || a.CreatorGuid == StyxWoW.Me.Guid)).FirstOrDefault();
 
             if (wantedAura == null)
                 return 0;
@@ -565,7 +566,7 @@ namespace AdvancedAI.Helpers
 
         public static void CancelAura(this WoWUnit unit, string aura)
         {
-            var a = unit.GetAuraByName( aura );
+            WoWAura a = unit.GetAuraByName( aura );
             if (a != null && a.Cancellable )
                 a.TryCancelAura();
         }
@@ -585,6 +586,28 @@ namespace AdvancedAI.Helpers
 
         public static bool IsCrowdControlled(this WoWUnit unit)
         {
+            Dictionary<string, WoWAura>.ValueCollection auras = unit.Auras.Values;
+
+#if AURAS_HAVE_MECHANICS
+            return auras.Any(
+                a => a.Spell.Mechanic == WoWSpellMechanic.Banished ||
+                     a.Spell.Mechanic == WoWSpellMechanic.Charmed ||
+                     a.Spell.Mechanic == WoWSpellMechanic.Horrified ||
+                     a.Spell.Mechanic == WoWSpellMechanic.Incapacitated ||
+                     a.Spell.Mechanic == WoWSpellMechanic.Polymorphed ||
+                     a.Spell.Mechanic == WoWSpellMechanic.Sapped ||
+                     a.Spell.Mechanic == WoWSpellMechanic.Shackled ||
+                     a.Spell.Mechanic == WoWSpellMechanic.Asleep ||
+                     a.Spell.Mechanic == WoWSpellMechanic.Frozen ||
+                     a.Spell.Mechanic == WoWSpellMechanic.Invulnerable ||
+                     a.Spell.Mechanic == WoWSpellMechanic.Invulnerable2 ||
+                     a.Spell.Mechanic == WoWSpellMechanic.Turned ||
+
+                     // Really want to ignore hexed mobs.
+                     a.Spell.Name == "Hex"
+
+                     );
+#else
             return unit.Stunned 
                 || unit.Rooted 
                 || unit.Fleeing 
@@ -598,6 +621,7 @@ namespace AdvancedAI.Helpers
                         WoWApplyAuraType.ModPossess, 
                         WoWApplyAuraType.ModRoot, 
                         WoWApplyAuraType.ModStun );
+#endif
         }
 
         // this one optimized for single applytype lookup
@@ -628,7 +652,7 @@ namespace AdvancedAI.Helpers
         /// <returns>true: if boss</returns>
         public static bool IsBoss(this WoWUnit unit)
         {
-            var guid = unit == null ? 0 : unit.Guid;
+            ulong guid = unit == null ? 0 : unit.Guid;
             if ( guid == _lastIsBossGuid )
                 return _lastIsBossResult;
 
@@ -639,7 +663,10 @@ namespace AdvancedAI.Helpers
 
         public static bool IsTrainingDummy(this WoWUnit unit)
         {
-            return unit.IsMechanical && Lists.BossList.TrainingDummies.Contains(unit.Entry);
+            if (!unit.IsMechanical)
+                return false;
+
+            return Lists.BossList.TrainingDummies.Contains(unit.Entry);
         }
 
         /// <summary>
@@ -651,7 +678,7 @@ namespace AdvancedAI.Helpers
         {
             return u.IsTargetingMeOrPet
                 || u.IsTargetingAnyMinion
-                || GroupMemberInfos.Any(m => m.Guid == u.CurrentTargetGuid);
+                || Unit.GroupMemberInfos.Any(m => m.Guid == u.CurrentTargetGuid);
 
         }
 
@@ -663,7 +690,10 @@ namespace AdvancedAI.Helpers
             if (!u.Combat && !u.IsPlayer && u.IsNeutral)
                 return true;
 
-            return !(u.SpellDistance() > range) && u.IsCrowdControlled();
+            if (u.SpellDistance() > range)
+                return false;
+
+            return u.IsCrowdControlled();
         }
 
         public static bool IsShredBoss(this WoWUnit unit)
@@ -737,9 +767,9 @@ namespace AdvancedAI.Helpers
         }
 
         /// <summary>A temporary fix until the next build of HB.</summary>
-        static IEnumerable<SpellEffect> GetSpellEffects(this WoWSpell spell)
+        static SpellEffect[] GetSpellEffects(this WoWSpell spell)
         {
-            var effects = new SpellEffect[3];
+            SpellEffect[] effects = new SpellEffect[3];
             effects[0] = spell.GetSpellEffect(0);
             effects[1] = spell.GetSpellEffect(1);
             effects[2] = spell.GetSpellEffect(2);
@@ -758,7 +788,7 @@ namespace AdvancedAI.Helpers
             const int PredictedHealsArray = 0x1378;
 
             Debug.Assert(unit != null);
-            var health = unit.CurrentHealth;
+            uint health = unit.CurrentHealth;
             var incomingHealsCnt = StyxWoW.Memory.Read<int>(unit.BaseAddress + PredictedHealsCount);
             if (incomingHealsCnt == 0)
                 return health;
@@ -780,12 +810,12 @@ namespace AdvancedAI.Helpers
         {
             public ulong OwnerGuid;
             public int spellId;
-            private readonly int _dword_C;
+            private int _dword_C;
             public uint HealAmount;
-            private readonly byte _isHealOverTime; // includes chaneled spells.
-            private readonly byte _byte_15; // unknown value
-            private readonly byte _byte_16; // unused
-            private readonly byte _byte_17; // unused
+            private byte _isHealOverTime; // includes chaneled spells.
+            private byte _byte_15; // unknown value
+            private byte _byte_16; // unused
+            private byte _byte_17; // unused
 
             public bool IsHealOverTime { get { return _isHealOverTime == 1; } }
         }
@@ -871,8 +901,8 @@ namespace AdvancedAI.Helpers
             }
             _currentLife = target.CurrentHealth;
             _currentTime = ConvDate2Timestam(DateTime.Now);
-            var timeDiff = _currentTime - _firstTime;
-            var hpDiff = _firstLife - _currentLife;
+            int timeDiff = _currentTime - _firstTime;
+            uint hpDiff = _firstLife - _currentLife;
             if (hpDiff > 0)
             {
                 /*
@@ -884,12 +914,12 @@ namespace AdvancedAI.Helpers
                 * 
                 * For those that forgot, http://mathforum.org/library/drmath/view/60822.html
                 */
-                var fullTime = timeDiff * _firstLifeMax / hpDiff;
-                var pastFirstTime = (_firstLifeMax - _firstLife) * timeDiff / hpDiff;
-                var calcTime = _firstTime - pastFirstTime + fullTime - _currentTime;
+                long fullTime = timeDiff * _firstLifeMax / hpDiff;
+                long pastFirstTime = (_firstLifeMax - _firstLife) * timeDiff / hpDiff;
+                long calcTime = _firstTime - pastFirstTime + fullTime - _currentTime;
                 if (calcTime < 1) calcTime = 1;
                 //calc_time is a int value for time to die (seconds) so there's no need to do SecondsToTime(calc_time)
-                var timeToDie = calcTime;
+                long timeToDie = calcTime;
                 //Logging.Write("TimeToDeath: {0} (GUID: {1}, Entry: {2}) dies in {3}, you are dpsing with {4} dps", target.SafeName(), target.Guid, target.Entry, timeToDie, dps);
                 return timeToDie;
             }
@@ -904,8 +934,13 @@ namespace AdvancedAI.Helpers
                 //Logging.Write("TimeToDeath: {0} (GUID: {1}, Entry: {2}) was healed, resetting data.", target.SafeName(), target.Guid, target.Entry);
                 return indeterminateValue;
             }
-            return indeterminateValue;
+            if (_currentLife == _firstLifeMax)
+            {
+                //Logging.Write("TimeToDeath: {0} (GUID: {1}, Entry: {2}) is at full health.", target.SafeName(), target.Guid, target.Entry);
+                return indeterminateValue;
+            }
             //Logging.Write("TimeToDeath: {0} (GUID: {1}, Entry: {2}) no damage done, nothing to calculate.", target.SafeName(), target.Guid, target.Entry);
+            return indeterminateValue;
         }
 
 
