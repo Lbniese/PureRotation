@@ -28,7 +28,8 @@ namespace AdvancedAI.Spec
             get
             {
                 HealerManager.NeedHealTargeting = true;
-                var cancelHeal = Math.Max(95, Math.Max(93, Math.Max(55, 25)));
+                //var cancelHeal = Math.Max(95, Math.Max(AvehealingWave(), Math.Max(AvegreaterhealingWave(), AvehealingSurge())));//95,93,55,25
+                var cancelHeal = Math.Max(95, Math.Max(93, Math.Max(55, 25)));//95,93,55,25
                 return new PrioritySelector(
                     Spell.WaitForCastOrChannel(),
                     new Decorator(ret => AdvancedAI.PvPRot,
@@ -64,15 +65,18 @@ namespace AdvancedAI.Spec
                             ChainHeal(),
                             Spell.Cast("Greater Healing Wave", 
                                 on => healtarget,
-                                ret => AvegreaterhealingWave() < Deficit(),//55
+                                //ret => AvegreaterhealingWave() < Deficit(),//55
+                                ret => healtarget.HealthPercent < 55,
                                 cancel => healtarget.HealthPercent > cancelHeal),
                             Spell.Cast("Healing Wave", 
                                 on => healtarget,
-                                ret => AvehealingWave() < Deficit(),//93
+                                //ret => AvehealingWave() < Deficit(),//93
+                                ret => healtarget.HealthPercent < 93,
                                 cancel => healtarget.HealthPercent > cancelHeal),
                             Spell.Cast("Healing Surge",
                                 on => healtarget,
-                                ret => AvehealingSurge() < Deficit(),//25
+                                //ret => AvehealingSurge() < Deficit(),//25
+                                ret => healtarget.HealthPercent < 25,
                                 cancel => healtarget.HealthPercent > cancelHeal),
                             Spell.Cast("Ascendance",
                                 ret => HealerManager.Instance.TargetList.Count(p => p.GetPredictedHealthPercent() < 50) >= 4 && !Me.HasAura("Ascendance") && AdvancedAI.Burst),
