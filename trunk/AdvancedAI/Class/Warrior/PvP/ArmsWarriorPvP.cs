@@ -43,6 +43,7 @@ namespace AdvancedAI.Spec
                                                     // Hunter
                                                     "Deterrence" };
         #endregion
+        public static DateTime LastInterrupt;
 
         public static Composite CreateAWPvPCombat
         {
@@ -56,6 +57,7 @@ namespace AdvancedAI.Spec
                     new Throttle(1,1,
                         new PrioritySelector(
                             CreateInterruptSpellCast(on => BestInterrupt))),
+                    Item.UsePotionAndHealthstone(40),
                     Spell.Cast("Victory Rush", ret => Me.HealthPercent <= 90 && Me.HasAura("Victorious")),
                     ShatterBubbles(),
                     Spell.Cast("Piercing Howl", ret => !Me.CurrentTarget.IsStunned() && !Me.CurrentTarget.IsCrowdControlled() && !Me.CurrentTarget.HasAuraWithEffectsing(WoWApplyAuraType.ModDecreaseSpeed) && !Me.CurrentTarget.HasAnyAura("Piercing Howl", "Hamsting")),
@@ -165,7 +167,7 @@ namespace AdvancedAI.Spec
             }
         }
         #endregion
-
+        
         #region BestInterrupt
         public static WoWUnit BestInterrupt
         {
@@ -179,6 +181,11 @@ namespace AdvancedAI.Spec
                                 where unit.Distance <= 10
                                 where unit.IsCasting
                                 where unit.CanInterruptCurrentSpellCast
+                               where
+                                      unit.CurrentCastTimeLeft.TotalMilliseconds <
+                                      1000 + MyLatency &&
+                                      InterruptCastNoChannel(unit) > MyLatency ||
+                                      InterruptCastChannel(unit) > MyLatency
                                 //where unit.CurrentCastTimeLeft.TotalSeconds < .6
                                 select unit).FirstOrDefault();
                 return bestInt;
@@ -392,6 +399,154 @@ namespace AdvancedAI.Spec
                         return;
                     }));
         }
+
+        #region InterruptCastNoChannel
+
+        private static double InterruptCastNoChannel(WoWUnit target)
+        {
+            if (target == null || !target.IsPlayer)
+            {
+                return 0;
+            }
+            double timeLeft = 0;
+
+            if (target.IsCasting && (target.CastingSpell.Name == "Arcane Blast" ||
+                                     target.CastingSpell.Name == "Banish" ||
+                                     target.CastingSpell.Name == "Binding Heal" ||
+                                     target.CastingSpell.Name == "Cyclone" ||
+                                     target.CastingSpell.Name == "Chain Heal" ||
+                                     target.CastingSpell.Name == "Chain Lightning" ||
+                                     target.CastingSpell.Name == "Chi Burst" ||
+                                     target.CastingSpell.Name == "Chaos Bolt" ||
+                                     target.CastingSpell.Name == "Demonic Circle: Summon" ||
+                                     target.CastingSpell.Name == "Denounce" ||
+                                     target.CastingSpell.Name == "Divine Light" ||
+                                     target.CastingSpell.Name == "Divine Plea" ||
+                                     target.CastingSpell.Name == "Dominated Mind" ||
+                                     target.CastingSpell.Name == "Elemental Blast" ||
+                                     target.CastingSpell.Name == "Entangling Roots" ||
+                                     target.CastingSpell.Name == "Enveloping Mist" ||
+                                     target.CastingSpell.Name == "Fear" ||
+                                     target.CastingSpell.Name == "Fireball" ||
+                                     target.CastingSpell.Name == "Flash Heal" ||
+                                     target.CastingSpell.Name == "Flash of Light" ||
+                                     target.CastingSpell.Name == "Frost Bomb" ||
+                                     target.CastingSpell.Name == "Frostjaw" ||
+                                     target.CastingSpell.Name == "Frostbolt" ||
+                                     target.CastingSpell.Name == "Frostfire Bolt" ||
+                                     target.CastingSpell.Name == "Greater Heal" ||
+                                     target.CastingSpell.Name == "Greater Healing Wave" ||
+                                     target.CastingSpell.Name == "Haunt" ||
+                                     target.CastingSpell.Name == "Heal" ||
+                                     target.CastingSpell.Name == "Healing Surge" ||
+                                     target.CastingSpell.Name == "Healing Touch" ||
+                                     target.CastingSpell.Name == "Healing Wave" ||
+                                     target.CastingSpell.Name == "Hex" ||
+                                     target.CastingSpell.Name == "Holy Fire" ||
+                                     target.CastingSpell.Name == "Holy Light" ||
+                                     target.CastingSpell.Name == "Holy Radiance" ||
+                                     target.CastingSpell.Name == "Hibernate" ||
+                                     target.CastingSpell.Name == "Mass Dispel" ||
+                                     target.CastingSpell.Name == "Mind Spike" ||
+                                     target.CastingSpell.Name == "Immolate" ||
+                                     target.CastingSpell.Name == "Incinerate" ||
+                                     target.CastingSpell.Name == "Lava Burst" ||
+                                     target.CastingSpell.Name == "Mind Blast" ||
+                                     target.CastingSpell.Name == "Mind Spike" ||
+                                     target.CastingSpell.Name == "Nourish" ||
+                                     target.CastingSpell.Name == "Polymorph" ||
+                                     target.CastingSpell.Name == "Prayer of Healing" ||
+                                     target.CastingSpell.Name == "Pyroblast" ||
+                                     target.CastingSpell.Name == "Rebirth" ||
+                                     target.CastingSpell.Name == "Regrowth" ||
+                                     target.CastingSpell.Name == "Repentance" ||
+                                     target.CastingSpell.Name == "Scorch" ||
+                                     target.CastingSpell.Name == "Shadow Bolt" ||
+                                     target.CastingSpell.Name == "Shackle Undead" ||
+                                     target.CastingSpell.Name == "Smite" ||
+                                     target.CastingSpell.Name == "Soul Fire" ||
+                                     target.CastingSpell.Name == "Starfire" ||
+                                     target.CastingSpell.Name == "Starsurge" ||
+                                     target.CastingSpell.Name == "Surging Mist" ||
+                                     target.CastingSpell.Name == "Transcendence" ||
+                                     target.CastingSpell.Name == "Transcendence: Transfer" ||
+                                     target.CastingSpell.Name == "Unstable Affliction" ||
+                                     target.CastingSpell.Name == "Vampiric Touch" ||
+                                     target.CastingSpell.Name == "Wrath"))
+            {
+                timeLeft = target.CurrentCastTimeLeft.TotalMilliseconds;
+            }
+            return timeLeft;
+        }
+
+        #endregion
+
+        #region InterruptCastChannel
+
+        private static double InterruptCastChannel(WoWUnit target)
+        {
+            if (target == null || !target.IsPlayer)
+            {
+                return 0;
+            }
+            double timeLeft = 0;
+
+            if (target.IsChanneling && (target.ChanneledSpell.Name == "Hymn of Hope" ||
+                                        target.ChanneledSpell.Name == "Arcane Barrage" ||
+                                        target.ChanneledSpell.Name == "Evocation" ||
+                                        target.ChanneledSpell.Name == "Mana Tea" ||
+                                        target.ChanneledSpell.Name == "Crackling Jade Lightning" ||
+                                        target.ChanneledSpell.Name == "Malefic Grasp" ||
+                                        target.ChanneledSpell.Name == "Hellfire" ||
+                                        target.ChanneledSpell.Name == "Harvest Life" ||
+                                        target.ChanneledSpell.Name == "Health Funnel" ||
+                                        target.ChanneledSpell.Name == "Drain Soul" ||
+                                        target.ChanneledSpell.Name == "Arcane Missiles" ||
+                                        target.ChanneledSpell.Name == "Mind Flay" ||
+                                        target.ChanneledSpell.Name == "Penance" ||
+                                        target.ChanneledSpell.Name == "Soothing Mist" ||
+                                        target.ChanneledSpell.Name == "Tranquility" ||
+                                        target.ChanneledSpell.Name == "Drain Life"))
+            {
+                timeLeft = target.CurrentChannelTimeLeft.TotalMilliseconds;
+            }
+
+            return timeLeft;
+        }
+
+        #endregion
+
+        #region UpdateMyLatency
+
+        public static readonly double MyLatency = 300;
+
+        public static void UpdateMyLatency()
+        {
+            //if (THSettings.Instance.LagTolerance)
+            //{
+            //    //If SLagTolerance enabled, start casting next spell MyLatency Millisecond before GlobalCooldown ready.
+
+            //    MyLatency = (StyxWoW.WoWClient.Latency);
+            //    //MyLatency = 0;
+            //    //Use here because Lag Tolerance cap at 400
+            //    //Logging.Write("----------------------------------");
+            //    //Logging.Write("MyLatency: " + MyLatency);
+            //    //Logging.Write("----------------------------------");
+
+            //    if (MyLatency > 400)
+            //    {
+            //        //Lag Tolerance cap at 400
+            //        MyLatency = 400;
+            //    }
+            //}
+            //else
+            //{
+            //    //MyLatency = 400;
+            //    MyLatency = 0;
+            //}
+        }
+
+        #endregion
 
         #region ValidUnit
         public static bool ValidUnit(WoWUnit p)
