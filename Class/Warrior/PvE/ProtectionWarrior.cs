@@ -76,7 +76,7 @@ namespace AdvancedAI.Spec
                     Spell.Cast("Dragon Roar", ret =>  Me.CurrentTarget.Distance <= 8),
                     Spell.Cast("Execute"),
                     Spell.Cast("Thunder Clap", ret => Me.CurrentTarget.HasAura("Weakened Blows")),
-                    Spell.Cast("Comwmanding Shout", ret => Me.HasPartyBuff(PartyBuffType.AttackPower)),
+                    Spell.Cast("Commanding Shout", ret => Me.HasPartyBuff(PartyBuffType.AttackPower)),
                     Spell.Cast("Battle Shout"),
                     Spell.Cast("Heroic Strike", ret => Me.CurrentRage > 85 || Me.HasAura(122510) || Me.HasAura(122016) || (!IsCurrentTank() && Me.CurrentRage > 60 && Me.CurrentTarget.IsBoss)),
                     Spell.Cast("Heroic Throw"),
