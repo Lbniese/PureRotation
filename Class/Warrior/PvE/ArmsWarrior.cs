@@ -33,8 +33,10 @@ namespace AdvancedAI.Spec
                         new Decorator(ret => Me.HasAura("Dire Fixation"),
                             new PrioritySelector(
                                 Class.BossMechs.HorridonHeroic()))),
-                    Common.CreateInterruptBehavior(),
-                    Spell.Cast("Impending Victory", ret => Me.HealthPercent <= 90 && Me.HasAura("Victorious")),
+                    new Throttle(1,1,
+                        Common.CreateInterruptBehavior()),
+                    //Spell.Cast("Impending Victory", ret => Me.HealthPercent <= 90 && Me.HasAura("Victorious")),
+                    Spell.Cast("Victory Rush", ret => Me.HealthPercent <= 90 && Me.HasAura("Victorious")),
                     Spell.Cast("Die by the Sword", ret => Me.HealthPercent <= 20),
                     Item.UsePotionAndHealthstone(50),
                     new Throttle(
@@ -44,8 +46,9 @@ namespace AdvancedAI.Spec
                         new PrioritySelector(
                         Spell.Cast("Recklessness", ret => Me.CurrentTarget.IsBoss && Me.CurrentTarget.HasAura("Colossus Smash")),
                         Spell.Cast("Bloodbath"),
-                        Spell.Cast("Skull Banner", ret => Me.CurrentTarget.IsBoss && Me.CurrentTarget.HasAura("Colossus Smash")),
-                        new Action(ret => { Item.UseHands(); return RunStatus.Failure; }))),
+                        Spell.Cast("Avatar", ret => Me.CurrentTarget.IsBoss && Me.CurrentTarget.HasAura("Colossus Smash")),
+                        Spell.Cast("Skull Banner", ret => Me.CurrentTarget.IsBoss && Me.CurrentTarget.HasAura("Colossus Smash")))),
+                    new Action(ret => { Item.UseHands(); return RunStatus.Failure; }),
                     //new Action(ret => { Item.UseTrinkets(); return RunStatus.Failure; }),
                     Spell.Cast("Berserker Rage", ret => !Me.ActiveAuras.ContainsKey("Enrage")),
                     Spell.Cast("Sweeping Strikes", ret => Unit.NearbyUnfriendlyUnits.Count(u => u.IsWithinMeleeRange) >= 2),
@@ -75,6 +78,7 @@ namespace AdvancedAI.Spec
                     new PrioritySelector(
                         Spell.Cast("Recklessness", ret => Me.CurrentTarget.IsBoss && Me.CurrentTarget.HasAura("Colossus Smash")),
                         Spell.Cast("Bloodbath"),
+                        Spell.Cast("Avatar", ret => Me.CurrentTarget.IsBoss && Me.CurrentTarget.HasAura("Colossus Smash")),
                         Spell.Cast("Skull Banner", ret => Me.CurrentTarget.IsBoss && Me.CurrentTarget.HasAura("Colossus Smash")),
                         new Action(ret => { Item.UseHands(); return RunStatus.Failure; }))),
                 Spell.Cast("Berserker Rage", ret => !Me.ActiveAuras.ContainsKey("Enrage")),
