@@ -51,31 +51,48 @@ namespace AdvancedAI.Spec
             {
                 return new PrioritySelector(
                     new Decorator(ret => AdvancedAI.Movement,
-                        Movement.CreateFaceTargetBehavior(70f, false)),
+                                  Movement.CreateFaceTargetBehavior(70f, false)),
                     CreateChargeBehavior(),
                     Spell.Cast("Rallying Cry", ret => Me.HealthPercent <= 30),
-                    new Throttle(1,1,
-                        new PrioritySelector(
-                            CreateInterruptSpellCast(on => BestInterrupt))),
+                    new Throttle(1, 1,
+                        new Sequence(
+                            CreateInterruptSpellCast(on => Interrupting.GetSpellcastingUnit))),
                     Item.UsePotionAndHealthstone(40),
                     Spell.Cast("Victory Rush", ret => Me.HealthPercent <= 90 && Me.HasAura("Victorious")),
                     ShatterBubbles(),
-                    Spell.Cast("Piercing Howl", ret => !Me.CurrentTarget.IsStunned() && !Me.CurrentTarget.IsCrowdControlled() && !Me.CurrentTarget.HasAuraWithEffectsing(WoWApplyAuraType.ModDecreaseSpeed) && !Me.CurrentTarget.HasAnyAura("Piercing Howl", "Hamsting")),
-                    Spell.Cast("Hamstring", ret => !Me.CurrentTarget.IsStunned() && !Me.CurrentTarget.IsCrowdControlled() && !Me.CurrentTarget.HasAuraWithEffectsing(WoWApplyAuraType.ModDecreaseSpeed) && !Me.CurrentTarget.HasAnyAura("Piercing Howl", "Hamsting")),
+                    Spell.Cast("Piercing Howl",
+                               ret =>
+                               !Me.CurrentTarget.IsStunned() && !Me.CurrentTarget.IsCrowdControlled() &&
+                               !Me.CurrentTarget.HasAuraWithEffectsing(WoWApplyAuraType.ModDecreaseSpeed) &&
+                               !Me.CurrentTarget.HasAnyAura("Piercing Howl", "Hamsting")),
+                    Spell.Cast("Hamstring",
+                               ret =>
+                               !Me.CurrentTarget.IsStunned() && !Me.CurrentTarget.IsCrowdControlled() &&
+                               !Me.CurrentTarget.HasAuraWithEffectsing(WoWApplyAuraType.ModDecreaseSpeed) &&
+                               !Me.CurrentTarget.HasAnyAura("Piercing Howl", "Hamsting")),
                     DemoBanner(),
                     HeroicLeap(),
                     MockingBanner(),
                     Spell.Cast("Intervene", on => BestBanner),
                     //Spell.CastOnGround("Demoralizing Banner", on => Me.Location, ret => Me.HealthPercent < 40),
-                    Spell.Cast("Disarm", ret => Me.CurrentTarget.HasAnyAura(Disarm) && !Me.CurrentTarget.HasAnyAura(DontDisarm)),
+                    Spell.Cast("Disarm",
+                               ret => Me.CurrentTarget.HasAnyAura(Disarm) && !Me.CurrentTarget.HasAnyAura(DontDisarm)),
                     Spell.Cast("Die by the Sword", ret => Me.HealthPercent <= 20 /*&& Me.CurrentTarget.IsMelee()*/),
                     new Decorator(ret => AdvancedAI.Burst,
-                        new PrioritySelector(
-                    Spell.Cast("Recklessness", ret => Me.CurrentTarget.IsWithinMeleeRange),
-                    Spell.Cast("Bloodbath", ret => Me.CurrentTarget.IsWithinMeleeRange),
-                    Spell.Cast("Avatar", ret => Me.HasAura("Recklessness") && Me.CurrentTarget.IsWithinMeleeRange),
-                    Spell.Cast("Skull Banner", ret => Me.HasAura("Recklessness") && Me.CurrentTarget.IsWithinMeleeRange))),
-                    new Action(ret => { Item.UseHands(); return RunStatus.Failure; }),
+                                  new PrioritySelector(
+                                      Spell.Cast("Recklessness", ret => Me.CurrentTarget.IsWithinMeleeRange),
+                                      Spell.Cast("Bloodbath", ret => Me.CurrentTarget.IsWithinMeleeRange),
+                                      Spell.Cast("Avatar",
+                                                 ret =>
+                                                 Me.HasAura("Recklessness") && Me.CurrentTarget.IsWithinMeleeRange),
+                                      Spell.Cast("Skull Banner",
+                                                 ret =>
+                                                 Me.HasAura("Recklessness") && Me.CurrentTarget.IsWithinMeleeRange))),
+                    new Action(ret =>
+                                   {
+                                       Item.UseHands();
+                                       return RunStatus.Failure;
+                                   }),
                     //new Action(ret => { Item.UseTrinkets(); return RunStatus.Failure; }),
                     //Spell.Cast("Berserker Rage", ret => !Me.ActiveAuras.ContainsKey("Enrage")),
                     //Spell.Cast("Sweeping Strikes",
@@ -103,7 +120,7 @@ namespace AdvancedAI.Spec
                                Unit.NearbyUnfriendlyUnits.Count(u => u.DistanceSqr <= 8*8) >= 1),
                     Spell.Cast("Thunder Clap",
                                ret =>
-                               Unit.NearbyUnfriendlyUnits.Count(u => u.DistanceSqr <= 8 * 8) >= 2 &&
+                               Unit.NearbyUnfriendlyUnits.Count(u => u.DistanceSqr <= 8*8) >= 2 &&
                                Clusters.GetCluster(Me, Unit.NearbyUnfriendlyUnits, ClusterType.Radius, 8).Any(
                                    u => !u.HasMyAura("Deep Wounds"))),
                     Spell.Cast("Slam",
@@ -127,8 +144,7 @@ namespace AdvancedAI.Spec
                     Spell.Cast("Heroic Throw"),
                     Spell.Cast("Impending Victory", ret => Me.CurrentTarget.HealthPercent > 20 || Me.HealthPercent < 50),
                     new Decorator(ret => AdvancedAI.Movement,
-                        Movement.CreateMoveToMeleeBehavior(true)),
-                    new ActionAlwaysSucceed());
+                        Movement.CreateMoveToMeleeBehavior(true)));
             }
         }
 
@@ -181,21 +197,36 @@ namespace AdvancedAI.Spec
                                 where unit.Distance <= 10
                                 where unit.IsCasting
                                 where unit.CanInterruptCurrentSpellCast
-                               where
-                                      unit.CurrentCastTimeLeft.TotalMilliseconds <
-                                      1000 + MyLatency &&
-                                      InterruptCastNoChannel(unit) > MyLatency ||
-                                      InterruptCastChannel(unit) > MyLatency
-                                //where unit.CurrentCastTimeLeft.TotalSeconds < .6
+                                where unit.CurrentCastTimeLeft.TotalMilliseconds < 500 + MyLatency
                                 select unit).FirstOrDefault();
                 return bestInt;
             }
         }
 
+        
+
         public static bool Interuptdelay(WoWUnit inttar)
         {
-            const double castTimeLeft = .6;
-            return inttar.CurrentCastTimeLeft.TotalSeconds < castTimeLeft;
+            var totaltime = inttar.CastingSpell.CastTime / 1000;
+            var timeleft = inttar.CurrentCastTimeLeft.TotalSeconds;
+            //Logging.Write((totaltime / 1000).ToString());
+            //Logging.Write(timeleft.ToString());
+
+            return (timeleft / totaltime) < MathEx.Random(.10, .50);
+
+        }
+
+        private static int InteruptMiss = 0;
+
+        private static void addone()
+        {
+            var add = InteruptMiss + 1;
+            InteruptMiss = add;
+        }
+
+        private static void resetIntMiss()
+        {
+            InteruptMiss = 0;
         }
 
         #endregion
@@ -250,6 +281,7 @@ namespace AdvancedAI.Spec
                 return null;
             }
         }
+
         #endregion
 
         #region CreateChargeBehavior
@@ -275,7 +307,7 @@ namespace AdvancedAI.Spec
         {
             return new Decorator(
                 // If the target is casting, and can actually be interrupted, AND we've waited out the double-interrupt timer, then find something to interrupt with.
-                ret => onUnit != null && onUnit(ret) != null/*&& PreventDoubleInterrupt*/,
+                ret => onUnit != null && onUnit(ret) != null/*Interuptdelay(onUnit(ret))&& PreventDoubleInterrupt*/,
                 new PrioritySelector(
                     Spell.Cast("Pummel", onUnit),
                     // AOE interrupt

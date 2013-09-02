@@ -76,6 +76,8 @@ namespace AdvancedAI
             if (TalentManager.Pulse())
                 return;
 
+            Interrupting.UnitSpellcastingInfo.Update();
+
             UpdateContext();
 
             switch (StyxWoW.Me.Class)
