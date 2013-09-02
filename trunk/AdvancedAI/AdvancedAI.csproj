@@ -114,6 +114,7 @@
     <Compile Include="Helpers\Dispelling.cs" />
     <Compile Include="Helpers\Extensions.cs" />
     <Compile Include="Helpers\Group.cs" />
+    <Compile Include="Helpers\Interrupting.cs" />
     <Compile Include="Helpers\Item.cs" />
     <Compile Include="Helpers\KeyboardPolling.cs" />
     <Compile Include="Helpers\Kite.cs" />
