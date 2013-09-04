@@ -57,12 +57,6 @@ namespace AdvancedAI
             };
             CombatandBuffSelection();
 
-            //CLU
-            //HealableUnit.HealableUnitsByProximity();
-            //HealableUnit.HealableUnitsByPartyorRaid();
-            //Pure
-            //HealManager.Initialize();
-
             MovementManager.Init();
             Dispelling.Init();
             //base.Initialize();
@@ -92,14 +86,14 @@ namespace AdvancedAI
 
             //if (!StyxWoW.Me.IsInGroup()) return;
 
-            //CLU
-            //HealableUnit.Pulse();
-            //SING
             if (HealerManager.NeedHealTargeting)
                 HealerManager.Instance.Pulse();
 
             if (Movement)
+            {
                 Helpers.Movement.PulseMovement();
+                TargetingGeneral.TargetingPulse();
+            }
 
             if (!BotManager.Current.Name.Equals("BGBuddy") && !BotManager.Current.Name.Equals("Bg Bot"))
                 return;
