@@ -50,8 +50,6 @@ namespace AdvancedAI.Spec
             get
             {
                 return new PrioritySelector(
-                    new Decorator(ret => AdvancedAI.Movement,
-                                  Movement.CreateFaceTargetBehavior(70f, false)),
                     CreateChargeBehavior(),
                     Spell.Cast("Rallying Cry", ret => Me.HealthPercent <= 30),
                     new Throttle(1, 1,
@@ -142,9 +140,7 @@ namespace AdvancedAI.Spec
                     Spell.Cast("Slam", ret => Me.CurrentRage >= 50 && Me.CurrentTarget.HealthPercent >= 20),
                     Spell.Cast("Battle Shout"),
                     Spell.Cast("Heroic Throw"),
-                    Spell.Cast("Impending Victory", ret => Me.CurrentTarget.HealthPercent > 20 || Me.HealthPercent < 50),
-                    new Decorator(ret => AdvancedAI.Movement,
-                        Movement.CreateMoveToMeleeBehavior(true)));
+                    Spell.Cast("Impending Victory", ret => Me.CurrentTarget.HealthPercent > 20 || Me.HealthPercent < 50));
             }
         }
 

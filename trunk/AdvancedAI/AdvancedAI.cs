@@ -76,7 +76,7 @@ namespace AdvancedAI
             if (TalentManager.Pulse())
                 return;
 
-            Interrupting.UnitSpellcastingInfo.Update();
+            //Interrupting.UnitSpellcastingInfo.Update();
 
             UpdateContext();
 
@@ -98,6 +98,16 @@ namespace AdvancedAI
             if (HealerManager.NeedHealTargeting)
                 HealerManager.Instance.Pulse();
 
+            if (Movement)
+                Helpers.Movement.PulseMovement();
+
+            if (!BotManager.Current.Name.Equals("BGBuddy") && !BotManager.Current.Name.Equals("Bg Bot"))
+                return;
+            if (StyxWoW.IsInGame == false || StyxWoW.Me.IsValid == false) return;
+            if (StyxWoW.Me.IsActuallyInCombat && Helpers.Movement.MoveTo(StyxWoW.Me.CurrentTarget)) { Blacklist.Flush(); }
+            if (TargetingPvP.TargetExists()) { TargetingPvP.GetInCombat(); return; }
+            if (StyxWoW.Me.IsDead || StyxWoW.Me.HasAura("Preparation")) { Helpers.Movement.StopMovement(true, true, true, true); StyxWoW.Me.ClearTarget(); return; }
+            TargetingPvP.TargetPulse();
 
             //if (Group.MeIsTank && CurrentWoWContext == WoWContext.Instances)
             //    TankManager.Instance.Pulse();
