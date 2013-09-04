@@ -150,12 +150,10 @@ namespace AdvancedAI.Spec
 
         private static bool NeedZerker()
         {
-            return (!Me.ActiveAuras.ContainsKey("Enrage") && !TalentManager.IsSelected((int)WarriorTalents.EnragedRegeneration) ||
-                   (TalentManager.IsSelected((int)WarriorTalents.EnragedRegeneration) && !Me.ActiveAuras.ContainsKey("Enrage") && 
+            return (!Me.HasAura("Enrage") && !TalentManager.IsSelected((int)WarriorTalents.EnragedRegeneration) ||
+                   (TalentManager.IsSelected((int)WarriorTalents.EnragedRegeneration) && !Me.HasAura("Enrage") && 
                     Me.HealthPercent <= 80 && !SpellManager.Spells["Enraged Regeneration"].Cooldown ||
-                    Spell.GetSpellCooldown("Enraged Regeneration").TotalSeconds > 30 && SpellManager.Spells["Enraged Regeneration"].Cooldown))
-            ;
-
+                    Spell.GetSpellCooldown("Enraged Regeneration").TotalSeconds > 30 && SpellManager.Spells["Enraged Regeneration"].Cooldown));
         }
 
         static bool IsCurrentTank()

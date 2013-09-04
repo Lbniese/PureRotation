@@ -50,91 +50,49 @@ namespace AdvancedAI.Spec
             get
             {
                 return new PrioritySelector(
+                    new Decorator(ret => Me.CurrentTarget.Distance < 28,
+                        Common.CreateDismount("Pull Test")),
                     CreateChargeBehavior(),
+                    LuaCore.StartAutoAttack,
                     Spell.Cast("Rallying Cry", ret => Me.HealthPercent <= 30),
                     new Throttle(1, 1,
                         new Sequence(
-                            CreateInterruptSpellCast(on => Interrupting.GetSpellcastingUnit))),
+                            CreateInterruptSpellCast(on => BestInterrupt))),
                     Item.UsePotionAndHealthstone(40),
                     Spell.Cast("Victory Rush", ret => Me.HealthPercent <= 90 && Me.HasAura("Victorious")),
                     ShatterBubbles(),
-                    Spell.Cast("Piercing Howl",
-                               ret =>
-                               !Me.CurrentTarget.IsStunned() && !Me.CurrentTarget.IsCrowdControlled() &&
-                               !Me.CurrentTarget.HasAuraWithEffectsing(WoWApplyAuraType.ModDecreaseSpeed) &&
-                               !Me.CurrentTarget.HasAnyAura("Piercing Howl", "Hamsting")),
-                    Spell.Cast("Hamstring",
-                               ret =>
-                               !Me.CurrentTarget.IsStunned() && !Me.CurrentTarget.IsCrowdControlled() &&
-                               !Me.CurrentTarget.HasAuraWithEffectsing(WoWApplyAuraType.ModDecreaseSpeed) &&
-                               !Me.CurrentTarget.HasAnyAura("Piercing Howl", "Hamsting")),
+                    Spell.Cast("Piercing Howl", ret => !Me.CurrentTarget.IsStunned() && !Me.CurrentTarget.IsCrowdControlled() && !Me.CurrentTarget.HasAuraWithEffectsing(WoWApplyAuraType.ModDecreaseSpeed) && !Me.CurrentTarget.HasAnyAura("Piercing Howl", "Hamsting")),
+                    Spell.Cast("Hamstring", ret => !Me.CurrentTarget.IsStunned() && !Me.CurrentTarget.IsCrowdControlled() && !Me.CurrentTarget.HasAuraWithEffectsing(WoWApplyAuraType.ModDecreaseSpeed) && !Me.CurrentTarget.HasAnyAura("Piercing Howl", "Hamsting")),
                     DemoBanner(),
                     HeroicLeap(),
                     MockingBanner(),
+                    new Decorator(ret => AdvancedAI.Movement,
+                        new PrioritySelector(
+                            DemoBannerAuto(),
+                            MockingBannerAuto())),
                     Spell.Cast("Intervene", on => BestBanner),
                     //Spell.CastOnGround("Demoralizing Banner", on => Me.Location, ret => Me.HealthPercent < 40),
-                    Spell.Cast("Disarm",
-                               ret => Me.CurrentTarget.HasAnyAura(Disarm) && !Me.CurrentTarget.HasAnyAura(DontDisarm)),
+                    Spell.Cast("Disarm", ret => Me.CurrentTarget.HasAnyAura(Disarm) && !Me.CurrentTarget.HasAnyAura(DontDisarm)),
                     Spell.Cast("Die by the Sword", ret => Me.HealthPercent <= 20 /*&& Me.CurrentTarget.IsMelee()*/),
                     new Decorator(ret => AdvancedAI.Burst,
-                                  new PrioritySelector(
-                                      Spell.Cast("Recklessness", ret => Me.CurrentTarget.IsWithinMeleeRange),
-                                      Spell.Cast("Bloodbath", ret => Me.CurrentTarget.IsWithinMeleeRange),
-                                      Spell.Cast("Avatar",
-                                                 ret =>
-                                                 Me.HasAura("Recklessness") && Me.CurrentTarget.IsWithinMeleeRange),
-                                      Spell.Cast("Skull Banner",
-                                                 ret =>
-                                                 Me.HasAura("Recklessness") && Me.CurrentTarget.IsWithinMeleeRange))),
-                    new Action(ret =>
-                                   {
-                                       Item.UseHands();
-                                       return RunStatus.Failure;
-                                   }),
-                    //new Action(ret => { Item.UseTrinkets(); return RunStatus.Failure; }),
-                    //Spell.Cast("Berserker Rage", ret => !Me.ActiveAuras.ContainsKey("Enrage")),
-                    //Spell.Cast("Sweeping Strikes",
-                    //           ret => Unit.NearbyUnfriendlyUnits.Count(u => u.IsWithinMeleeRange) >= 2),
+                        new PrioritySelector(
+                            Spell.Cast("Recklessness", ret => Me.CurrentTarget.IsWithinMeleeRange),
+                            Spell.Cast("Bloodbath", ret => Me.CurrentTarget.IsWithinMeleeRange),
+                            Spell.Cast("Avatar", ret => Me.HasAura("Recklessness") && Me.CurrentTarget.IsWithinMeleeRange),
+                            Spell.Cast("Skull Banner", ret => Me.HasAura("Recklessness") && Me.CurrentTarget.IsWithinMeleeRange))),
+                    new Action(ret => { Item.UseHands(); return RunStatus.Failure; } ),
                     Spell.Cast("Intervene", on => BestInterveneTarget),
                     Spell.Cast("Charge", on => ChargeInt),
-                    Spell.Cast("Heroic Strike",
-                               ret =>
-                               (Me.CurrentTarget.HasMyAura("Colossus Smash") && Me.CurrentRage >= 70) ||
-                               Me.CurrentRage >= 95),
+                    Spell.Cast("Heroic Strike", ret => (Me.CurrentTarget.HasMyAura("Colossus Smash") && Me.CurrentRage >= 70) || Me.CurrentRage >= 95),
                     Spell.Cast("Mortal Strike"),
-                    Spell.Cast("Dragon Roar",
-                               ret =>
-                               !Me.CurrentTarget.HasMyAura("Colossus Smash") && Me.HasAura("Bloodbath") &&
-                               Unit.NearbyUnfriendlyUnits.Count(u => u.DistanceSqr <= 8*8) >= 1),
+                    Spell.Cast("Dragon Roar", ret => !Me.CurrentTarget.HasMyAura("Colossus Smash") && Me.HasAura("Bloodbath") && Clusters.GetClusterCount(Me, Unit.NearbyUnfriendlyUnits, ClusterType.Radius, 8f) >= 1),
                     Spell.Cast("Colossus Smash", ret => Me.HasAuraExpired("Colossus Smash", 1)),
-                    Spell.Cast("Execute",
-                               ret =>
-                               Me.CurrentTarget.HasMyAura("Colossus Smash") || Me.HasAura("Recklessness") ||
-                               Me.CurrentRage >= 30),
-                    Spell.Cast("Dragon Roar",
-                               ret =>
-                               (!Me.CurrentTarget.HasMyAura("Colossus Smash") && Me.CurrentTarget.HealthPercent < 20) ||
-                               (Me.HasAura("Bloodbath") && Me.CurrentTarget.HealthPercent >= 20) &&
-                               Unit.NearbyUnfriendlyUnits.Count(u => u.DistanceSqr <= 8*8) >= 1),
-                    Spell.Cast("Thunder Clap",
-                               ret =>
-                               Unit.NearbyUnfriendlyUnits.Count(u => u.DistanceSqr <= 8*8) >= 2 &&
-                               Clusters.GetCluster(Me, Unit.NearbyUnfriendlyUnits, ClusterType.Radius, 8).Any(
-                                   u => !u.HasMyAura("Deep Wounds"))),
-                    Spell.Cast("Slam",
-                               ret =>
-                               Me.CurrentTarget.HasMyAura("Colossus Smash") &&
-                               (Me.CurrentTarget.GetAuraTimeLeft("Colossus Smash").TotalSeconds <= 1 ||
-                                Me.HasAura("Recklessness")) && Me.CurrentTarget.HealthPercent >= 20),
-                    Spell.Cast("Overpower",
-                               ret =>
-                               Me.HasAura("Taste for Blood") && Me.Auras["Taste for Blood"].StackCount >= 3 &&
-                               Me.CurrentTarget.HealthPercent >= 20),
-                    Spell.Cast("Slam",
-                               ret =>
-                               Me.CurrentTarget.HasAura("Colossus Smash") &&
-                               Me.CurrentTarget.GetAuraTimeLeft("Colossus Smash").TotalSeconds <= 2.5 &&
-                               Me.CurrentTarget.HealthPercent >= 20),
+                    Spell.Cast("Execute", ret => Me.CurrentTarget.HasMyAura("Colossus Smash") || Me.HasAura("Recklessness") || Me.CurrentRage >= 30),
+                    Spell.Cast("Dragon Roar", ret => (!Me.CurrentTarget.HasMyAura("Colossus Smash") && Me.CurrentTarget.HealthPercent < 20) || (Me.HasAura("Bloodbath") && Me.CurrentTarget.HealthPercent >= 20) && Clusters.GetClusterCount(Me, Unit.NearbyUnfriendlyUnits, ClusterType.Radius, 8f) >= 1),
+                    Spell.Cast("Thunder Clap", ret => Clusters.GetClusterCount(Me, Unit.NearbyUnfriendlyUnits, ClusterType.Radius, 8f) >= 2 && Clusters.GetCluster(Me, Unit.NearbyUnfriendlyUnits, ClusterType.Radius, 8).Any(u => !u.HasMyAura("Deep Wounds"))),
+                    Spell.Cast("Slam", ret => Me.CurrentTarget.HasMyAura("Colossus Smash") && (Me.CurrentTarget.GetAuraTimeLeft("Colossus Smash").TotalSeconds <= 1 || Me.HasAura("Recklessness")) && Me.CurrentTarget.HealthPercent >= 20),
+                    Spell.Cast("Overpower", ret => Me.HasAura("Taste for Blood") && Me.Auras["Taste for Blood"].StackCount >= 3 && Me.CurrentTarget.HealthPercent >= 20),
+                    Spell.Cast("Slam", ret => Me.CurrentTarget.HasAura("Colossus Smash") && Me.CurrentTarget.GetAuraTimeLeft("Colossus Smash").TotalSeconds <= 2.5 && Me.CurrentTarget.HealthPercent >= 20),
                     Spell.Cast("Execute", ret => !Me.HasAura("Sudden Execute")),
                     Spell.Cast("Overpower", ret => Me.CurrentTarget.HealthPercent >= 20 || Me.HasAura("Sudden Execute")),
                     Spell.Cast("Slam", ret => Me.CurrentRage >= 50 && Me.CurrentTarget.HealthPercent >= 20),
@@ -149,8 +107,7 @@ namespace AdvancedAI.Spec
             get
             {
                 return new PrioritySelector(
-                    Spell.BuffSelf("Battle Shout"),
-                    new ActionAlwaysSucceed());
+                    Spell.BuffSelf("Battle Shout"));
             }
         }
 
@@ -288,12 +245,11 @@ namespace AdvancedAI.Spec
 
                     new PrioritySelector(
                         Spell.Cast("Charge",
-                            ret => StyxWoW.Me.CurrentTarget.Distance >= 10 && StyxWoW.Me.CurrentTarget.Distance < (TalentManager.HasGlyph("Long Charge") ? 30f : 25f))
+                            ret => StyxWoW.Me.CurrentTarget.Distance >= 10 && StyxWoW.Me.CurrentTarget.Distance < (TalentManager.HasGlyph("Long Charge") ? 30f : 25f)),
 
-                        //Spell.CastOnGround("Heroic Leap",
-                        //    ret => StyxWoW.Me.CurrentTarget.Location,
-                        //    ret => StyxWoW.Me.CurrentTarget.Distance > 13 && StyxWoW.Me.CurrentTarget.Distance < 40 && SpellManager.Spells["Charge"].Cooldown)
-                        )
+                        Spell.CastOnGround("Heroic Leap",
+                            ret => StyxWoW.Me.CurrentTarget.Location,
+                            ret => StyxWoW.Me.CurrentTarget.Distance > 13 && StyxWoW.Me.CurrentTarget.Distance < 40 && SpellManager.Spells["Charge"].Cooldown))
                 );
         }
         #endregion
@@ -320,22 +276,22 @@ namespace AdvancedAI.Spec
         }
         #endregion
 
-        //#region Demo Banner
-        //private static Composite DemoBanner()
-        //{
-        //    return new Decorator(ret => SpellManager.Spells["Charge"].Cooldown &&
-        //                                SpellManager.Spells["Heroic Leap"].Cooldown &&
-        //                               !SpellManager.Spells["Demoralizing Banner"].Cooldown &&
-        //                               !SpellManager.Spells["Intervene"].Cooldown &&
-        //                               !FriendlyUnitsNearTarget(6f).Any() &&
-        //                                StyxWoW.Me.CurrentTarget.Distance >= 10 && StyxWoW.Me.CurrentTarget.Distance <= 25,
-        //                    new Action(ret =>
-        //                    {
-        //                        SpellManager.Cast("Demoralizing Banner");
-        //                        SpellManager.ClickRemoteLocation(StyxWoW.Me.CurrentTarget.Location);
-        //                    }));
-        //}
-        //#endregion
+        #region Demo Banner
+        private static Composite DemoBannerAuto()
+        {
+            return new Decorator(ret => SpellManager.Spells["Charge"].Cooldown &&
+                                        SpellManager.Spells["Heroic Leap"].Cooldown &&
+                                       !SpellManager.Spells["Demoralizing Banner"].Cooldown &&
+                                       !SpellManager.Spells["Intervene"].Cooldown &&
+                                       !FriendlyUnitsNearTarget(6f).Any() &&
+                                        StyxWoW.Me.CurrentTarget.Distance >= 10 && StyxWoW.Me.CurrentTarget.Distance <= 25,
+                            new Action(ret =>
+                            {
+                                SpellManager.Cast("Demoralizing Banner");
+                                SpellManager.ClickRemoteLocation(StyxWoW.Me.CurrentTarget.Location);
+                            }));
+        }
+        #endregion
 
         #region FriendlyUnitsNearTarget
         public static IEnumerable<WoWUnit> FriendlyUnitsNearTarget(float distance)
@@ -356,24 +312,24 @@ namespace AdvancedAI.Spec
         }
         #endregion
 
-        //#region Mocking Banner
-        //private static Composite MockingBanner()
-        //{
-        //    return new Decorator(ret => SpellManager.Spells["Demoralizing Banner"].Cooldown &&
-        //                                SpellManager.Spells["Demoralizing Banner"].CooldownTimeLeft.TotalSeconds <= 165 &&
-        //                                SpellManager.Spells["Charge"].Cooldown &&
-        //                                SpellManager.Spells["Heroic Leap"].Cooldown &&
-        //                               !SpellManager.Spells["Mocking Banner"].Cooldown &&
-        //                               !SpellManager.Spells["Intervene"].Cooldown &&
-        //                               !FriendlyUnitsNearTarget(6f).Any() &&
-        //                                StyxWoW.Me.CurrentTarget.Distance >= 10 && StyxWoW.Me.CurrentTarget.Distance <= 25,
-        //                    new Action(ret =>
-        //                    {
-        //                        SpellManager.Cast("Mocking Banner");
-        //                        SpellManager.ClickRemoteLocation(StyxWoW.Me.CurrentTarget.Location);
-        //                    }));
-        //}
-        //#endregion
+        #region Mocking Banner
+        private static Composite MockingBannerAuto()
+        {
+            return new Decorator(ret => SpellManager.Spells["Demoralizing Banner"].Cooldown &&
+                                        SpellManager.Spells["Demoralizing Banner"].CooldownTimeLeft.TotalSeconds <= 165 &&
+                                        SpellManager.Spells["Charge"].Cooldown &&
+                                        SpellManager.Spells["Heroic Leap"].Cooldown &&
+                                       !SpellManager.Spells["Mocking Banner"].Cooldown &&
+                                       !SpellManager.Spells["Intervene"].Cooldown &&
+                                       !FriendlyUnitsNearTarget(6f).Any() &&
+                                        StyxWoW.Me.CurrentTarget.Distance >= 10 && StyxWoW.Me.CurrentTarget.Distance <= 25,
+                            new Action(ret =>
+                            {
+                                SpellManager.Cast("Mocking Banner");
+                                SpellManager.ClickRemoteLocation(StyxWoW.Me.CurrentTarget.Location);
+                            }));
+        }
+        #endregion
 
         #region ShatterBubbles
         static Composite ShatterBubbles()

@@ -510,11 +510,11 @@ namespace AdvancedAI.Helpers
             try
             {
                 // Experimenting with Facing
-                if (StyxWoW.Me.CurrentTarget == null)
-                {
-                    //WoWMovement.StopFace();
-                    StopMovement();
-                }
+                //if (StyxWoW.Me.CurrentTarget == null)
+                //{
+                //    //WoWMovement.StopFace();
+                //    StopMovement();
+                //}
 
                 // bunch of fuckoff checks to make sure we can even do the movements.
                 if (StyxWoW.IsInGame == false) return;
@@ -523,7 +523,7 @@ namespace AdvancedAI.Helpers
                 if (Me.GotTarget == false) return;
                 if (Me.Mounted) return;
                 if (Me.IsDead) return;
-                //if (Me.CurrentTarget.IsPlayer == false) return;
+                if (Me.CurrentTarget.IsPlayer == false) return;
 
                 // Target stuff
                 Target = Me.CurrentTarget;
@@ -551,7 +551,7 @@ namespace AdvancedAI.Helpers
 
         private static bool CheckMoving()
         {
-            if (Target.Distance >= 2 && Target.IsMoving && !Me.MovementInfo.MovingForward)
+            if (Target.Distance >= 3 && Target.IsMoving && !Me.MovementInfo.MovingForward)
             {
                 //WoWMovement.Move(WoWMovement.MovementDirection.Forward);
                 Navigator.MoveTo(StyxWoW.Me.CurrentTarget.Location);
@@ -559,12 +559,15 @@ namespace AdvancedAI.Helpers
             }
 
 
-            if (Target.Distance < 2 && Target.IsMoving && Me.MovementInfo.MovingForward)
+            if (Target.Distance < 3 && Target.IsMoving && Me.MovementInfo.MovingForward)
             {
                 //WoWMovement.MoveStop(WoWMovement.MovementDirection.Forward);
                 StopMoving.InMeleeRangeOfUnit(StyxWoW.Me.CurrentTarget);
                 return true;
             }
+            
+            if ((Me.MovementInfo.MovingStrafeRight || Me.MovementInfo.MovingStrafeLeft) && Me.CurrentTarget.Distance > 5)
+                StopMovement(false, false, true, true);
 
             return false;
         }
@@ -600,9 +603,6 @@ namespace AdvancedAI.Helpers
 
             if (Me.MovementInfo.MovingForward && !KeyboardPolling.IsKeyDown(Keys.W))
                 WoWMovement.MoveStop(WoWMovement.MovementDirection.Forward);
-
-            if (Me.IsMoving && !KeyboardPolling.IsKeyDown(Keys.W) && !KeyboardPolling.IsKeyDown(Keys.A) && !KeyboardPolling.IsKeyDown(Keys.D))
-                StopMovement();
         }
 
         private static void CheckStrafe()
