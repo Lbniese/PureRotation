@@ -85,12 +85,12 @@ namespace AdvancedAI.Helpers
 
             public static void Update()
             {
-                Logging.WriteDiagnostic("Updating: " + UnitID);
+                //Logging.WriteDiagnostic("Updating: " + UnitID);
                 UnitExists = Lua.GetReturnVal<bool>("return UnitExists('" + UnitID + "')", 0);
                 Logging.WriteDiagnostic(UnitExists.ToString());
                 if (UnitExists)
                 {
-                    Logging.WriteDiagnostic("unit exists");
+                    //Logging.WriteDiagnostic("unit exists");
                     sUnitGUID = Lua.GetReturnVal<string>(
                         String.Format("return UnitGUID(\"{0}\")", UnitID), 0);
                     IsUnitEnemy = Lua.GetReturnVal<bool>(

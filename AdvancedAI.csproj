@@ -123,6 +123,7 @@
     <Compile Include="Helpers\Party.cs" />
     <Compile Include="Helpers\Pet.cs" />
     <Compile Include="Helpers\Spell.cs" />
+    <Compile Include="Helpers\TargetingPvP.cs" />
     <Compile Include="Helpers\Throttle.cs" />
     <Compile Include="Helpers\Totems.cs" />
     <Compile Include="Helpers\Unit.cs" />

@@ -1,9 +1,12 @@
 ﻿
+using System.Threading;
+using System.Windows.Forms;
 using AdvancedAI.Lists;
 using Styx;
 using Styx.Helpers;
 using Styx.Pathing;
 using Styx.TreeSharp;
+using Styx.WoWInternals;
 using Action = Styx.TreeSharp.Action;
 using System;
 using Styx.WoWInternals.WoWObjects;
@@ -16,6 +19,55 @@ namespace AdvancedAI.Helpers
 {
     internal static class Movement
     {
+
+        public static bool MoveTo(WoWUnit Unit)
+        {
+            //StopMovement();
+            if (Navigator.CanNavigateFully(StyxWoW.Me.Location, StyxWoW.Me.CurrentTarget.Location))
+            {
+                if (StyxWoW.Me.CurrentTarget.Distance < 10)
+                {
+                    if (!StyxWoW.Me.MovementInfo.MovingForward)
+                    {
+                        StopMovement(true, true, true, true);
+                        WoWMovement.Move(WoWMovement.MovementDirection.Forward);
+                    }
+                }
+                else
+                {
+                    Navigator.MoveTo(StyxWoW.Me.CurrentTarget.Location);
+                }
+                return false;
+            }
+            return true;
+        }
+
+        public static void StopMovement(bool forward, bool backward, bool left, bool right)
+        {
+            if (StyxWoW.Me.MovementInfo.MovingStrafeRight)
+            {
+                WoWMovement.MoveStop(WoWMovement.MovementDirection.StrafeRight);
+                //Styx.Helpers.KeyboardManager.KeyUpDown((char)Keys.E);
+            }
+
+            if (StyxWoW.Me.MovementInfo.MovingStrafeLeft)
+            {
+                WoWMovement.MoveStop(WoWMovement.MovementDirection.StrafeLeft);
+                //Styx.Helpers.KeyboardManager.KeyUpDown((char)Keys.Q);
+            }
+
+            if (StyxWoW.Me.MovementInfo.MovingForward)
+            {
+                WoWMovement.MoveStop(WoWMovement.MovementDirection.Forward);
+                //Styx.Helpers.KeyboardManager.KeyUpDown((char)Keys.W);
+            }
+
+            if (StyxWoW.Me.MovementInfo.MovingBackward)
+            {
+                WoWMovement.MoveStop(WoWMovement.MovementDirection.Backwards);
+                //Styx.Helpers.KeyboardManager.KeyUpDown((char)Keys.D);
+            }
+        }
         /// <summary>
         ///  Creates a behavior that does nothing more than check if we're in Line of Sight of the target; and if not, move towards the target.
         /// </summary>
@@ -447,6 +499,178 @@ namespace AdvancedAI.Helpers
                     )
                 );
         }
+
+        //Swiny Code
+
+        private static WoWPlayer Me = StyxWoW.Me;
+        private static WoWUnit Target;
+        private static int Cone = 40;
+        internal static void PulseMovement()
+        {
+            try
+            {
+                // Experimenting with Facing
+                if (StyxWoW.Me.CurrentTarget == null)
+                {
+                    //WoWMovement.StopFace();
+                    StopMovement();
+                }
+
+                // bunch of fuckoff checks to make sure we can even do the movements.
+                if (StyxWoW.IsInGame == false) return;
+                if (Me.IsValid == false) return;
+                if (Me.CurrentTarget == null) return;
+                if (Me.GotTarget == false) return;
+                if (Me.Mounted) return;
+                if (Me.IsDead) return;
+                //if (Me.CurrentTarget.IsPlayer == false) return;
+
+                // Target stuff
+                Target = Me.CurrentTarget;
+                if (Target.Distance > 30) return;
+                if (Target.IsDead) return;
+                if (Target.IsFriendly) return;
+                if (!Target.Attackable) return;
+
+                // Do our movement stuff
+                CheckFace();
+                if (CheckMoving()) return;
+                if (CheckStop()) return;
+                CheckStrafe();
+            }
+            catch (System.Exception) { }
+        }
+
+        private static void CheckFace()
+        {
+            if (!WoWMovement.IsFacing)
+            {
+                WoWMovement.Face(Target.Guid);
+            }
+        }
+
+        private static bool CheckMoving()
+        {
+            if (Target.Distance >= 2 && Target.IsMoving && !Me.MovementInfo.MovingForward)
+            {
+                //WoWMovement.Move(WoWMovement.MovementDirection.Forward);
+                Navigator.MoveTo(StyxWoW.Me.CurrentTarget.Location);
+                return true;
+            }
+
+
+            if (Target.Distance < 2 && Target.IsMoving && Me.MovementInfo.MovingForward)
+            {
+                //WoWMovement.MoveStop(WoWMovement.MovementDirection.Forward);
+                StopMoving.InMeleeRangeOfUnit(StyxWoW.Me.CurrentTarget);
+                return true;
+            }
+
+            return false;
+        }
+
+        private static bool CheckStop()
+        {
+
+            if (Target.IsMoving) return false;
+            float Distance = 3.2f;
+
+            if (Target.Distance >= Distance && !Me.MovementInfo.MovingForward)
+            {
+                WoWMovement.Move(WoWMovement.MovementDirection.Forward, new TimeSpan(99, 99, 99));
+                return true;
+            }
+
+            // To stop from spinning
+            if (Target.Distance < 2 && Me.IsMoving && Me.MovementInfo.MovingForward)
+            {
+                WoWMovement.MoveStop(WoWMovement.MovementDirection.Forward);
+            }
+
+            return false;
+        }
+
+        private static void StopMovement()
+        {
+            if (Me.MovementInfo.MovingStrafeRight && !KeyboardPolling.IsKeyDown(Keys.D))
+                WoWMovement.MoveStop(WoWMovement.MovementDirection.StrafeRight);
+
+            if (Me.MovementInfo.MovingStrafeLeft && !KeyboardPolling.IsKeyDown(Keys.A))
+                WoWMovement.MoveStop(WoWMovement.MovementDirection.StrafeLeft);
+
+            if (Me.MovementInfo.MovingForward && !KeyboardPolling.IsKeyDown(Keys.W))
+                WoWMovement.MoveStop(WoWMovement.MovementDirection.Forward);
+
+            if (Me.IsMoving && !KeyboardPolling.IsKeyDown(Keys.W) && !KeyboardPolling.IsKeyDown(Keys.A) && !KeyboardPolling.IsKeyDown(Keys.D))
+                StopMovement();
+        }
+
+        private static void CheckStrafe()
+        {
+            using (StyxWoW.Memory.AcquireFrame())
+            {
+                // Test
+                //if (Me.Stunned) return;
+
+                // Cancel all strafes - distance
+                if (Me.MovementInfo.MovingStrafeRight && Target.Distance >= 2.5)
+                {
+                    WoWMovement.MoveStop(WoWMovement.MovementDirection.StrafeRight);
+                    return;
+                }
+
+                if (Me.MovementInfo.MovingStrafeLeft && Target.Distance >= 2.5)
+                {
+                    WoWMovement.MoveStop(WoWMovement.MovementDirection.StrafeLeft);
+                    return;
+                }
+
+                // Cancel all strafes - Angle out of range
+                if (Me.MovementInfo.MovingStrafeRight && GetDegree <= 180 && GetDegree >= Cone)
+                {
+                    WoWMovement.MoveStop(WoWMovement.MovementDirection.StrafeRight);
+                    return;
+                }
+                if (Me.MovementInfo.MovingStrafeLeft && GetDegree >= 180 && GetDegree <= (360 - Cone))
+                {
+                    WoWMovement.MoveStop(WoWMovement.MovementDirection.StrafeLeft);
+                    return;
+                }
+
+                // Dont strafe if we are not close enough
+                if (Target.Distance >= 5) return;
+
+
+                // 180 > strafe right
+                if (GetDegree >= 180 && GetDegree <= (360 - Cone) && !Me.MovementInfo.MovingStrafeRight)
+                {
+                    WoWMovement.Move(WoWMovement.MovementDirection.StrafeRight, new TimeSpan(99, 99, 99));
+                    return;
+                }
+
+                // 180 < strafe left
+                if (GetDegree <= 180 && GetDegree >= Cone && !Me.MovementInfo.MovingStrafeLeft)
+                {
+                    WoWMovement.Move(WoWMovement.MovementDirection.StrafeLeft, new TimeSpan(99, 99, 99));
+                    return;
+                }
+            }
+        }
+
+        internal static double GetDegree
+        {
+            get
+            {
+                double d = Math.Atan2((Target.Y - Me.Y), (Target.X - Me.X));
+
+                double r = d - Target.Rotation; 	  // substracting object rotation from absolute rotation
+                if (r < 0)
+                    r += (Math.PI * 2);
+
+                return WoWMathHelper.RadiansToDegrees((float)r);
+            }
+        }
+
     }
 
     public static class StopMoving
