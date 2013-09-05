@@ -98,7 +98,9 @@ namespace AdvancedAI.Spec
                     Spell.Cast("Slam", ret => Me.CurrentRage >= 50 && Me.CurrentTarget.HealthPercent >= 20),
                     Spell.Cast("Battle Shout"),
                     Spell.Cast("Heroic Throw"),
-                    Spell.Cast("Impending Victory", ret => Me.CurrentTarget.HealthPercent > 20 || Me.HealthPercent < 50));
+                    Spell.Cast("Impending Victory", ret => Me.CurrentTarget.HealthPercent > 20 || Me.HealthPercent < 50),
+                    new Decorator(ret => AdvancedAI.Movement,
+                        Movement.CreateMoveToMeleeBehavior(true)));
             }
         }
 
