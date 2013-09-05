@@ -24,7 +24,7 @@ namespace AdvancedAI
     }
     #endregion Nested type: LocationContextEventArg
 
-    partial class AdvancedAI
+    sealed partial class AdvancedAI
     {
         private bool _contextEventSubscribed;
 

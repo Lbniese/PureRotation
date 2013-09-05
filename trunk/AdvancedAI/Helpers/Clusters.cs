@@ -80,19 +80,19 @@ namespace AdvancedAI.Helpers
             }
         }
 
-        private static IEnumerable<WoWUnit> GetConeCluster(WoWUnit target, IEnumerable<WoWUnit> otherUnits, float distance)
+        private static IEnumerable<WoWUnit> GetConeCluster(WoWObject target, IEnumerable<WoWUnit> otherUnits, float distance)
         {
             var targetLoc = target.Location;
             // most (if not all) player cone spells are 90 degrees.
             return otherUnits.Where(u => target.IsSafelyFacing(u, 90) && u.Location.Distance(targetLoc) <= distance);
         }
 
-        private static int GetConeClusterCount(WoWUnit target, IEnumerable<WoWUnit> otherUnits, float distance)
+        private static int GetConeClusterCount(WoWObject target, IEnumerable<WoWUnit> otherUnits, float distance)
         {
             return GetConeCluster(target, otherUnits, distance).Count();
         }
 
-        private static IEnumerable<WoWUnit> GetRadiusCluster(WoWUnit target, IEnumerable<WoWUnit> otherUnits, float radius)
+        private static IEnumerable<WoWUnit> GetRadiusCluster(WoWObject target, IEnumerable<WoWUnit> otherUnits, float radius)
         {
             var targetLoc = target.Location;
             return otherUnits.Where(u => u.Location.DistanceSqr(targetLoc) <= radius * radius);

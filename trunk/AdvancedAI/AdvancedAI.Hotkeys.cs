@@ -1,28 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
 using Styx.Common;
 using Styx.WoWInternals;
 
 namespace AdvancedAI
 {
-    partial class AdvancedAI
+    sealed partial class AdvancedAI
     {
-        public static bool InterruptsEnabled { get; set; }
-        public static bool PvPRot { get; set; }
-        public static bool Burst { get; set; }
-        public static bool HexFocus { get; set; }
-        public static bool Movement { get; set; }
-        public static bool TierBonus { get; set; }
-        public static bool Aoe { get; set; }
+        public static bool InterruptsEnabled { get; private set; }
+        public static bool PvPRot { get; private set; }
+        public static bool Burst { get; private set; }
+        public static bool HexFocus { get; private set; }
+        public static bool Movement { get; private set; }
+        public static bool TierBonus { get; private set; }
+        public static bool Aoe { get; private set; }
         public static bool BossMechs { get; set; }
-        public static bool Weave { get; set; }
-        public static bool Dispell { get; set; }
+        public static bool Weave { get; private set; }
+        public static bool Dispell { get; private set; }
 
-        protected virtual void UnregisterHotkeys()
+        private void UnregisterHotkeys()
         {
             HotkeysManager.Unregister("Toggle Interrupt");
             HotkeysManager.Unregister("PvP Toggle");
@@ -35,7 +30,8 @@ namespace AdvancedAI
             HotkeysManager.Unregister("Weave");
             HotkeysManager.Unregister("Dispelling");
         }
-        protected virtual void RegisterHotkeys()
+
+        private static void RegisterHotkeys()
         {
             HotkeysManager.Register("Dispelling",
                 Keys.D,

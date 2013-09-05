@@ -14,9 +14,9 @@ using Styx.Common;
 namespace AdvancedAI.Managers
 {
 
-    internal class PetManager
+    internal static class PetManager
     {
-        public static readonly WaitTimer CallPetTimer = WaitTimer.OneSecond;
+        private static readonly WaitTimer CallPetTimer = WaitTimer.OneSecond;
 
         private static ulong _petGuid;
         private static readonly List<WoWPetSpell> PetSpells = new List<WoWPetSpell>();

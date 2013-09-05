@@ -108,18 +108,6 @@ namespace AdvancedAI.Helpers
             return false;
         }
 
-        public static IEnumerable<WoWUnit> UnfriendlyMeleeUnits { get { return UnfriendlyUnits.Where(u => u.IsWithinMeleeRange); } }
-        public static IEnumerable<WoWUnit> UnfriendlyUnits
-        {
-            get
-            {
-                return
-                    ObjectManager.GetObjectsOfType<WoWUnit>(true, false)
-                                 .Where(u => !u.IsDead && u.CanSelect && u.Attackable && !u.IsFriendly);
-            }
-        }
-
-
         /// <summary>
         /// List of WoWPlayer in your Group. Deals with Party / Raid in a list independent manner and does not restrict distance
         /// </summary>
@@ -239,27 +227,36 @@ namespace AdvancedAI.Helpers
         ///   Gets the nearby unfriendly units within 40 yards.
         /// </summary>
         /// <value>The nearby unfriendly units.</value>
+        public static IEnumerable<WoWUnit> UnfriendlyUnits(int maxSpellDist)
+        {
+            Type typeWoWUnit = typeof(WoWUnit);
+            Type typeWoWPlayer = typeof(WoWPlayer);
+            List<WoWObject> objectList = ObjectManager.ObjectList;
+            List<WoWUnit> list = new List<WoWUnit>();
+            for (int i = 0; i < objectList.Count; i++)
+            {
+                Type type = objectList[i].GetType();
+                if (type == typeWoWUnit || type == typeWoWPlayer)
+                {
+                    WoWUnit t = objectList[i] as WoWUnit;
+                    if (t != null && ValidUnit(t) && t.SpellDistance() < maxSpellDist)
+                    {
+                        list.Add(t);
+                    }
+                }
+            }
+            return list;
+        }
+
+        /// <summary>
+        ///   Gets the nearby unfriendly units within 40 yards.
+        /// </summary>
+        /// <value>The nearby unfriendly units.</value>
         public static IEnumerable<WoWUnit> NearbyUnfriendlyUnits
         {
             get
             {
-                Type typeWoWUnit = typeof(WoWUnit);
-                Type typeWoWPlayer = typeof(WoWPlayer);
-                List<WoWObject> objectList = ObjectManager.ObjectList;
-                List<WoWUnit> list = new List<WoWUnit>();
-                for (int i = 0; i < objectList.Count; i++)
-                {
-                    Type type = objectList[i].GetType();
-                    if (type == typeWoWUnit || type == typeWoWPlayer)
-                    {
-                        WoWUnit t = objectList[i] as WoWUnit;
-                        if (t != null && ValidUnit(t) && t.Distance < 40)
-                        {
-                            list.Add(t);
-                        }
-                    }
-                }
-                return list;
+                return UnfriendlyUnits(40);
             }
         }
 

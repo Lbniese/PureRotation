@@ -10,7 +10,7 @@ using Action = Styx.TreeSharp.Action;
 
 namespace AdvancedAI.Spec
 {
-    class FuryWarrior
+    static class FuryWarrior
     {
         static LocalPlayer Me { get { return StyxWoW.Me; } }
         public static Composite CreateFWCombat
@@ -30,7 +30,7 @@ namespace AdvancedAI.Spec
                     Spell.Cast("Colossus Smash", ret => Me.CurrentRage > 80 && Me.HasAura("Raging Blow!") && Me.HasAura("Enrage")),
                     HeroicLeap(),
                     DemoBanner(),
-                    new Decorator(ret => Unit.UnfriendlyMeleeUnits.Count() > 2,
+                    new Decorator(ret => Unit.UnfriendlyUnits(8).Count() > 2,
                         CreateAoe()),
                     new Decorator(ret => Me.CurrentTarget.HealthPercent <= 20,
                         CreateExecuteRange()),
@@ -79,14 +79,14 @@ namespace AdvancedAI.Spec
         private static Composite CreateAoe()
         {
             return new PrioritySelector(
-                new Decorator(ret => Unit.UnfriendlyMeleeUnits.Count() >= 5,
+                new Decorator(ret => Unit.UnfriendlyUnits(8).Count() >= 5,
                     new PrioritySelector(
                         Spell.Cast("Whirlwind"),
                         Spell.Cast("Bloodthirst"),
                         Spell.Cast("Raging Blow"))),
-                Spell.Cast("Whirlwind", ret => !Me.HasAura("Meat Cleaver", (int)MathEx.Clamp(1, 3, Unit.UnfriendlyMeleeUnits.Count() - 1))),
+                Spell.Cast("Whirlwind", ret => !Me.HasAura("Meat Cleaver", (int)MathEx.Clamp(1, 3, Unit.UnfriendlyUnits(8).Count() - 1))),
                 Spell.Cast("Bloodthirst"),
-                Spell.Cast("Raging Blow", ret => Me.HasAura("Meat Cleaver", (int)MathEx.Clamp(1, 3, Unit.UnfriendlyMeleeUnits.Count() - 1))),
+                Spell.Cast("Raging Blow", ret => Me.HasAura("Meat Cleaver", (int)MathEx.Clamp(1, 3, Unit.UnfriendlyUnits(8).Count() - 1))),
                 Spell.Cast("Cleave", ret => Me.CurrentRage >= 105 && Spell.GetSpellCooldown("Colossus Smash").TotalSeconds >= 3));
         }
 

@@ -1,15 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Styx;
 using Styx.Common;
 using Styx.TreeSharp;
 
 namespace AdvancedAI
 {
-    partial class AdvancedAI
+    sealed partial class AdvancedAI
     {
         #region Overrides
         private Composite _combat, _buffs, _pull, _heal;
@@ -17,24 +13,11 @@ namespace AdvancedAI
         public override Composite PreCombatBuffBehavior { get { return _buffs; } }
         public override Composite PullBehavior { get { return _pull; } }
         public override Composite HealBehavior { get { return _heal; } }
-        public sealed override void Combat() { base.Combat(); }
-        public sealed override void CombatBuff() { base.CombatBuff(); }
-        public sealed override void Death() { base.Death(); }
-        public sealed override void Heal() { base.Heal(); }
-        public sealed override Composite MoveToTargetBehavior { get { return base.MoveToTargetBehavior; } }
-        public sealed override bool NeedCombatBuffs { get { return base.NeedCombatBuffs; } }
-        public sealed override bool NeedDeath { get { return base.NeedDeath; } }
-        public sealed override bool NeedHeal { get { return base.NeedHeal; } }
-        public sealed override bool NeedPreCombatBuffs { get { return base.NeedPreCombatBuffs; } }
-        public sealed override bool NeedPullBuffs { get { return base.NeedPullBuffs; } }
-        public sealed override bool NeedRest { get { return base.NeedRest; } }
-        public sealed override void PreCombatBuff() { base.PreCombatBuff(); }
-        public sealed override void Pull() { base.Pull(); }
-        public sealed override void Rest() { base.Rest(); }
         #endregion
 
         #region Rotation Selection
-        internal Composite CombatandBuffSelection()
+
+        private void CombatandBuffSelection()
         {
             if (_combat == null)
             {
@@ -263,11 +246,10 @@ namespace AdvancedAI
                     if (_buffs == null) { _buffs = Spec.ProtectionWarrior.CreatePWBuffs; }
                     break;
             }
-            return null;
         }
         #endregion
 
-        public bool RebuildBehaviors()
+        private void RebuildBehaviors()
         {
             try
             {
@@ -281,13 +263,10 @@ namespace AdvancedAI
 
                 CombatandBuffSelection();
                 //SetRotation(); // set the new rotation
-
-                return true;
             }
             catch (Exception ex)
             {
                 Logging.WriteDiagnostic("[RebuildBehaviors] Exception was thrown: {0}", ex);
-                return false;
             }
         }
     }

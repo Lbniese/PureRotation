@@ -1,10 +1,9 @@
-﻿using System.Windows.Forms;
+﻿using JetBrains.Annotations;
 using Styx;
 using Styx.Common;
 using Styx.CommonBot;
 using Styx.CommonBot.Routines;
 using Styx.TreeSharp;
-using Styx.WoWInternals;
 using CommonBehaviors.Actions;
 using AdvancedAI.Managers;
 using AdvancedAI.Helpers;
@@ -13,14 +12,16 @@ using Styx.WoWInternals.WoWObjects;
 
 namespace AdvancedAI
 {
-    public partial class AdvancedAI : CombatRoutine
+    [UsedImplicitly]
+    public sealed partial class AdvancedAI : CombatRoutine
     {
         public override sealed string Name { get { return "AdvancedAI [" + StyxWoW.Me.Specialization + "]"; } }
         public override WoWClass Class { get { return StyxWoW.Me.Class; } }
         static LocalPlayer Me { get { return StyxWoW.Me; } }
         
         #region init
-        public static AdvancedAI Instance { get; private set; }
+        private static AdvancedAI Instance { [UsedImplicitly]
+        get; set; }
         public AdvancedAI()
         {
             Instance = this;
@@ -70,8 +71,6 @@ namespace AdvancedAI
             if (TalentManager.Pulse())
                 return;
 
-            //Interrupting.UnitSpellcastingInfo.Update();
-
             UpdateContext();
 
             switch (StyxWoW.Me.Class)
@@ -83,8 +82,6 @@ namespace AdvancedAI
                     PetManager.Pulse();
                     break;
             }
-
-            //if (!StyxWoW.Me.IsInGroup()) return;
 
             if (HealerManager.NeedHealTargeting)
                 HealerManager.Instance.Pulse();
@@ -111,13 +108,15 @@ namespace AdvancedAI
         #endregion
 
         #region Requirements
-        protected virtual Composite CreateCombat()
+
+        private Composite CreateCombat()
         {
             return new HookExecutor("AdvancedAI_Combat_Root",
                 "Root composite for AdvancedAI combat. Rotations will be plugged into this hook.",
                 new ActionAlwaysFail());
         }
-        protected virtual Composite CreateBuffs()
+
+        private Composite CreateBuffs()
         {
             return new HookExecutor("AdvancedAI_Buffs_Root",
                 "Root composite for AdvancedAI buffs. Rotations will be plugged into this hook.",
