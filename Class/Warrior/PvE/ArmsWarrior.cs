@@ -1,6 +1,5 @@
 ﻿using Styx;
 using Styx.TreeSharp;
-using Styx.WoWInternals;
 using Styx.WoWInternals.WoWObjects;
 using AdvancedAI.Helpers;
 using System.Linq;
@@ -8,7 +7,7 @@ using Action = Styx.TreeSharp.Action;
 
 namespace AdvancedAI.Spec
 {
-    class ArmsWarrior
+    static class ArmsWarrior
     {
         static LocalPlayer Me { get { return StyxWoW.Me; } }
         public static Composite CreateAWBuffs
@@ -101,23 +100,6 @@ namespace AdvancedAI.Spec
                 Spell.Cast("Heroic Throw"),
                 Spell.Cast("Impending Victory", ret => Me.HealthPercent < 50));
         }
-
-        #region Horridon Mechanics
-        public static WoWUnit PinkDino
-        {
-            get
-            {
-                var direhornspirit = (from unit in ObjectManager.GetObjectsOfType<WoWUnit>(false)
-                                where unit.IsAlive
-                                where unit.InLineOfSight
-                                where unit.Distance < 30
-                                //where unit.Name == "Training Dummy"
-                                where unit.Name == "Direhorn Spirit"
-                                select unit).FirstOrDefault();
-                return direhornspirit;
-            }
-        }
-        #endregion
 
         #region WarriorTalents
         public enum WarriorTalents

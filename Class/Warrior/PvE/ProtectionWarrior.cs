@@ -1,17 +1,10 @@
 ﻿using System.Windows.Forms;
 using AdvancedAI.Helpers;
-using AdvancedAI;
-using CommonBehaviors.Actions;
 using Styx;
-using Styx.Common;
 using Styx.TreeSharp;
 using Styx.WoWInternals;
 using Styx.WoWInternals.WoWObjects;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Action = Styx.TreeSharp.Action;
 using AdvancedAI.Managers;
 using Styx.CommonBot;
@@ -151,7 +144,6 @@ namespace AdvancedAI.Spec
 
         private static bool NeedZerker()
         {
-
             return (!Me.HasAura(12880) && !TalentManager.IsSelected((int)WarriorTalents.EnragedRegeneration) ||
                    (TalentManager.IsSelected((int)WarriorTalents.EnragedRegeneration) && !Me.HasAura(12880) && 
                     Me.HealthPercent <= 80 && !SpellManager.Spells["Enraged Regeneration"].Cooldown ||
