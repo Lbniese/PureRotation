@@ -50,10 +50,11 @@ namespace AdvancedAI.Spec
             get
             {
                 return new PrioritySelector(
-                    new Decorator(ret => Me.CurrentTarget.Distance < 28,
-                        Common.CreateDismount("Pull Test")),
+                    new Decorator(ret => Me.CurrentTarget.Distance < 28 && AdvancedAI.Movement,
+                        new PrioritySelector(
+                        Common.CreateDismount("Pull Test"),
+                        LuaCore.StartAutoAttack)),
                     CreateChargeBehavior(),
-                    LuaCore.StartAutoAttack,
                     Spell.Cast("Rallying Cry", ret => Me.HealthPercent <= 30),
                     new Throttle(1, 1,
                         new Sequence(
@@ -90,9 +91,9 @@ namespace AdvancedAI.Spec
                     Spell.Cast("Execute", ret => Me.CurrentTarget.HasMyAura("Colossus Smash") || Me.HasAura("Recklessness") || Me.CurrentRage >= 30),
                     Spell.Cast("Dragon Roar", ret => (!Me.CurrentTarget.HasMyAura("Colossus Smash") && Me.CurrentTarget.HealthPercent < 20) || (Me.HasAura("Bloodbath") && Me.CurrentTarget.HealthPercent >= 20) && Clusters.GetClusterCount(Me, Unit.NearbyUnfriendlyUnits, ClusterType.Radius, 8f) >= 1),
                     Spell.Cast("Thunder Clap", ret => Clusters.GetClusterCount(Me, Unit.NearbyUnfriendlyUnits, ClusterType.Radius, 8f) >= 2 && Clusters.GetCluster(Me, Unit.NearbyUnfriendlyUnits, ClusterType.Radius, 8).Any(u => !u.HasMyAura("Deep Wounds"))),
-                    Spell.Cast("Slam", ret => Me.CurrentTarget.HasMyAura("Colossus Smash") && (Me.CurrentTarget.GetAuraTimeLeft("Colossus Smash").TotalSeconds <= 1 || Me.HasAura("Recklessness")) && Me.CurrentTarget.HealthPercent >= 20),
+                    Spell.Cast("Slam", ret => (Me.CurrentTarget.GetAuraTimeLeft("Colossus Smash").TotalSeconds <= 1 || Me.HasAura("Recklessness")) && Me.CurrentTarget.HealthPercent >= 20),
                     Spell.Cast("Overpower", ret => Me.HasAura("Taste for Blood") && Me.Auras["Taste for Blood"].StackCount >= 3 && Me.CurrentTarget.HealthPercent >= 20),
-                    Spell.Cast("Slam", ret => Me.CurrentTarget.HasAura("Colossus Smash") && Me.CurrentTarget.GetAuraTimeLeft("Colossus Smash").TotalSeconds <= 2.5 && Me.CurrentTarget.HealthPercent >= 20),
+                    Spell.Cast("Slam", ret => Me.CurrentTarget.HasMyAura("Colossus Smash") && Me.CurrentTarget.GetAuraTimeLeft("Colossus Smash").TotalSeconds <= 2.5 && Me.CurrentTarget.HealthPercent >= 20),
                     Spell.Cast("Execute", ret => !Me.HasAura("Sudden Execute")),
                     Spell.Cast("Overpower", ret => Me.CurrentTarget.HealthPercent >= 20 || Me.HasAura("Sudden Execute")),
                     Spell.Cast("Slam", ret => Me.CurrentRage >= 50 && Me.CurrentTarget.HealthPercent >= 20),
@@ -201,6 +202,7 @@ namespace AdvancedAI.Spec
                     var bestInt = (from unit in ObjectManager.GetObjectsOfType<WoWPlayer>(false)
                                    where unit.IsAlive
                                    where unit.HealthPercent <= 30
+                                   where unit.IsInMyPartyOrRaid
                                    where unit.IsPlayer
                                    where !unit.IsHostile
                                    where unit.InLineOfSight

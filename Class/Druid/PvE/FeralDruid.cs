@@ -11,6 +11,7 @@ namespace AdvancedAI.Spec
     class FeralDruid
     {      
         static LocalPlayer Me { get { return StyxWoW.Me; } }
+        static WoWUnit healtarget { get { return HealerManager.FindLowestHealthTarget(); } }
         /*Had some issues here and had to use spell ids... so heres the id and the spell
          * 132158 = Nature's Swiftness
          * 5185 = Healing Touch
@@ -37,7 +38,7 @@ namespace AdvancedAI.Spec
                     //Normal
                     //new Decorator(//ret => StyxWoW.Me.CurrentTarget.HealthPercent > 20,
                     //    new PrioritySelector(
-                    Spell.Cast("Feral Spirit"),
+                    Spell.Cast("Feral Spirit", ret => AdvancedAI.Burst),
                     new Throttle(Spell.Cast("Nature's Vigil", ret => Me.HasAura("Berserk"))),
                     Spell.Cast("Incarnation", ret => Me.HasAura("Berserk")),
                     Spell.CastOnGround("Force of Nature",
@@ -49,7 +50,7 @@ namespace AdvancedAI.Spec
                     Spell.Cast("Faerie Fire", ret => !Me.CurrentTarget.HasAura("Weakened Armor", 3)),
                     //healing_touch,if=buff.predatory_swiftness.up&(combo_points>=4|(set_bonus.tier15_2pc_melee&combo_points>=3))&buff.dream_of_cenarius_damage.stack<2
                     Spell.Cast(5185, ret => StyxWoW.Me.HasAura("Predatory Swiftness") && StyxWoW.Me.ComboPoints >= 4 && (Me.HasAura(108381) && BuffStackCount(108381, Me) <= 1 || !Me.HasAura(108381))),
-                    Spell.Cast(5185, ret => Me.HasAura("Nature's Swiftness")),
+                    Spell.Cast(5185,  ret => Me.HasAura("Nature's Swiftness")),
                     //use_item,name=eternal_blossom_grips,sync=tigers_fury
                     new Decorator(ret => Me.HasAura("Tiger's Fury"),
                         new PrioritySelector(
@@ -83,7 +84,8 @@ namespace AdvancedAI.Spec
                     Spell.Cast("Shred", ret => Me.ActiveAuras.ContainsKey("Clearcasting") && Me.CurrentTarget.MeIsSafelyBehind || Me.ActiveAuras.ContainsKey("Clearcasting") && Me.HasAnyAura("Tiger's Fury", "Berserk")),
                     Spell.Cast("Shred", ret => Me.HasAura("Berserk")),
                     Spell.Cast("Mangle", ret => Me.ComboPoints <= 5 && Me.CurrentTarget.GetAuraTimeLeft("Rip").TotalSeconds <= 3 || Me.ComboPoints == 0 && Me.HasAuraExpired("Savage Roar", 2)),
-                    Spell.Cast("Shred", ret => (Me.CurrentTarget.MeIsSafelyBehind || (TalentManager.HasGlyph("Shred") && (Me.HasAnyAura("Tiger's Fury", "Berserk"))))));
+                    Spell.Cast("Shred", ret => (Me.CurrentTarget.MeIsSafelyBehind || (TalentManager.HasGlyph("Shred") && (Me.HasAnyAura("Tiger's Fury", "Berserk"))))),
+                    Spell.Cast("Mangle", ret => !Me.CurrentTarget.MeIsBehind));
             }
         }
 

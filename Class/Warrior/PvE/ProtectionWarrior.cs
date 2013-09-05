@@ -34,23 +34,24 @@ namespace AdvancedAI.Spec
                     new Throttle(1,1,
                         new PrioritySelector(
                     Common.CreateInterruptBehavior())),
-
+                    
                     new Decorator(ret => AdvancedAI.Burst,
                         new PrioritySelector(
                     Spell.Cast("Recklessness", ret => Me.CurrentTarget.IsWithinMeleeRange),
                     Spell.Cast("Bloodbath", ret => Me.CurrentTarget.IsWithinMeleeRange),
                     Spell.Cast("Avatar", ret => Me.HasAura("Recklessness") && Me.CurrentTarget.IsWithinMeleeRange),
                     Spell.Cast("Skull Banner", ret => Me.HasAura("Recklessness") && Me.CurrentTarget.IsWithinMeleeRange))),
-
+                    
                     Item.UsePotionAndHealthstone(40),
                     new Action(ret => { Item.UseHands(); return RunStatus.Failure; }),
 
                     //CD's all bout living
                     Spell.Cast("Victory Rush", ret => Me.HealthPercent <= 90 && Me.HasAura("Victorious")),
                     Spell.Cast("Impending Victory", ret => Me.HealthPercent <= 85),
-                    Spell.Cast("Berserker Rage", ret => NeedZerker()),
-                    Spell.Cast("Enraged Regeneration", ret => Me.HealthPercent <= 80 && Me.ActiveAuras.ContainsKey("Enrage") ||
-                                                              Me.HealthPercent <= 50 && Spell.GetSpellCooldown("Berserker Rage").TotalSeconds > 10),
+                    Spell.Cast("Berserker Rage", ret => !Me.HasAura(12880)),
+                    Spell.Cast("Enraged Regeneration", ret => (Me.HealthPercent <= 80 && Me.HasAura(12880) ||
+                                                              Me.HealthPercent <= 50 && Spell.GetSpellCooldown("Berserker Rage").TotalSeconds > 10)
+                                                              && TalentManager.IsSelected((int)WarriorTalents.EnragedRegeneration)), 
                     Spell.Cast("Last Stand", ret => Me.HealthPercent <= 15 && !Me.HasAura("Shield Wall")),
                     Spell.Cast("Shield Wall", ret => Me.HealthPercent <= 30 && !Me.HasAura("Last Stand")),
                     
@@ -150,8 +151,9 @@ namespace AdvancedAI.Spec
 
         private static bool NeedZerker()
         {
-            return (!Me.HasAura("Enrage") && !TalentManager.IsSelected((int)WarriorTalents.EnragedRegeneration) ||
-                   (TalentManager.IsSelected((int)WarriorTalents.EnragedRegeneration) && !Me.HasAura("Enrage") && 
+
+            return (!Me.HasAura(12880) && !TalentManager.IsSelected((int)WarriorTalents.EnragedRegeneration) ||
+                   (TalentManager.IsSelected((int)WarriorTalents.EnragedRegeneration) && !Me.HasAura(12880) && 
                     Me.HealthPercent <= 80 && !SpellManager.Spells["Enraged Regeneration"].Cooldown ||
                     Spell.GetSpellCooldown("Enraged Regeneration").TotalSeconds > 30 && SpellManager.Spells["Enraged Regeneration"].Cooldown));
         }
