@@ -21,7 +21,7 @@ namespace AdvancedAI.Class.Warrior.PvE
         public static Composite ProtCombat()
         {
             return new PrioritySelector(
-                    new Decorator(ret => Me.CurrentTarget != null && (!Me.CurrentTarget.IsWithinMeleeRange || Me.IsCasting || SpellManager.GlobalCooldown),
+                    new Decorator(ret => Me.CurrentTarget != null && !Me.CurrentTarget.IsAlive && Me.IsCasting,
                     new ActionAlwaysSucceed()),
                     new Decorator(ret => Me.HasAura("Dire Fixation"),
                         new PrioritySelector(
@@ -41,25 +41,32 @@ namespace AdvancedAI.Class.Warrior.PvE
                     Item.UsePotionAndHealthstone(40),
                     new Action(ret => { Item.UseHands(); return RunStatus.Failure; }),
 
+                    DemoBanner(),
+                    HeroicLeap(),
+                    MockingBanner(),
+
                     //CD's all bout living
-                    Spell.Cast("Victory Rush", ret => Me.HealthPercent <= 90 && Me.HasAura("Victorious")),
-                    Spell.Cast("Impending Victory", ret => Me.HealthPercent <= 85),
+                    Spell.Cast("Victory Rush", ret => Me.HealthPercent <= 90 && Me.CachedHasAura("Victorious")),
+                    //Spell.Cast("Impending Victory", ret => Me.HealthPercent <= 85),
                     Spell.Cast("Berserker Rage", ret => !Me.HasAura(Enrage)),
-                    Spell.Cast("Enraged Regeneration", ret => (Me.HealthPercent <= 80 && Me.HasAura(Enrage) ||
-                                                              Me.HealthPercent <= 50 && Spell.GetSpellCooldown("Berserker Rage").TotalSeconds > 10)
-                                                              && TalentManager.IsSelected((int)WarriorTalents.EnragedRegeneration)),
-                    Spell.Cast("Last Stand", ret => Me.HealthPercent <= 15 && !Me.HasAura("Shield Wall")),
-                    Spell.Cast("Shield Wall", ret => Me.HealthPercent <= 30 && !Me.HasAura("Last Stand")),
+                    //Spell.Cast("Enraged Regeneration", ret => (Me.HealthPercent <= 80 && Me.CachedHasAura(Enrage) ||
+                    //                                          Me.HealthPercent <= 50 && Spell.GetSpellCooldown("Berserker Rage").TotalSeconds > 10)
+                    //                                          && TalentManager.IsSelected((int)WarriorTalents.EnragedRegeneration)),
+                    Spell.Cast("Last Stand", ret => Me.HealthPercent <= 15 && !Me.CachedHasAura("Shield Wall")),
+                    Spell.Cast("Shield Wall", ret => Me.HealthPercent <= 30 && !Me.CachedHasAura("Last Stand")),
 
                     //Might need some testing
                     new Throttle(1, 1,
                         new PrioritySelector(
                     Spell.Cast("Rallying Cry", ret => HealerManager.GetCountWithHealth(55) > 6),
-                    Spell.Cast("Demoralizing Shout", ret => Unit.NearbyUnfriendlyUnits.Count(u => u.DistanceSqr <= 10 * 10) >= 1 && IsCurrentTank()))),
+                    Spell.Cast("Demoralizing Shout", ret => Unit.UnfriendlyUnits(10).Any() && IsCurrentTank()))),
 
-                    Spell.Cast("Shield Block", ret => !Me.HasAura("Shield Block") && IsCurrentTank() && AdvancedAI.Weave),
-                    Spell.Cast("Shield Barrier", ret => Me.CurrentRage > 60 && !Me.HasAura("Shield Barrier") && IsCurrentTank() && !AdvancedAI.Weave),
-                    Spell.Cast("Shield Barrier", ret => Me.CurrentRage > 30 && Me.HasAura("Shield Block") && Me.HealthPercent <= 70),
+                    Spell.Cast("Shield Block", ret => !Me.CachedHasAura("Shield Block") && IsCurrentTank() && AdvancedAI.Weave),
+                    Spell.Cast("Shield Barrier", ret => Me.CurrentRage > 60 && !Me.CachedHasAura("Shield Barrier") && IsCurrentTank() && !AdvancedAI.Weave),
+                    Spell.Cast("Shield Barrier", ret => Me.CurrentRage > 30 && Me.CachedHasAura("Shield Block") && Me.HealthPercent <= 70),
+
+                    new Decorator(ret => SpellManager.GlobalCooldown,
+                    new ActionAlwaysSucceed()),
 
                     Spell.Cast("Shattering Throw", ret => Me.CurrentTarget.IsBoss && PartyBuff.WeHaveBloodlust && !Me.IsMoving),
 
@@ -68,18 +75,14 @@ namespace AdvancedAI.Class.Warrior.PvE
                     Spell.Cast("Storm Bolt"),
                     Spell.Cast("Dragon Roar", ret => Me.CurrentTarget.Distance <= 8),
                     Spell.Cast("Execute"),
-                    Spell.Cast("Thunder Clap", ret => !Me.CurrentTarget.HasAura("Weakened Blows") && Me.CurrentTarget.Distance <= 8),
+                    Spell.Cast("Thunder Clap", ret => !Me.CurrentTarget.CachedHasAura("Weakened Blows") && Me.CurrentTarget.Distance <= 8),
 
-                    new Decorator(ret => Unit.NearbyUnfriendlyUnits.Count(u => u.DistanceSqr <= 8 * 8) >= 2,
+                    new Decorator(ret => Unit.UnfriendlyUnits(8).Count() >=2,
                         CreateAoe()),
-
-                    DemoBanner(),
-                    HeroicLeap(),
-                    MockingBanner(),
 
                     Spell.Cast("Commanding Shout", ret => Me.HasPartyBuff(PartyBuffType.AttackPower)),
                     Spell.Cast("Battle Shout"),
-                    Spell.Cast("Heroic Strike", ret => Me.CurrentRage > 85 || Me.HasAura(122510) || Me.HasAura(122016) || (!IsCurrentTank() && Me.CurrentRage > 60 && Me.CurrentTarget.IsBoss)),
+                    Spell.Cast("Heroic Strike", ret => Me.CurrentRage > 85 || Me.CachedHasAura(122510) || Me.CachedHasAura(122016) || (!IsCurrentTank() && Me.CurrentRage > 60 && Me.CurrentTarget.IsBoss)),
                     Spell.Cast("Heroic Throw", ret => Me.CurrentTarget.Distance >= 10),
                     Spell.Cast("Devastate"));
         }
@@ -98,10 +101,9 @@ namespace AdvancedAI.Class.Warrior.PvE
         {
             return new PrioritySelector(
                 Spell.Cast("Shockwave", ret => Clusters.GetClusterCount(Me, Unit.NearbyUnfriendlyUnits, ClusterType.Cone, 9) >= 3),
-                Spell.Cast("Bladestorm", ret => Unit.NearbyUnfriendlyUnits.Count(u => u.DistanceSqr <= 8 * 8) >= 2),
+                Spell.Cast("Bladestorm"),
                 Spell.Cast("Thunder Clap"),
-                Spell.Cast("Cleave", ret => (Me.CurrentRage > 85 || Me.HasAura(122510) || Me.HasAura(122016)) && Clusters.GetClusterCount(Me, Unit.NearbyUnfriendlyUnits, ClusterType.Cone, 5) >= 2),
-                Spell.Cast("Thunder Clap", ret => Me.CurrentTarget.HasAura("Weakened Blows"))
+                Spell.Cast("Cleave", ret => (Me.CurrentRage > 85 || Me.CachedHasAura(122510) || Me.CachedHasAura(122016)) && Clusters.GetClusterCount(Me, Unit.NearbyUnfriendlyUnits, ClusterType.Cone, 5) >= 2)
                 );
         }
 
@@ -147,8 +149,8 @@ namespace AdvancedAI.Class.Warrior.PvE
         private static bool NeedZerker()
         {
 
-            return (!Me.HasAura(Enrage) && !TalentManager.IsSelected((int)WarriorTalents.EnragedRegeneration) ||
-                   (TalentManager.IsSelected((int)WarriorTalents.EnragedRegeneration) && !Me.HasAura(Enrage) &&
+            return (!Me.CachedHasAura(Enrage) && !TalentManager.IsSelected((int)WarriorTalents.EnragedRegeneration) ||
+                   (TalentManager.IsSelected((int)WarriorTalents.EnragedRegeneration) && !Me.CachedHasAura(Enrage) &&
                     Me.HealthPercent <= 80 && !SpellManager.Spells["Enraged Regeneration"].Cooldown ||
                     Spell.GetSpellCooldown("Enraged Regeneration").TotalSeconds > 30 && SpellManager.Spells["Enraged Regeneration"].Cooldown));
         }
