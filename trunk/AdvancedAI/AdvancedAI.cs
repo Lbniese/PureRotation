@@ -27,12 +27,19 @@ namespace AdvancedAI
             TalentManager.Init();
             TalentManager.Update();
             UpdateContext();
+            OnWoWContextChanged += (orig, ne) =>
+            {
+                Logging.Write("Context changed, re-creating behaviors");
+                AssignBehaviors();
+                Spell.GcdInitialize();
+                Lists.BossList.Init();
+            };
             Spell.GcdInitialize();
             Dispelling.Init();
             EventHandlers.Init();
             Lists.BossList.Init();
             Instance.AssignBehaviors();
-            Logging.Write("Init Complete!");
+            Logging.Write("Initialization Completed");
         }
         
         public override void ShutDown()
