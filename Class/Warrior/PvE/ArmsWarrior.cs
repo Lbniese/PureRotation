@@ -20,8 +20,8 @@ namespace AdvancedAI.Class.Warrior.PvE
                 new Decorator(ret => Me.CurrentTarget != null && (!Me.CurrentTarget.IsWithinMeleeRange || Me.IsCasting || SpellManager.GlobalCooldown),
                     new ActionAlwaysSucceed()),
                 new Decorator(ret => Me.CachedHasAura("Dire Fixation"),
-                            new PrioritySelector(
-                                BossMechs.HorridonHeroic())),
+                    new PrioritySelector(
+                        BossMechs.HorridonHeroic())),
                 Common.CreateInterruptBehavior(),
                 Spell.Cast("Victory Rush", ret => Me.HealthPercent <= 90 && Me.CachedHasAura("Victorious")),
                 Spell.Cast("Die by the Sword", ret => Me.HealthPercent <= 20),
