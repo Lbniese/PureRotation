@@ -42,6 +42,8 @@ namespace AdvancedAI.Managers
         public static bool NeedHealTargeting { get; set; }
 
         private List<WoWUnit> HealList { get { return ObjectList.ConvertAll(o => o.ToUnit()); } }
+        public static List<WoWObject> GetInitialList { get { return ObjectManager.ObjectList.Where(o => o is WoWPlayer).ToList(); } }
+        private static IEnumerable<WoWPartyMember> GroupMembers { get { return !StyxWoW.Me.GroupInfo.IsInRaid ? StyxWoW.Me.GroupInfo.PartyMembers : StyxWoW.Me.GroupInfo.RaidMembers; } }
 
         protected override List<WoWObject> GetInitialObjectList()
         {
@@ -223,6 +225,75 @@ namespace AdvancedAI.Managers
             }
         }
 
+        public static WoWPlayer GetTank
+        {
+            get
+            {
+                // Got a Focus Tank?
+                if (StyxWoW.Me.FocusedUnit != null)
+                {
+                    var focustank = CachedUnits.HealList.FirstOrDefault(p => p.Guid == StyxWoW.Me.FocusedUnit.Guid);
+                    if (focustank != null && focustank.IsValid)
+                    {
+                        return focustank.ToPlayer();
+                    }
+                }
+
+                // Using Lazy Raider ?
+                if (RaFHelper.Leader != null && RaFHelper.Leader.CurrentHealth > 1 && RaFHelper.Leader != StyxWoW.Me)
+                {
+                    var raFHelpertank = CachedUnits.HealList.FirstOrDefault(p => p.Guid == RaFHelper.Leader.Guid);
+                    if (raFHelpertank != null && raFHelpertank.IsValid)
+                    {
+                        return raFHelpertank.ToPlayer();
+                    }
+                }
+
+                // We in a raid?, lets see if we can get the mainTank as specified by Blizzard (this is decided by iLvL)
+                var maintTank = CachedUnits.TankList.FirstOrDefault(p => p.IsAlive && p.IsValid && p.Distance < 40 && p.IsMainTank());
+
+                if (maintTank != null) return maintTank;
+
+                // We in a raid?, Main Tank may be dead, lets get the OffTank.
+                var offTank = CachedUnits.TankList.FirstOrDefault(p => p.IsAlive && p.IsValid && p.Distance < 40 && p.IsAssistTank());
+
+                if (offTank != null) return offTank;
+
+                // Hmm ok..we must be in a Party (5 man) lets query the tank by role.
+                var partyTank = CachedUnits.TankList.FirstOrDefault(p => p.IsAlive && p.IsValid && p.Distance < 40);
+                if (partyTank != null) return partyTank;
+
+                // Damn couldnt find a tank ima be the boss!
+                return StyxWoW.Me;
+            }
+        }
+
+        internal static List<WoWPlayer> Tanks
+        {
+            get
+            {
+                if (!StyxWoW.Me.GroupInfo.IsInParty)
+                    return new List<WoWPlayer>();
+
+                return GroupMembers.Where(p => p.HasRole(WoWPartyMember.GroupRole.Tank))
+                    .Select(p => p.ToPlayer())
+                    .Where(p => p != null).ToList();
+            }
+        }
+
+        internal static List<WoWPlayer> Healers
+        {
+            get
+            {
+                if (!StyxWoW.Me.GroupInfo.IsInParty)
+                    return new List<WoWPlayer>();
+
+                return GroupMembers.Where(p => p.HasRole(WoWPartyMember.GroupRole.Healer))
+                    .Select(p => p.ToPlayer())
+                    .Where(p => p != null).ToList();
+            }
+        }
+
         private static HashSet<ulong> GetMainTankGuids()
         {
             var infos = StyxWoW.Me.GroupInfo.RaidMembers;
@@ -391,6 +462,7 @@ namespace AdvancedAI.Managers
                     return null;
                 }
             }
+            set { throw new NotImplementedException(); }
         }
 
         public static WoWPlayer GetUnbuffedTarget(string withoutBuff)

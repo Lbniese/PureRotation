@@ -1,6 +1,5 @@
 ﻿using System.Windows.Forms;
 using AdvancedAI.Helpers;
-using AdvancedAI;
 using CommonBehaviors.Actions;
 using Styx;
 using Styx.Common;
@@ -10,13 +9,11 @@ using Styx.WoWInternals.WoWObjects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Action = Styx.TreeSharp.Action;
 using AdvancedAI.Managers;
 using Styx.CommonBot;
+using Action = Styx.TreeSharp.Action;
 
-namespace AdvancedAI.Spec
+namespace AdvancedAI.Class.Warrior.PvP
 {
     class ArmsWarriorPvP
     {
@@ -45,73 +42,68 @@ namespace AdvancedAI.Spec
         #endregion
         public static DateTime LastInterrupt;
 
-        public static Composite CreateAWPvPCombat
+
+        [Behavior(BehaviorType.Combat, WoWClass.Warrior, WoWSpec.WarriorArms, WoWContext.Battlegrounds)]
+        public static Composite ArmsPvPCombat()
         {
-            get
-            {
-                return new PrioritySelector(
-                    new Decorator(ret => Me.CurrentTarget.Distance < 28 && AdvancedAI.Movement,
-                        new PrioritySelector(
-                        Common.CreateDismount("Pull Test"),
-                        LuaCore.StartAutoAttack)),
-                    CreateChargeBehavior(),
-                    Spell.Cast("Rallying Cry", ret => Me.HealthPercent <= 30),
-                    new Throttle(1, 1,
-                        new Sequence(
-                            CreateInterruptSpellCast(on => BestInterrupt))),
-                    Item.UsePotionAndHealthstone(40),
-                    Spell.Cast("Victory Rush", ret => Me.HealthPercent <= 90 && Me.HasAura("Victorious")),
-                    ShatterBubbles(),
-                    new Decorator(
-                        new PrioritySelector(ret => !Me.CurrentTarget.IsStunned() && !Me.CurrentTarget.IsCrowdControlled() && !Me.CurrentTarget.HasAuraWithEffectsing(WoWApplyAuraType.ModDecreaseSpeed) && !Me.CurrentTarget.HasAnyAura("Piercing Howl", "Hamsting"),
-                    Spell.Cast("Piercing Howl"),
-                    Spell.Cast("Hamstring"))),
-                    DemoBanner(),
-                    HeroicLeap(),
-                    MockingBanner(),
-                    new Decorator(ret => AdvancedAI.Movement,
-                        new PrioritySelector(
-                            DemoBannerAuto(),
-                            MockingBannerAuto())),
-                    Spell.Cast("Intervene", on => BestBanner),
-                    //Spell.CastOnGround("Demoralizing Banner", on => Me.Location, ret => Me.HealthPercent < 40),
-                    Spell.Cast("Disarm", ret => Me.CurrentTarget.HasAnyAura(Disarm) && !Me.CurrentTarget.HasAnyAura(DontDisarm)),
-                    Spell.Cast("Die by the Sword", ret => Me.HealthPercent <= 20 /*&& Me.CurrentTarget.IsMelee()*/),
-                    new Decorator(ret => AdvancedAI.Burst && Me.CurrentTarget.IsWithinMeleeRange,
-                        new PrioritySelector(
-                            Spell.Cast("Recklessness"),
-                            Spell.Cast("Bloodbath"),
-                            Spell.Cast("Avatar", ret => Me.HasAura("Recklessness")),
-                            Spell.Cast("Skull Banner", ret => Me.HasAura("Recklessness")))),
-                    new Action(ret => { Item.UseHands(); return RunStatus.Failure; } ),
-                    Spell.Cast("Intervene", on => BestInterveneTarget),
-                    Spell.Cast("Charge", on => ChargeInt),
-                    Spell.Cast("Heroic Strike", ret => (Me.CurrentTarget.HasMyAura("Colossus Smash") && Me.CurrentRage >= 70) || Me.CurrentRage >= 95),
-                    Spell.Cast("Mortal Strike"),
-                    Spell.Cast("Dragon Roar", ret => !Me.CurrentTarget.HasMyAura("Colossus Smash") && Me.HasAura("Bloodbath") && Me.CurrentTarget.Distance <= 8),
-                    Spell.Cast("Colossus Smash", ret => Me.HasAuraExpired("Colossus Smash", 1)),
-                    Spell.Cast("Execute", ret => Me.CurrentTarget.HasMyAura("Colossus Smash") || Me.HasAura("Recklessness") || Me.CurrentRage >= 30),
-                    Spell.Cast("Dragon Roar", ret => Me.CurrentTarget.Distance <= 8 && (!Me.CurrentTarget.HasMyAura("Colossus Smash") && Me.CurrentTarget.HealthPercent < 20) || Me.HasAura("Bloodbath")),
-                    Spell.Cast("Thunder Clap", ret => Clusters.GetClusterCount(Me, Unit.NearbyUnfriendlyUnits, ClusterType.Radius, 8f) >= 2 && Clusters.GetCluster(Me, Unit.NearbyUnfriendlyUnits, ClusterType.Radius, 8).Any(u => !u.HasMyAura("Deep Wounds"))),
-                    Spell.Cast("Slam", ret => (Me.CurrentTarget.HasMyAura("Colossus Smash") || Me.HasAura("Recklessness")) && Me.CurrentTarget.HealthPercent >= 20),
-                    Spell.Cast("Overpower", ret => Me.CurrentTarget.HealthPercent >= 20 || Me.HasAura("Sudden Execute")),
-                    Spell.Cast("Execute", ret => !Me.HasAura("Sudden Execute")),
-                    Spell.Cast("Slam", ret => Me.CurrentRage >= 50 && Me.CurrentTarget.HealthPercent >= 20),
-                    Spell.Cast("Battle Shout"),
-                    Spell.Cast("Heroic Throw"),
-                    Spell.Cast("Impending Victory", ret => Me.CurrentTarget.HealthPercent > 20 || Me.HealthPercent < 50),
-                    new Decorator(ret => AdvancedAI.Movement,
-                        Movement.CreateMoveToMeleeBehavior(true)));
-            }
+            return new PrioritySelector(
+                new Decorator(ret => Me.CurrentTarget != null && (!Me.CurrentTarget.IsWithinMeleeRange || Me.IsCasting || SpellManager.GlobalCooldown),
+                    new ActionAlwaysSucceed()),
+                CreateChargeBehavior(),
+                Spell.Cast("Rallying Cry", ret => Me.HealthPercent <= 30),
+                new Throttle(1, 1,
+                    new Sequence(
+                        CreateInterruptSpellCast(on => BestInterrupt))),
+                Item.UsePotionAndHealthstone(40),
+                Spell.Cast("Victory Rush", ret => Me.HealthPercent <= 90 && Me.HasAura("Victorious")),
+                ShatterBubbles(),
+                new Decorator(
+                    new PrioritySelector(ret => !Me.CurrentTarget.IsStunned() && !Me.CurrentTarget.IsCrowdControlled() && !Me.CurrentTarget.HasAuraWithEffectsing(WoWApplyAuraType.ModDecreaseSpeed) && !Me.CurrentTarget.HasAnyAura("Piercing Howl", "Hamsting"),
+                Spell.Cast("Piercing Howl"),
+                Spell.Cast("Hamstring"))),
+                DemoBanner(),
+                HeroicLeap(),
+                MockingBanner(),
+                new Decorator(ret => AdvancedAI.Movement,
+                    new PrioritySelector(
+                        DemoBannerAuto(),
+                        MockingBannerAuto())),
+                Spell.Cast("Intervene", on => BestBanner),
+                //Spell.CastOnGround("Demoralizing Banner", on => Me.Location, ret => Me.HealthPercent < 40),
+                Spell.Cast("Disarm", ret => Me.CurrentTarget.HasAnyAura(Disarm) && !Me.CurrentTarget.HasAnyAura(DontDisarm)),
+                Spell.Cast("Die by the Sword", ret => Me.HealthPercent <= 20 /*&& Me.CurrentTarget.IsMelee()*/),
+                new Decorator(ret => AdvancedAI.Burst && Me.CurrentTarget.IsWithinMeleeRange,
+                    new PrioritySelector(
+                        Spell.Cast("Recklessness"),
+                        Spell.Cast("Bloodbath"),
+                        Spell.Cast("Avatar", ret => Me.HasAura("Recklessness")),
+                        Spell.Cast("Skull Banner", ret => Me.HasAura("Recklessness")))),
+                new Action(ret => { Item.UseHands(); return RunStatus.Failure; } ),
+                Spell.Cast("Intervene", on => BestInterveneTarget),
+                Spell.Cast("Charge", on => ChargeInt),
+                Spell.Cast("Heroic Strike", ret => (Me.CurrentTarget.HasMyAura("Colossus Smash") && Me.CurrentRage >= 70) || Me.CurrentRage >= 95),
+                Spell.Cast("Mortal Strike"),
+                Spell.Cast("Dragon Roar", ret => !Me.CurrentTarget.HasMyAura("Colossus Smash") && Me.HasAura("Bloodbath") && Me.CurrentTarget.Distance <= 8),
+                Spell.Cast("Colossus Smash", ret => Me.HasAuraExpired("Colossus Smash", 1)),
+                Spell.Cast("Execute", ret => Me.CurrentTarget.HasMyAura("Colossus Smash") || Me.HasAura("Recklessness") || Me.CurrentRage >= 30),
+                Spell.Cast("Dragon Roar", ret => Me.CurrentTarget.Distance <= 8 && (!Me.CurrentTarget.HasMyAura("Colossus Smash") && Me.CurrentTarget.HealthPercent < 20) || Me.HasAura("Bloodbath")),
+                Spell.Cast("Thunder Clap", ret => Clusters.GetClusterCount(Me, Unit.NearbyUnfriendlyUnits, ClusterType.Radius, 8f) >= 2 && Clusters.GetCluster(Me, Unit.NearbyUnfriendlyUnits, ClusterType.Radius, 8).Any(u => !u.HasMyAura("Deep Wounds"))),
+                Spell.Cast("Slam", ret => (Me.CurrentTarget.HasMyAura("Colossus Smash") || Me.HasAura("Recklessness")) && Me.CurrentTarget.HealthPercent >= 20),
+                Spell.Cast("Overpower", ret => Me.CurrentTarget.HealthPercent >= 20 || Me.HasAura("Sudden Execute")),
+                Spell.Cast("Execute", ret => !Me.HasAura("Sudden Execute")),
+                Spell.Cast("Slam", ret => Me.CurrentRage >= 50 && Me.CurrentTarget.HealthPercent >= 20),
+                Spell.Cast("Battle Shout"),
+                Spell.Cast("Heroic Throw"),
+                Spell.Cast("Impending Victory", ret => Me.CurrentTarget.HealthPercent > 20 || Me.HealthPercent < 50),
+                new Decorator(ret => AdvancedAI.Movement,
+                    Movement.CreateMoveToMeleeBehavior(true)));
         }
 
-        public static Composite CreateAWPvPBuffs
+        [Behavior(BehaviorType.PreCombatBuffs, WoWClass.Warrior, WoWSpec.WarriorArms, WoWContext.Battlegrounds)]
+        public static Composite CreateAWPvPBuffs()
         {
-            get
-            {
-                return new PrioritySelector(
-                    Spell.BuffSelf("Battle Shout"));
-            }
+            return new PrioritySelector(
+                Spell.BuffSelf("Battle Shout"));
         }
 
         #region Best Banner

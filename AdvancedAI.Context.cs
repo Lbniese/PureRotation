@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using AdvancedAI.Helpers;
 using Styx;
 using Styx.CommonBot;
@@ -24,7 +20,7 @@ namespace AdvancedAI
     }
     #endregion Nested type: LocationContextEventArg
 
-    sealed partial class AdvancedAI
+    partial class AdvancedAI
     {
         private bool _contextEventSubscribed;
 

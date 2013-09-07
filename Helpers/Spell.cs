@@ -2,7 +2,9 @@
 //#define HONORBUDDY_GCD_IS_WORKING
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using AdvancedAI.Managers;
 using CommonBehaviors.Actions;
 using Styx;
 using Styx.CommonBot;
@@ -12,7 +14,7 @@ using Styx.WoWInternals.WoWObjects;
 using Styx.WoWInternals.World;
 using Action = Styx.TreeSharp.Action;
 using Styx.Common;
-using AdvancedAI.Managers;
+
 
 namespace AdvancedAI.Helpers
 {
@@ -358,7 +360,7 @@ namespace AdvancedAI.Helpers
 #if HONORBUDDY_GCD_IS_WORKING
             Logger.WriteDebug("GcdInitialize: using HonorBuddy GCD");
 #else
-            Logging.Write("FixGlobalCooldownInitialize: using Singular GCD");
+            Logging.Write("FixGlobalCooldownInitialize: using AdvancedAI GCD");
             switch (StyxWoW.Me.Class)
             {
                 case WoWClass.DeathKnight:
@@ -1110,25 +1112,21 @@ namespace AdvancedAI.Helpers
                     if (_buffName == null)
                         return false;
 
-                    if (DoubleCastPreventionDict.Contains(_buffUnit, _buffName))
+                    if (DoubleCastPreventionDict.Contains(onUnit(ret), name(ret)))
                         return false;
 
-                    bool hasExpired;
                     if (!buffNames.Any())
                     {
-                        hasExpired = _buffUnit.HasAuraExpired(_buffName, expirSecs, myBuff);
+                        bool hasExpired = onUnit(ret).HasAuraExpired(name(ret), expirSecs, myBuff);
                         if (hasExpired)
-                            Logging.WriteDiagnostic("Spell.Buff(r=>'{0}'): hasspell={1}, auraleft={2:F1} secs", _buffName, SpellManager.HasSpell(_buffName).ToYN(), _buffUnit.GetAuraTimeLeft(_buffName, true).TotalSeconds);
+                            Logging.Write("Spell.Buff(r=>'{0}'): hasspell={1}, auraleft={2:F1} secs", name(ret), SpellManager.HasSpell(name(ret)).ToYN(), onUnit(ret).GetAuraTimeLeft(name(ret), true).TotalSeconds);
+                            //Logger.WriteDebug("Spell.Buff(r=>'{0}'): hasspell={1}, auraleft={2:F1} secs", name(ret), SpellManager.HasSpell(name(ret)).ToYN(), onUnit(ret).GetAuraTimeLeft(name(ret), true).TotalSeconds);
 
                         return hasExpired;
                     }
 
-                    hasExpired = SpellManager.HasSpell(_buffName) && buffNames.All(b => _buffUnit.HasKnownAuraExpired(b, expirSecs, myBuff));
-                    if (hasExpired)
-                        Logging.WriteDiagnostic("Spell.Buff(r=>'{0}'): hasspell={1}, all auras less than {2:F1} secs", _buffName, SpellManager.HasSpell(_buffName).ToYN(), expirSecs );
-
-                    return hasExpired;
-                    },
+                    return buffNames.All(b => onUnit(ret).HasAuraExpired(b, expirSecs, myBuff));
+                },
                 new Sequence(
                 // new Action(ctx => _lastBuffCast = name),
                     Cast(name, chkMov => true, onUnit, requirements, cancel => false /* causes cast to complete */ ),
@@ -1967,7 +1965,7 @@ namespace AdvancedAI.Helpers
 
         #endregion
 
-        public static bool CachedHasAura(this WoWUnit unit, string aura, int stacks = 0, bool fromMyAura = false, int msLeft = 0, int expiry = 1000)
+        public static bool CachedHasAura(this WoWUnit unit, string aura, int stacks = 0, bool fromMyAura = true, int msLeft = 0, int expiry = 1000)
         {
             if (unit == null) return false;
 
@@ -1986,7 +1984,7 @@ namespace AdvancedAI.Helpers
             return false;
         }
 
-        public static bool CachedHasAura(this WoWUnit unit, int aura, int stacks = 0, bool fromMyAura = false, int msLeft = 0, int expiry = 1000)
+        public static bool CachedHasAura(this WoWUnit unit, int aura, int stacks = 0, bool fromMyAura = true, int msLeft = 0, int expiry = 1000)
         {
             if (unit == null) return false;
 
@@ -2005,7 +2003,23 @@ namespace AdvancedAI.Helpers
             return false;
         }
 
-        public static bool CachedHasAuraDown(this WoWUnit unit, int aura, int stacks = 0, bool fromMyAura = false, int msLeft = 0, int expiry = 1000)
+        public static bool CachedHasAuraDown(this WoWUnit unit, string aura, int stacks = 0, bool fromMyAura = true, int secondsLeft = 0, int expiry = 1000)
+        {
+            var cachedResult = unit.CachedGetAllAuras(expiry).FirstOrDefault(a => a.SpellId.ToString(CultureInfo.InvariantCulture) == aura);
+
+            if (cachedResult == null)
+                return false;
+
+            if (fromMyAura && cachedResult.CreatorGuid != StyxWoW.Me.Guid)
+                return false;
+
+            if (cachedResult.TimeLeft.TotalSeconds < secondsLeft)
+                return cachedResult.StackCount >= stacks;
+
+            return false;
+        }
+
+        public static bool CachedHasAuraDown(this WoWUnit unit, int aura, int stacks = 0, bool fromMyAura = true, int msLeft = 0, int expiry = 1000)
         {
             var cachedResult = unit.CachedGetAllAuras(expiry).FirstOrDefault(a => a.SpellId == aura);
 
@@ -2049,7 +2063,7 @@ namespace AdvancedAI.Helpers
             return CachedUnits.AttackableUnits.Any(u => u.CachedGetAllAuras(expiry).Any(a => a.Name == aura && a.CreatorGuid == Me.Guid));
         }
 
-        public static uint CachedStackCount(this WoWUnit unit, string aura, bool fromMyAura = false, int expiry = 1000)
+        public static uint CachedStackCount(this WoWUnit unit, string aura, bool fromMyAura = true, int expiry = 1000)
         {
             {
                 if (unit != null)
@@ -2065,7 +2079,7 @@ namespace AdvancedAI.Helpers
             }
         }
 
-        public static uint CachedStackCount(this WoWUnit unit, int aura, bool fromMyAura = false, int expiry = 1000)
+        public static uint CachedStackCount(this WoWUnit unit, int aura, bool fromMyAura = true, int expiry = 1000)
         {
             {
                 if (unit != null)
@@ -2081,7 +2095,7 @@ namespace AdvancedAI.Helpers
             }
         }
 
-        public static double CachedGetAuraTimeLeft(this WoWUnit unit, int aura, bool fromMyAura = false, int expiry = 1000)
+        public static double CachedGetAuraTimeLeft(this WoWUnit unit, int aura, bool fromMyAura = true, int expiry = 1000)
         {
             if (unit != null)
             {
@@ -2096,7 +2110,7 @@ namespace AdvancedAI.Helpers
             return 0;
         }
 
-        public static double CachedGetAuraTimeLeft(this WoWUnit unit, string aura, bool fromMyAura = false, int expiry = 1000)
+        public static double CachedGetAuraTimeLeft(this WoWUnit unit, string aura, bool fromMyAura = true, int expiry = 1000)
         {
             if (unit != null)
             {
@@ -2105,13 +2119,13 @@ namespace AdvancedAI.Helpers
                 if (cachedResult == null)
                     return 0;
 
-                if (cachedResult.TimeLeft.TotalMilliseconds > 0)
-                    return cachedResult.TimeLeft.TotalMilliseconds;
+                if (cachedResult.TimeLeft.TotalSeconds > 0)
+                    return cachedResult.TimeLeft.TotalSeconds;
             }
             return 0;
         }
 
-        public static double CachedGetAuraTimeLeft(this WoWUnit unit, HashSet<int> aura, bool fromMyAura = false, int expiry = 1000)
+        public static double CachedGetAuraTimeLeft(this WoWUnit unit, HashSet<int> aura, bool fromMyAura = true, int expiry = 1000)
         {
             if (unit != null)
             {

@@ -16,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AdvancedAI.Helpers;
+using AdvancedAI.Managers;
 using JetBrains.Annotations;
 //using PureRotation.Core;
 //using PureRotation.Helpers;
@@ -28,7 +29,7 @@ using Styx.WoWInternals.WoWObjects;
 using Styx.WoWInternals.World;
 using Action = Styx.TreeSharp.Action;
 
-namespace AdvancedAI.Managers
+namespace AdvancedAI.Helpers
 {
     [UsedImplicitly]
     class CachedUnits : CacheManager
@@ -94,7 +95,7 @@ namespace AdvancedAI.Managers
             IncludeFilter(HealList);                    // Inlcude healable units.
             TankList = CachedTankList;                  // cache the tanks.
             HealerList = CachedHealerList;              // cache the healers.
-            HealManager.Tank = CachedTank;              // cache the Tank - Focus, RaFHelper, MainTank, MainAssist, PartyTank, Me, in that order..
+            HealerManager.Tank = CachedTank;              // cache the Tank - Focus, RaFHelper, MainTank, MainAssist, PartyTank, Me, in that order..
             //MassDispelUnits = CachedMassDispel;         // cache Mass Dispel Units.
         }
 
@@ -143,7 +144,7 @@ namespace AdvancedAI.Managers
                 return true;
             }
 
-            if (p.DistanceSqr > HealManager.MaxHealingDistanceSqr)
+            if (p.DistanceSqr > 40)
             {
                 return true;
             }
@@ -202,7 +203,7 @@ namespace AdvancedAI.Managers
                 if (healList == null)
                 {
                     // Go and retrieve the data from the objectManager
-                    healList = HealManager.GetInitialList;
+                    healList = HealerManager.GetInitialList;
 
                     // Then add it to the cache so we
                     // can retrieve it from there next time
@@ -225,7 +226,7 @@ namespace AdvancedAI.Managers
                 if (tankList == null)
                 {
                     // Go and retrieve the data from the objectManager
-                    tankList = HealManager.Tanks;
+                    tankList = HealerManager.Tanks;
 
                     // Then add it to the cache so we
                     // can retrieve it from there next time
@@ -248,7 +249,7 @@ namespace AdvancedAI.Managers
                 if (healerList == null)
                 {
                     // Go and retrieve the data from the objectManager
-                    healerList = HealManager.Healers;
+                    healerList = HealerManager.Healers;
 
                     // Then add it to the cache so we
                     // can retrieve it from there next time
@@ -318,7 +319,7 @@ namespace AdvancedAI.Managers
                 if (Tank == null)
                 {
                     // Go and retrieve the data from the objectManager
-                    Tank = HealManager.GetTank;
+                    Tank = HealerManager.GetTank;
 
                     // Then add it to the cache so we
                     // can retrieve it from there next time

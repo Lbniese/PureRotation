@@ -1,129 +1,103 @@
-﻿using CommonBehaviors.Actions;
-using Styx;
-using Styx.TreeSharp;
-using Styx.WoWInternals.WoWObjects;
-using AdvancedAI.Helpers;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Action = Styx.TreeSharp.Action;
+using System.Text;
+using System.Threading.Tasks;
+using AdvancedAI.Helpers;
+using CommonBehaviors.Actions;
+using Styx;
+using Styx.TreeSharp;
 using Styx.WoWInternals;
-using AdvancedAI.Managers;
+using Styx.WoWInternals.WoWObjects;
+using Action = Styx.TreeSharp.Action;
 
-namespace AdvancedAI.Spec
+namespace AdvancedAI.Class.Monk.PvE
 {
     class BrewmasterMonk
-    {       
+    {
         static LocalPlayer Me { get { return StyxWoW.Me; } }
         private static double? _time_to_max;
         private static double? _EnergyRegen;
         private static double? _energy;
+        private const int KegSmash = 121253;
+        private const int ElusiveBrew = 115308;
 
-        public static Composite CreateBMCombat
+        [Behavior(BehaviorType.Combat, WoWClass.Monk, WoWSpec.MonkBrewmaster)]
+        public static Composite BrewmasterCombat()
         {
-            get
-            {
-                return new PrioritySelector(
-                    new Decorator(ret => AdvancedAI.PvPRot,
-                        BrewmasterMonkPvP.CreateBMPvPCombat),
-                    new Throttle(1,
-                        new Action(context => ResetVariables())),
-                    /*Things to fix
-                     * energy capping 
-                     * need to check healing spheres 
-                     * IsCurrentTank() code does not work (this would be nice to have working)
-                    */
-                    Spell.Cast("Spear Hand Strike", ret => StyxWoW.Me.CurrentTarget.IsCasting && StyxWoW.Me.CurrentTarget.CanInterruptCurrentSpellCast),
+            return new PrioritySelector(
+                //new Decorator(ret => AdvancedAI.PvPRot,
+                //    BrewmasterMonkPvP.CreateBMPvPCombat),
+                new Throttle(1,
+                    new Action(context => ResetVariables())),
+                /*Things to fix
+                 * energy capping 
+                 * need to check healing spheres 
+                 * IsCurrentTank() code does not work (this would be nice to have working)
+                */
+                Spell.Cast("Spear Hand Strike", ret => StyxWoW.Me.CurrentTarget.IsCasting && StyxWoW.Me.CurrentTarget.CanInterruptCurrentSpellCast),
+                Spell.WaitForCastOrChannel(),
+                new Decorator(ret => Me.CurrentTarget.IsBoss(),
+                    new PrioritySelector(
+                        //new Action(ret => { Item.UseTrinkets(); return RunStatus.Failure; }),
+                        new Action(ret => { Item.UseWaist(); return RunStatus.Failure; }),
+                        new Action(ret => { Item.UseHands(); return RunStatus.Failure; }))),
+                // Execute if we can
+                Spell.Cast("Touch of Death", ret => Me.CurrentChi >= 3 && Me.CachedHasAura("Death Note")),
 
-                    Spell.WaitForCastOrChannel(),
+                //// apply the Weakened Blows debuff. Keg Smash also generates allot of threat 
+                Spell.Cast(KegSmash, ret => Me.CurrentChi <= 3 && Clusters.GetCluster(Me, Unit.NearbyUnfriendlyUnits, ClusterType.Radius, 8).Any(u => !u.CachedHasAura("Weakened Blows"))),
 
-                    new Decorator(ret => Me.CurrentTarget.IsBoss,
-                        new PrioritySelector(
-                    //hands and trinks
-                    //new Action(ret => { Item.UseTrinkets(); return RunStatus.Failure; }),
-                    new Action(ret => { Item.UseWaist(); return RunStatus.Failure; }),
-                    new Action(ret => { Item.UseHands(); return RunStatus.Failure; }))),
+                //PB, EB, and Guard are off the GCD
+                //!!!!!!!Purifying Brew !!!!!!!
+                Spell.Cast("Purifying Brew", ret => Me.CachedHasAura("Purifier") && (Me.CachedGetAuraTimeLeft("Purifier") <= 1) || Me.CachedHasAura("Moderate Stagger") || Me.CachedHasAura("Heavy Stagger")),
+                new Decorator(ret => Me.CurrentChi > 0,
+                    new PrioritySelector(
+                        Spell.Cast("Purifying Brew", ret => Me.CachedHasAura("Heavy Stagger")),
+                        new Decorator(ret => (Me.CachedGetAuraTimeLeft("Shuffle") >= 6 || Me.CurrentChi > 2),
+                            new PrioritySelector(
+                                Spell.Cast("Purifying Brew", ret => Me.CachedHasAura("Moderate Stagger") && Me.HealthPercent <= 70),
+                                Spell.Cast("Purifying Brew", ret => Me.CachedHasAura("Light Stagger") && Me.HealthPercent < 40))))),
+                
+                //Elusive Brew will made auto at lower stacks when I can keep up 80 to 90% up time this is just to keep from capping
+                Spell.Cast("Elusive Brew", ret => Me.CachedHasAura("Elusive Brew", 12) && !Me.CachedHasAura(ElusiveBrew)),
 
-                    // Execute if we can
-                    Spell.Cast("Touch of Death", ret => Me.CurrentChi >= 3 && Me.HasAura("Death Note")),
+                //Guard
+                Spell.Cast("Guard", ret => Me.CurrentChi >= 2 && Me.CachedHasAura("Power Guard")),
+                //Blackout Kick might have to add guard back but i think its better to open with BK and get shuffle to build AP for Guard
+                Spell.Cast("Blackout Kick", ret => Me.CurrentChi >= 2 && !Me.CachedHasAura("Shuffle")),
+                Spell.Cast("Tiger Palm", ret => Me.CurrentChi >= 2 && !Me.CachedHasAura("Power Guard")),
+                Spell.Cast("Expel Harm", ret => Me.HealthPercent <= 35),
+                Spell.Cast("Breath of Fire", ret => Me.CurrentChi >= 3 && Me.CachedHasAura("Shuffle") && Me.CachedGetAuraTimeLeft("Shuffle") > 6.5 && Me.CurrentTarget.CachedHasAura("Dizzying Haze")),
 
-                    //// apply the Weakened Blows debuff. Keg Smash also generates allot of threat 
-                    Spell.Cast(121253, ctx => Me.CurrentChi <= 3
-                        && Clusters.GetCluster(Me, Unit.NearbyUnfriendlyUnits, ClusterType.Radius, 8).Any(u => !u.HasAura("Weakened Blows"))),
+                //Detox
+                CreateDispelBehavior(),
+                Spell.Cast("Blackout Kick", ret => Me.CurrentChi >= 3),
+                Spell.Cast(KegSmash),
 
-                    //PB, EB, and Guard are off the GCD
-                    //!!!!!!!Purifying Brew !!!!!!!
-                    Spell.Cast("Purifying Brew", ret => Me.HasAura("Purifier") && (Me.GetAuraTimeLeft("Purifier").TotalSeconds <= 1) || Me.HasAura("Moderate Stagger") || Me.HasAura("Heavy Stagger")),
-                    Spell.Cast("Purifying Brew", ret => Me.CurrentChi > 0 && Me.HasAura("Heavy Stagger")),
-                    Spell.Cast("Purifying Brew", ret => Me.CurrentChi > 0 && Me.HasAura("Moderate Stagger") && Me.HealthPercent <= 70 && (Me.GetAuraTimeLeft("Shuffle").TotalSeconds >= 6 || Me.CurrentChi > 2)),
-                    Spell.Cast("Purifying Brew", ret => Me.CurrentChi > 0 && Me.HasAura("Light Stagger") && Me.HealthPercent < 40 && (Me.GetAuraTimeLeft("Shuffle").TotalSeconds >= 6 || Me.CurrentChi > 2)),
+                //Chi Talents
+                //need to do math here and make it use 2 if im going to use it
+                Spell.Cast("Chi Wave"),
+                //Spell.Cast("Chi Wave", on => Me, ret => Me.HealthPercent <= 85),
+                Spell.Cast("Zen Sphere", on => _tanking),
+                Spell.Cast("Expel Harm", ret => Me.HealthPercent <= 90),
 
-                    //Elusive Brew will made auto at lower stacks when I can keep up 80 to 90% up time this is just to keep from capping
-                    Spell.Cast("Elusive Brew", ret => Me.HasAura("Elusive Brew", 12) && !Me.HasAura(115308)),
-                    //Guard
-                    Spell.Cast("Guard", ret => Me.CurrentChi >= 2 && Me.HasAura("Power Guard")),
+                //Healing Spheres need to work on not happy with this atm
+                //Spell.CastOnGround("Healing Sphere", on => Me.Location, ret => Me.HealthPercent <= 50 && Me.CurrentEnergy >= 60),
 
-                    //Blackout Kick might have to add guard back but i think its better to open with BK and get shuffle to build AP for Guard
-                    Spell.Cast("Blackout Kick", ret => Me.CurrentChi >= 2 && !Me.HasAura("Shuffle")),
+                Spell.Cast("Spinning Crane Kick", ret => Unit.UnfriendlyUnits(8).Count() >= 5 && Spell.GetSpellCooldown("Keg Smash").TotalSeconds >= 2),
+                Spell.Cast("Jab", ret => ((Me.CurrentEnergy - 40) + (Spell.GetSpellCooldown("Keg Smash").TotalSeconds * EnergyRegen)) > 40),
 
-                    Spell.Cast("Tiger Palm", ret => Me.CurrentChi >= 2 && !Me.HasAura("Power Guard")),
+                //Spell.Cast("Jab", ret => Spell.GetSpellCooldown("Keg Smash").TotalSeconds >= (((40 - 0) * (1.0 / EnergyRegen)) / 1.6)),
+                //Spell.Cast("Jab", ret => Me.CurrentEnergy >= 80 || Spell.GetSpellCooldown("Keg Smash").TotalSeconds >= 3),
 
-                    Spell.Cast("Expel Harm", ret => Me.HealthPercent <= 35),
-
-                    Spell.Cast("Breath of Fire", ret => Me.CurrentChi >= 3 && Me.HasAura("Shuffle") && Me.GetAuraTimeLeft("Shuffle").TotalSeconds > 6.5 && Me.CurrentTarget.HasMyAura("Dizzying Haze")),
-
-                    //Detox
-                    CreateDispelBehavior(),
-
-                    Spell.Cast("Blackout Kick", ret => Me.CurrentChi >= 3),
-
-                    //keg smash
-                    Spell.Cast(121253),
-                    //ret => Me.CurrentChi <= 3),
-
-                    //Chi Talents
-                    //need to do math here and make it use 2 if im going to use it
-                    Spell.Cast("Chi Wave"),
-                    //Spell.Cast("Chi Wave", on => Me, ret => Me.HealthPercent <= 85),
-                    Spell.Cast("Zen Sphere", on => _tanking),
-
-                    Spell.Cast("Expel Harm", ret => Me.HealthPercent <= 90),
-
-                    //Healing Spheres need to work on not happy with this atm
-                    //Spell.CastOnGround("Healing Sphere", on => Me.Location, ret => Me.HealthPercent <= 50 && Me.CurrentEnergy >= 60),
-
-                    Spell.Cast("Spinning Crane Kick", ret => Unit.NearbyUnfriendlyUnits.Count(u => u.DistanceSqr <= 8 * 8) >= 5 && Spell.GetSpellCooldown("Keg Smash").TotalSeconds >= 2),
-
-                    Spell.Cast("Jab", ret => ((Me.CurrentEnergy - 40) + (Spell.GetSpellCooldown("Keg Smash").TotalSeconds * EnergyRegen)) > 40),
-
-                    //Spell.Cast("Jab", ret => Spell.GetSpellCooldown("Keg Smash").TotalSeconds >= (((40 - 0) * (1.0 / EnergyRegen)) / 1.6)),
-
-                    //Spell.Cast("Jab", ret => Me.CurrentEnergy >= 80 || Spell.GetSpellCooldown("Keg Smash").TotalSeconds >= 3),
-
-                    //Spell.CastOnGround("Summon Black Ox Statue", on => Me.CurrentTarget.Location, ret => !Me.HasAura("Sanctuary of the Ox") && Me.CurrentTarget.IsBoss),
-                    //dont like using this in auto to many probs with it
-                    //Spell.Cast("Invoke Xuen, the White Tiger", ret => Me.CurrentTarget.IsBoss && IsCurrentTank()),
-                    Spell.Cast("Tiger Palm", ret => Spell.GetSpellCooldown("Keg Smash").TotalSeconds >= 1 && Me.CurrentChi < 3 && Me.CurrentEnergy < 80),
-                    new ActionAlwaysSucceed()
-
-                        );
-            }
+                //Spell.CastOnGround("Summon Black Ox Statue", on => Me.CurrentTarget.Location, ret => !Me.HasAura("Sanctuary of the Ox") && Me.CurrentTarget.IsBoss),
+                
+                //dont like using this in auto to many probs with it
+                //Spell.Cast("Invoke Xuen, the White Tiger", ret => Me.CurrentTarget.IsBoss && IsCurrentTank()),
+                Spell.Cast("Tiger Palm", ret => Spell.GetSpellCooldown("Keg Smash").TotalSeconds >= 1 && Me.CurrentChi < 3 && Me.CurrentEnergy < 80),
+                    new ActionAlwaysSucceed());
         }
-
-        #region Target Tank Tracking
-        //this code is not working
-        // So, this code is just to track who the current tank is on the mob we're looking at.
-        // Sometimes using threat is fine, sometimes the boss switches targets to cast an ability.
-        // We want to ensure that we're the ones with threat. 
-        static bool IsCurrentTank()
-        {
-            return StyxWoW.Me.CurrentTarget.ThreatInfo.TargetGuid == StyxWoW.Me.Guid;
-        }
-
-        static readonly HashSet<uint> IgnoreInterruptMobs = new HashSet<uint>
-        {
-
-        };
-        #endregion
 
         #region Zen Heals
         public static WoWUnit _tanking
@@ -137,7 +111,6 @@ namespace AdvancedAI.Spec
         #endregion
 
         #region Energy Crap
-
         protected static double EnergyRegen
         {
             get
@@ -183,22 +156,12 @@ namespace AdvancedAI.Spec
         }
         #endregion
 
-        #region Dispell
-        public static WoWUnit _dispelMe
+        #region Dispelling
+        public static WoWUnit dispeltar
         {
             get
             {
-                var _Dispel = HealerManager.Instance.TargetList.FirstOrDefault(u => u.IsMe && u.IsAlive && Dispelling.CanDispel(u));
-                return _Dispel;
-            }
-        }
-        #endregion
-
-        public static  WoWUnit dispeltar
-        {
-            get
-            {
-                var dispelothers = (from unit in ObjectManager.GetObjectsOfType<WoWPlayer>(false)
+                var dispelothers = (from unit in ObjectManager.GetObjectsOfTypeFast<WoWPlayer>()
                                     where unit.IsAlive
                                     where Dispelling.CanDispel(unit)
                                     select unit).OrderByDescending(u => u.HealthPercent).LastOrDefault();
@@ -211,39 +174,6 @@ namespace AdvancedAI.Spec
             return new PrioritySelector(
                 Spell.Cast("Detox", on => Me, ret => Dispelling.CanDispel(Me)),
                 Spell.Cast("Detox", on => dispeltar, ret => Dispelling.CanDispel(dispeltar)));
-        }
-
-        public static Composite CreateBMBuffs
-        {
-            get
-            {
-                return new PrioritySelector(
-                    new Decorator(ret => AdvancedAI.PvPRot,
-                        BrewmasterMonkPvP.CreateBMPvPBuffs));
-            }
-        }
-
-        #region MonkTalents
-        public enum MonkTalents
-        {
-            Celerity = 1,//Tier 1
-            TigersLust,
-            Momentum,
-            ChiWave,//Tier 2
-            ZenSphere,
-            ChiBurst,
-            PowerStrikes,//Tier 3
-            Ascension,
-            ChiBrew,
-            RingofPeace,//Tier 4
-            ChargingOxWave,
-            LegSweep,
-            HealingElixirs,//Tier 5
-            DampenHarm,
-            DiffuseMagic,
-            RushingJadeWind,//Tier 6
-            InvokeXuen,
-            ChiTorpedo
         }
         #endregion
     }

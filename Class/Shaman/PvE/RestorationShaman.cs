@@ -1,9 +1,6 @@
-﻿using System.Globalization;
-using System.Windows.Forms;
-using AdvancedAI.Managers;
+﻿using AdvancedAI.Managers;
 using CommonBehaviors.Actions;
 using Styx;
-using Styx.Common;
 using Styx.CommonBot;
 using Styx.TreeSharp;
 using Styx.WoWInternals;
@@ -22,86 +19,81 @@ namespace AdvancedAI.Spec
     {
         static LocalPlayer Me { get { return StyxWoW.Me; } }
         static WoWUnit healtarget { get { return HealerManager.FindLowestHealthTarget(); } }
-        private static string[] _doNotHeal;
-        public static Composite CreateRSCombat
+
+        [Behavior(BehaviorType.Combat | BehaviorType.Heal, WoWClass.Shaman, WoWSpec.ShamanRestoration)]
+        public static Composite RestorationCombat()
         {
-            get
-            {
-                HealerManager.NeedHealTargeting = true;
-                //var cancelHeal = Math.Max(95, Math.Max(AvehealingWave(), Math.Max(AvegreaterhealingWave(), AvehealingSurge())));//95,93,55,25
-                var cancelHeal = Math.Max(95, Math.Max(93, Math.Max(55, 25)));//95,93,55,25
-                return new PrioritySelector(
-                    Spell.WaitForCastOrChannel(),
-                    new Decorator(ret => AdvancedAI.PvPRot,
-                        RestorationShamanPvP.CreateRSPvPCombat),
-                    new Decorator(ret => (Me.Combat || healtarget.Combat || healtarget.GetPredictedHealthPercent() <= 99) && !Me.Mounted,
-                        new PrioritySelector(
-                            //Totems.CreateTotemsBehavior(),
-                            RollRiptide(),
-                            TidalWaves(),
-                            new Decorator(ret => AdvancedAI.Dispell,
-                                Dispelling.CreateDispelBehavior()),
-                            Item.UsePotionAndHealthstone(40),
-                            new Throttle(1, 1,
-                                new PrioritySelector(
-                                    Spell.Cast("Earth Shield", 
-                                        on => GetBestEarthShieldTargetInstance(),
-                                        ret => !GetBestEarthShieldTargetInstance().HasAura("Earth Shield")))),
-                            Spell.Cast("Spirit Link Totem", 
-                                on => healtarget,
-                                ret => HealerManager.Instance.TargetList.Count(p => p.GetPredictedHealthPercent() < 40 && p.Distance <= Totems.GetTotemRange(WoWTotem.SpiritLink)) >= 3 && AdvancedAI.Burst),
-                            new Decorator(ret => healtarget.HealthPercent < 25,
-                                new Sequence(
-                                    Spell.Cast("Ancestral Swiftness"),
-                                    Spell.Cast("Greater Healing Wave", 
-                                        on => healtarget))),
-                            Spell.Cast("Healing Tide Totem",
-                                ret => Me.Combat && HealerManager.Instance.TargetList.Count(p => p.GetPredictedHealthPercent() < 60 && p.Distance <= Totems.GetTotemRange(WoWTotem.HealingTide)) >= (Me.GroupInfo.IsInRaid ? 3 : 2) && AdvancedAI.Burst),
-                            Spell.Cast("Healing Stream Totem",
-                                ret => Me.Combat && !Totems.Exist(WoWTotemType.Water) && HealerManager.Instance.TargetList.Any(p => p.GetPredictedHealthPercent() < 95 && p.Distance <= Totems.GetTotemRange(WoWTotem.HealingTide))),
-                            Spell.Cast("Mana Tide Totem", 
-                                ret => !Totems.Exist(WoWTotemType.Water) && Me.ManaPercent < 80),
-                            HealingRain(),
-                            ChainHeal(),
-                            Spell.Cast("Greater Healing Wave", 
-                                on => healtarget,
-                                //ret => AvegreaterhealingWave() < Deficit(),//55
-                                ret => healtarget.HealthPercent < 55,
-                                cancel => healtarget.HealthPercent > cancelHeal),
-                            Spell.Cast("Healing Wave", 
-                                on => healtarget,
-                                //ret => AvehealingWave() < Deficit(),//93
-                                ret => healtarget.HealthPercent < 93,
-                                cancel => healtarget.HealthPercent > cancelHeal),
-                            Spell.Cast("Healing Surge",
-                                on => healtarget,
-                                //ret => AvehealingSurge() < Deficit(),//25
-                                ret => healtarget.HealthPercent < 25,
-                                cancel => healtarget.HealthPercent > cancelHeal),
-                            Spell.Cast("Ascendance",
-                                ret => HealerManager.Instance.TargetList.Count(p => p.GetPredictedHealthPercent() < 50) >= 4 && !Me.HasAura("Ascendance") && AdvancedAI.Burst),
-                            Riptide(),
-                            new Decorator(ret => AdvancedAI.InterruptsEnabled,
-                                Common.CreateInterruptBehavior()),
-                            //Totems.CreateTotemsBehavior(),
-                            Spell.Cast("Lightning Bolt",
-                                on => BoltTar(), 
-                                ret => TalentManager.HasGlyph("Telluric Currents"), 
-                                cancel => healtarget.HealthPercent < 70))));
-            }
+            HealerManager.NeedHealTargeting = true;
+            //var cancelHeal = Math.Max(95, Math.Max(AvehealingWave(), Math.Max(AvegreaterhealingWave(), AvehealingSurge())));//95,93,55,25
+            var cancelHeal = Math.Max(95, Math.Max(93, Math.Max(55, 25)));//95,93,55,25
+            return new PrioritySelector(
+                Spell.WaitForCastOrChannel(),
+                //new Decorator(ret => AdvancedAI.PvPRot,
+                //    RestorationShamanPvP.CreateRSPvPCombat),
+                new Decorator(ret => (Me.Combat || healtarget.Combat || healtarget.GetPredictedHealthPercent() <= 99) && !Me.Mounted,
+                    new PrioritySelector(
+                        //Totems.CreateTotemsBehavior(),
+                        RollRiptide(),
+                        TidalWaves(),
+                        new Decorator(ret => AdvancedAI.Dispell,
+                            Dispelling.CreateDispelBehavior()),
+                        Item.UsePotionAndHealthstone(40),
+                        new Throttle(1, 1,
+                            new PrioritySelector(
+                                Spell.Cast("Earth Shield", 
+                                    on => GetBestEarthShieldTargetInstance(),
+                                    ret => !GetBestEarthShieldTargetInstance().CachedHasAura("Earth Shield")))),
+                        Spell.Cast("Spirit Link Totem", 
+                            on => healtarget,
+                            ret => HealerManager.Instance.TargetList.Count(p => p.GetPredictedHealthPercent() < 40 && p.Distance <= Totems.GetTotemRange(WoWTotem.SpiritLink)) >= 3 && AdvancedAI.Burst),
+                        new Decorator(ret => healtarget.HealthPercent < 25,
+                            new Sequence(
+                                Spell.Cast("Ancestral Swiftness"),
+                                Spell.Cast("Greater Healing Wave", 
+                                    on => healtarget))),
+                        Spell.Cast("Healing Tide Totem",
+                            ret => Me.Combat && HealerManager.Instance.TargetList.Count(p => p.GetPredictedHealthPercent() < 60 && p.Distance <= Totems.GetTotemRange(WoWTotem.HealingTide)) >= (Me.GroupInfo.IsInRaid ? 3 : 2) && AdvancedAI.Burst),
+                        Spell.Cast("Healing Stream Totem",
+                            ret => Me.Combat && !Totems.Exist(WoWTotemType.Water) && HealerManager.Instance.TargetList.Any(p => p.GetPredictedHealthPercent() < 95 && p.Distance <= Totems.GetTotemRange(WoWTotem.HealingTide))),
+                        Spell.Cast("Mana Tide Totem", 
+                            ret => !Totems.Exist(WoWTotemType.Water) && Me.ManaPercent < 80),
+                        HealingRain(),
+                        ChainHeal(),
+                        Spell.Cast("Greater Healing Wave", 
+                            on => healtarget,
+                            //ret => AvegreaterhealingWave() < Deficit(),//55
+                            ret => healtarget.HealthPercent < 55,
+                            cancel => healtarget.HealthPercent > cancelHeal),
+                        Spell.Cast("Healing Wave", 
+                            on => healtarget,
+                            //ret => AvehealingWave() < Deficit(),//93
+                            ret => healtarget.HealthPercent < 93,
+                            cancel => healtarget.HealthPercent > cancelHeal),
+                        Spell.Cast("Healing Surge",
+                            on => healtarget,
+                            //ret => AvehealingSurge() < Deficit(),//25
+                            ret => healtarget.HealthPercent < 25,
+                            cancel => healtarget.HealthPercent > cancelHeal),
+                        Spell.Cast("Ascendance",
+                            ret => HealerManager.Instance.TargetList.Count(p => p.GetPredictedHealthPercent() < 50) >= 4 && !Me.CachedHasAura("Ascendance") && AdvancedAI.Burst),
+                        Riptide(),
+                        new Decorator(ret => AdvancedAI.InterruptsEnabled,
+                            Common.CreateInterruptBehavior()),
+                        //Totems.CreateTotemsBehavior(),
+                        Spell.Cast("Lightning Bolt",
+                            on => BoltTar(), 
+                            ret => TalentManager.HasGlyph("Telluric Currents"), 
+                            cancel => healtarget.HealthPercent < 70))));
         }
 
-        public static Composite CreateRSBuffs
+        [Behavior(BehaviorType.PreCombatBuffs, WoWClass.Shaman, WoWSpec.ShamanRestoration)]
+        public static Composite RestorationBuffs()
         {
-            get
-            {
-                return new PrioritySelector(
-                    new Decorator(ret => AdvancedAI.PvPRot,
-                        RestorationShamanPvP.CreateRSPvPBuffs),
-                    Spell.Cast("Water Shield", on => Me, ret => !Me.HasMyAura("Water Shield")),
-                    CreateShamanImbueMainHandBehavior(Imbue.Earthliving, Imbue.Flametongue),
-                    CreateRSCombat);
-            }
+            return new PrioritySelector(
+                //new Decorator(ret => AdvancedAI.PvPRot,
+                //    RestorationShamanPvP.CreateRSPvPBuffs),
+                Spell.Cast("Water Shield", on => Me, ret => !Me.CachedHasAura("Water Shield")),
+                CreateShamanImbueMainHandBehavior(Imbue.Earthliving, Imbue.Flametongue));
         }
 
         private static ulong guidLastEarthShield = 0;
@@ -109,7 +101,7 @@ namespace AdvancedAI.Spec
         {
             WoWUnit target = null;
 
-            if (Unit.NearbyFriendlyPlayers.Any(m => m.HasMyAura("Earth Shield")))
+            if (Unit.NearbyFriendlyPlayers.Any(m => m.CachedHasAura("Earth Shield")))
                 return null;
 
             if (Me.GroupInfo.IsInParty)
@@ -235,12 +227,13 @@ namespace AdvancedAI.Spec
             return GetImbue(item) == Imbue.Earthliving;
         }
 
+        private static readonly HashSet<string> Shields = new HashSet<string> { "Earth Shield", "Water Shield", "Lightning Shield" };
         private static bool IsValidEarthShieldTarget(WoWUnit unit)
         {
             if (unit == null || !unit.IsValid || !unit.IsAlive || Unit.GroupMembers.All(g => g.Guid != unit.Guid) || unit.Distance > 99)
                 return false;
 
-            return unit.HasMyAura("Earth Shield") || !unit.HasAnyAura("Earth Shield", "Water Shield", "Lightning Shield");
+            return unit.CachedHasAura("Earth Shield") || !unit.CachedHasAnyAura(Shields);
         }
 
         private static Composite HealingRain()
@@ -267,20 +260,20 @@ namespace AdvancedAI.Spec
                     ret => ret != null,
                     new PrioritySelector(
                         new Sequence(
-                            Spell.Cast("Riptide", on => (WoWUnit) on, ret => !((WoWUnit)ret).HasAura("Riptide")),
+                            Spell.Cast("Riptide", on => (WoWUnit) on, ret => !((WoWUnit)ret).CachedHasAura("Riptide")),
                             new Wait(TimeSpan.FromMilliseconds(1500), until => !Spell.IsGlobalCooldown(),
                                      new ActionAlwaysFail())),
                         Spell.Cast("Chain Heal", on => (WoWUnit) on))));
         }
 
+        private static readonly HashSet<string> _doNotHeal = new HashSet<string> { "Reshape Life", "Parasitic Growth", "Cyclone", "Dominate Mind", "Agressive Behavior", "Beast of Nightmares", "Corrupted Healing" };
         private static Composite RollRiptide()
         {
             return new PrioritySelector(
                 Spell.Cast("Riptide", on =>
                 {
                     WoWUnit unit = GetBestRiptideTankTarget();
-                    _doNotHeal = new[] { "Reshape Life", "Parasitic Growth", "Cyclone", "Dominate Mind", "Agressive Behavior", "Beast of Nightmares", "Corrupted Healing" };
-                    if (unit != null && Spell.CanCastHack("Riptide", unit, skipWowCheck: true) && !unit.HasAnyAura(_doNotHeal))
+                    if (unit != null && Spell.CanCastHack("Riptide", unit, skipWowCheck: true) && !unit.CachedHasAnyAura(_doNotHeal))
                     {
                         return unit;
                     }
@@ -297,7 +290,7 @@ namespace AdvancedAI.Spec
                     {
                         WoWUnit unit = GetBestRiptideTarget();
                         return unit;
-                    }, ret => !GetBestRiptideTarget().HasMyAura("Riptide"))));
+                    }, ret => !GetBestRiptideTarget().CachedHasAura("Riptide"))));
         }
 
         private static bool IsTidalWavesNeeded
@@ -312,7 +305,7 @@ namespace AdvancedAI.Spec
                     return false;
 
                 // WoWAura tw = Me.GetAuraByName("Tidal Waves");
-                uint stacks = Me.GetAuraStacks("Tidal Waves");
+                uint stacks = Me.CachedStackCount("Tidal Waves");
 
                 // 2 stacks means we don't have an issue
                 if (stacks >= 2)
@@ -349,7 +342,7 @@ namespace AdvancedAI.Spec
                             // get the best target from all wowunits in our group
                             WoWUnit unit = GetBestRiptideTarget();
                             return unit;
-                        }, ret => !GetBestRiptideTarget().HasMyAura("Riptide"))));
+                        }, ret => !GetBestRiptideTarget().CachedHasAura("Riptide"))));
         }
 
         private static WoWUnit GetBestRiptideTarget()
@@ -480,7 +473,7 @@ namespace AdvancedAI.Spec
 
         private static WoWUnit GetBestRiptideTankTarget()
         {
-            WoWUnit ripTarget = Group.Tanks.Where(u => !u.HasAura("Reshape Life") && !u.HasAura("Parasitic Growth") && u.IsAlive && u.Combat && u.DistanceSqr < 40 * 40 && !u.HasMyAura("Riptide") && u.InLineOfSpellSight).OrderBy(u => u.HealthPercent).FirstOrDefault();
+            WoWUnit ripTarget = Group.Tanks.Where(u => !u.CachedHasAura("Reshape Life", 1, false) && !u.CachedHasAura("Parasitic Growth", 1, false) && u.IsAlive && u.Combat && u.DistanceSqr < 40 * 40 && !u.CachedHasAura("Riptide") && u.InLineOfSpellSight).OrderBy(u => u.HealthPercent).FirstOrDefault();
             return ripTarget;
         }
 
@@ -573,7 +566,7 @@ namespace AdvancedAI.Spec
             return avetotal;
         }
 
-        private static double Deficit()
+        private static uint Deficit()
         {
             return healtarget.MaxHealth - healtarget.CurrentHealth;
         }

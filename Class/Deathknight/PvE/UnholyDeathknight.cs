@@ -1,21 +1,12 @@
 ﻿using AdvancedAI.Managers;
 using CommonBehaviors.Actions;
 using Styx;
-using Styx.Common;
 using Styx.CommonBot;
-using Styx.Helpers;
 using Styx.TreeSharp;
-using Styx.WoWInternals;
 using Styx.WoWInternals.WoWObjects;
 using AdvancedAI.Helpers;
-
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Action = Styx.TreeSharp.Action;
-using System.Windows.Forms;
 
 namespace AdvancedAI.Spec
 {
@@ -27,14 +18,10 @@ namespace AdvancedAI.Spec
         internal static int FrostRuneSlotsActive { get { return Me.GetRuneCount(2) + Me.GetRuneCount(3); } }
         internal static int UnholyRuneSlotsActive { get { return Me.GetRuneCount(4) + Me.GetRuneCount(5); } }
 
-        public static Composite CreateUDKCombat
+        [Behavior(BehaviorType.Combat, WoWClass.DeathKnight, WoWSpec.DeathKnightUnholy)]
+        public static Composite CreateUDKCombat()
         {
-            get
-            {
                 return new PrioritySelector(
-                    new Decorator(ret => AdvancedAI.PvPRot,
-                        UnholyDeathknightPvP.CreateUDKPvPCombat),
-
                     Spell.WaitForCastOrChannel(),
                     // Interrupt please.
                     Spell.Cast("Mind Freeze", ret => Me.CurrentTarget.IsCasting && Me.CurrentTarget.CanInterruptCurrentSpellCast),
@@ -145,20 +132,10 @@ namespace AdvancedAI.Spec
                     Spell.Cast("Empower Rune Weapon",
                                 ret => AdvancedAI.Burst && (Me.BloodRuneCount == 0 && Me.FrostRuneCount == 0 && Me.UnholyRuneCount == 0)),
                     new ActionAlwaysSucceed());
-            }
         }
 
-        public static Composite CreateUDKBuffs
-        {
-            get
-            {
-                return new PrioritySelector(
-                    new Decorator(ret => AdvancedAI.PvPRot,
-                        UnholyDeathknightPvP.CreateUDKPvPBuffs));
-            }
-        }
 
-        internal static bool ShouldSpreadDiseases
+        private static bool ShouldSpreadDiseases
         {
             get
             {
@@ -170,7 +147,8 @@ namespace AdvancedAI.Spec
         }
 
         #region DeathKnightTalents
-        public enum DeathKnightTalents
+
+        private enum DeathKnightTalents
         {
             None = 0,
             RoillingBlood,//Tier 1

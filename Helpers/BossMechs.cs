@@ -11,7 +11,7 @@ using Styx.WoWInternals;
 using Styx.WoWInternals.WoWObjects;
 using Action = Styx.TreeSharp.Action;
 
-namespace AdvancedAI.Class
+namespace AdvancedAI.Helpers
 {
     internal static class BossMechs
     {

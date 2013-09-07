@@ -1,273 +1,197 @@
 ﻿using System;
+using AdvancedAI.Helpers;
+using AdvancedAI.Managers;
 using Styx;
 using Styx.Common;
 using Styx.TreeSharp;
 
 namespace AdvancedAI
 {
-    sealed partial class AdvancedAI
+    partial class AdvancedAI
     {
-        #region Overrides
-        private Composite _combat, _buffs, _pull, _heal;
+        private Composite _combat, _preCombatBuffs, _pull, _heal;
+        public override Composite PreCombatBuffBehavior { get { return _preCombatBuffs; } }
         public override Composite CombatBehavior { get { return _combat; } }
-        public override Composite PreCombatBuffBehavior { get { return _buffs; } }
         public override Composite PullBehavior { get { return _pull; } }
         public override Composite HealBehavior { get { return _heal; } }
-        #endregion
-
-        #region Rotation Selection
-
-        private void CombatandBuffSelection()
+        
+        public void AssignBehaviors()
         {
+            //Set all to null
+            _preCombatBuffs = null;
+            _combat = null;
+            _heal = null;
+            _pull = null;
+
+            WoWContext context = CurrentWoWContext;
+
+            SetRotation();
+
+            EnsureComposite(true, context, BehaviorType.Combat);
+            EnsureComposite(false, context, BehaviorType.Heal);
+            EnsureComposite(false, context, BehaviorType.PreCombatBuffs);
+            EnsureComposite(false, context, BehaviorType.Pull);
+        }
+
+
+        /// <summary>Set the Rotations</summary>
+        private void SetRotation()
+        {
+            if (_preCombatBuffs == null)
+            {
+                Logging.Write("Initializing Pre-Combat Buffs");
+                _preCombatBuffs = new LockSelector(
+                    new HookExecutor(HookName(BehaviorType.PreCombatBuffs)));
+            }
+
             if (_combat == null)
             {
-                Logging.Write("Initializing combat behaviors.");
-                _combat = null;
+                Logging.Write("Initializing Combat");
+                _combat = new LockSelector(
+                    new HookExecutor(HookName(BehaviorType.Combat)));
             }
-            if (_buffs == null)
-            {
-                Logging.Write("Initializing buffs behaviors.");
-                _buffs = null;
-            }
-            if (_pull == null)
-            {
-                Logging.Write("Initializing pull behaviors.");
-                _pull = null;
-            }
+
             if (_heal == null)
             {
-                Logging.Write("Initializing heal behaviors.");
-                _heal = null;
+                Logging.Write("Initializing Healing");
+                _heal = new LockSelector(
+                    new HookExecutor(HookName(BehaviorType.Heal)));
             }
-            switch (StyxWoW.Me.Specialization)
+
+            if (_pull == null)
             {
-                case WoWSpec.DeathKnightBlood:
-                    if (_combat == null) { _combat = Spec.BloodDeathknight.CreateBDKCombat; }
-                    if (_pull == null) { _pull = Spec.BloodDeathknight.CreateBDKCombat; }
-                    if (_heal == null) { _heal = Spec.BloodDeathknight.CreateBDKCombat; }
-                    if (_buffs == null) { _buffs = Spec.BloodDeathknight.CreateBDKBuffs; }
-                    break;
-                case WoWSpec.DeathKnightFrost:
-                    if (_combat == null) { _combat = Spec.FrostDeathknight.CreateFDKCombat; }
-                    if (_pull == null) { _pull = Spec.FrostDeathknight.CreateFDKCombat; }
-                    if (_heal == null) { _heal = Spec.FrostDeathknight.CreateFDKCombat; }
-                    if (_buffs == null) { _buffs = Spec.FrostDeathknight.CreateFDKBuffs; }
-                    break;
-                case WoWSpec.DeathKnightUnholy:
-                    if (_combat == null) { _combat = Spec.UnholyDeathknight.CreateUDKCombat; }
-                    if (_pull == null) { _pull = Spec.UnholyDeathknight.CreateUDKCombat; }
-                    if (_heal == null) { _heal = Spec.UnholyDeathknight.CreateUDKCombat; }
-                    if (_buffs == null) { _buffs = Spec.UnholyDeathknight.CreateUDKBuffs; }
-                    break;
-                case WoWSpec.DruidBalance:
-                    if (_combat == null) { _combat = Spec.BalanceDruid.CreateBDCombat; }
-                    if (_pull == null) { _pull = Spec.BalanceDruid.CreateBDCombat; }
-                    if (_heal == null) { _heal = Spec.BalanceDruid.CreateBDCombat; }
-                    if (_buffs == null) { _buffs = Spec.BalanceDruid.CreateBDBuffs; }
-                    break;
-                case WoWSpec.DruidFeral:
-                    if (_combat == null) { _combat = Spec.FeralDruid.CreateFDCombat; }
-                    if (_pull == null) { _pull = Spec.FeralDruid.CreateFDCombat; }
-                    if (_heal == null) { _heal = Spec.FeralDruid.CreateFDCombat; }
-                    if (_buffs == null) { _buffs = Spec.FeralDruid.CreateFDBuffs; }
-                    break;
-                case WoWSpec.DruidGuardian:
-                    if (_combat == null) { _combat = Spec.GuardianDruid.CreateGDCombat; }
-                    if (_pull == null) { _pull = Spec.GuardianDruid.CreateGDCombat; }
-                    if (_heal == null) { _heal = Spec.GuardianDruid.CreateGDCombat; }
-                    if (_buffs == null) { _buffs = Spec.GuardianDruid.CreateGDBuffs; }
-                    break;
-                case WoWSpec.DruidRestoration:
-                    if (_combat == null) { _combat = Spec.RestorationDruid.CreateRDCombat; }
-                    if (_pull == null) { _pull = Spec.RestorationDruid.CreateRDCombat; }
-                    if (_heal == null) { _heal = Spec.RestorationDruid.CreateRDCombat; }
-                    if (_buffs == null) { _buffs = Spec.RestorationDruid.CreateRDBuffs; }
-                    break;
-                case WoWSpec.HunterBeastMastery:
-                    if (_combat == null) { _combat = Spec.BeastmasterHunter.CreateBMHCombat; }
-                    if (_pull == null) { _pull = Spec.BeastmasterHunter.CreateBMHCombat; }
-                    if (_heal == null) { _heal = Spec.BeastmasterHunter.CreateBMHCombat; }
-                    if (_buffs == null) { _buffs = Spec.BeastmasterHunter.CreateBMHBuffs; }
-                    break;
-                case WoWSpec.HunterMarksmanship:
-                    if (_combat == null) { _combat = Spec.MarksmanshipHunter.CreateMHCombat; }
-                    if (_pull == null) { _pull = Spec.MarksmanshipHunter.CreateMHCombat; }
-                    if (_heal == null) { _heal = Spec.MarksmanshipHunter.CreateMHCombat; }
-                    if (_buffs == null) { _buffs = Spec.MarksmanshipHunter.CreateMHKBuffs; }
-                    break;
-                case WoWSpec.HunterSurvival:
-                    if (_combat == null) { _combat = Spec.SurvivalHunter.CreateSHCombat; }
-                    if (_pull == null) { _pull = Spec.SurvivalHunter.CreateSHCombat; }
-                    if (_heal == null) { _heal = Spec.SurvivalHunter.CreateSHCombat; }
-                    if (_buffs == null) { _buffs = Spec.SurvivalHunter.CreateSHBuffs; }
-                    break;
-                case WoWSpec.MageArcane:
-                    if (_combat == null) { _combat = Spec.ArcaneMage.CreateAMCombat; }
-                    if (_pull == null) { _pull = Spec.ArcaneMage.CreateAMCombat; }
-                    if (_heal == null) { _heal = Spec.ArcaneMage.CreateAMCombat; }
-                    if (_buffs == null) { _buffs = Spec.ArcaneMage.CreateAMBuffs; }
-                    break;
-                case WoWSpec.MageFire:
-                    if (_combat == null) { _combat = Spec.FireMage.CreateFiMCombat; }
-                    if (_pull == null) { _pull = Spec.FireMage.CreateFiMCombat; }
-                    if (_heal == null) { _heal = Spec.FireMage.CreateFiMCombat; }
-                    if (_buffs == null) { _buffs = Spec.FireMage.CreateFiMBuffs; }
-                    break;
-                case WoWSpec.MageFrost:
-                    if (_combat == null) { _combat = Spec.FrostMage.CreateFMCombat; }
-                    if (_pull == null) { _pull = Spec.FrostMage.CreateFMCombat; }
-                    if (_heal == null) { _heal = Spec.FrostMage.CreateFMCombat; }
-                    if (_buffs == null) { _buffs = Spec.FrostMage.CreateFMBuffs; }
-                    break;
-                case WoWSpec.MonkBrewmaster:
-                    if (_combat == null) { _combat = Spec.BrewmasterMonk.CreateBMCombat; }
-                    if (_pull == null) { _pull = Spec.BrewmasterMonk.CreateBMCombat; }
-                    if (_heal == null) { _heal = Spec.BrewmasterMonk.CreateBMCombat; }
-                    if (_buffs == null) { _buffs = Spec.BrewmasterMonk.CreateBMBuffs; }
-                    break;
-                case WoWSpec.MonkMistweaver:
-                    if (_combat == null) { _combat = Spec.MistweaverMonk.CreateMMCombat; }
-                    if (_pull == null) { _pull = Spec.MistweaverMonk.CreateMMCombat; }
-                    if (_heal == null) { _heal = Spec.MistweaverMonk.CreateMMCombat; }
-                    if (_buffs == null) { _buffs = Spec.MistweaverMonk.CreateMMBuffs; }
-                    break;
-                case WoWSpec.MonkWindwalker:
-                    if (_combat == null) { _combat = Spec.WindwalkerMonk.CreateWMCombat; }
-                    if (_pull == null) { _pull = Spec.WindwalkerMonk.CreateWMCombat; }
-                    if (_heal == null) { _heal = Spec.WindwalkerMonk.CreateWMCombat; }
-                    if (_buffs == null) { _buffs = Spec.WindwalkerMonk.CreateWMBuffs; }
-                    break;
-                case WoWSpec.PaladinHoly:
-                    if (_combat == null) { _combat = Spec.HolyPaladin.CreateHPaCombat; }
-                    if (_pull == null) { _pull = Spec.HolyPaladin.CreateHPaCombat; }
-                    if (_heal == null) { _heal = Spec.HolyPaladin.CreateHPaCombat; }
-                    if (_buffs == null) { _buffs = Spec.HolyPaladin.CreateHPaBuffs; }
-                    break;
-                case WoWSpec.PaladinProtection:
-                    if (_combat == null) { _combat = Spec.ProtectionPaladin.CreatePPCombat; }
-                    if (_pull == null) { _pull = Spec.ProtectionPaladin.CreatePPCombat; }
-                    if (_heal == null) { _heal = Spec.ProtectionPaladin.CreatePPCombat; }
-                    if (_buffs == null) { _buffs = Spec.ProtectionPaladin.CreatePPBuffs; }
-                    break;
-                case WoWSpec.PaladinRetribution:
-                    if (_combat == null) { _combat = Spec.RetributionPaladin.CreateRPCombat; }
-                    if (_pull == null) { _pull = Spec.RetributionPaladin.CreateRPCombat; }
-                    if (_heal == null) { _heal = Spec.RetributionPaladin.CreateRPCombat; }
-                    if (_buffs == null) { _buffs = Spec.RetributionPaladin.CreateRPBuffs; }
-                    break;
-                case WoWSpec.PriestDiscipline:
-                    if (_combat == null) { _combat = Spec.DisciplinePriest.CreateDPCombat; }
-                    if (_pull == null) { _pull = Spec.DisciplinePriest.CreateDPCombat; }
-                    if (_heal == null) { _heal = Spec.DisciplinePriest.CreateDPCombat; }
-                    if (_buffs == null) { _buffs = Spec.DisciplinePriest.CreateDPBuffs; }
-                    break;
-                case WoWSpec.PriestHoly:
-                    if (_combat == null) { _combat = Spec.HolyPriest.CreateHPCombat; }
-                    if (_pull == null) { _pull = Spec.HolyPriest.CreateHPCombat; }
-                    if (_heal == null) { _heal = Spec.HolyPriest.CreateHPCombat; }
-                    if (_buffs == null) { _buffs = Spec.HolyPriest.CreateHPBuffs; }
-                    break;
-                case WoWSpec.PriestShadow:
-                    if (_combat == null) { _combat = Spec.ShadowPriest.CreateSPCombat; }
-                    if (_pull == null) { _pull = Spec.ShadowPriest.CreateSPCombat; }
-                    if (_heal == null) { _heal = Spec.ShadowPriest.CreateSPCombat; }
-                    if (_buffs == null) { _buffs = Spec.ShadowPriest.CreateSPBuffs; }
-                    break;
-                case WoWSpec.RogueAssassination:
-                    if (_combat == null) { _combat = Spec.AssassinationRogue.CreateARCombat; }
-                    if (_pull == null) { _pull = Spec.AssassinationRogue.CreateARCombat; }
-                    if (_heal == null) { _heal = Spec.AssassinationRogue.CreateARCombat; }
-                    if (_buffs == null) { _buffs = Spec.AssassinationRogue.CreateARBuffs; }
-                    break;
-                case WoWSpec.RogueCombat:
-                    if (_combat == null) { _combat = Spec.CombatRogue.CreateCRCombat; }
-                    if (_pull == null) { _pull = Spec.CombatRogue.CreateCRCombat; }
-                    if (_heal == null) { _heal = Spec.CombatRogue.CreateCRCombat; }
-                    if (_buffs == null) { _buffs = Spec.CombatRogue.CreateCRBuffs; }
-                    break;
-                case WoWSpec.RogueSubtlety:
-                    if (_combat == null) { _combat = Spec.SubtletyRogue.CreateSRCombat; }
-                    if (_pull == null) { _pull = Spec.SubtletyRogue.CreateSRCombat; }
-                    if (_heal == null) { _heal = Spec.SubtletyRogue.CreateSRCombat; }
-                    if (_buffs == null) { _buffs = Spec.SubtletyRogue.CreateSRBuffs; }
-                    break;
-                case WoWSpec.ShamanElemental:
-                    if (_combat == null) { _combat = Spec.ElementalShaman.CreateElSCombat; }
-                    if (_pull == null) { _pull = Spec.ElementalShaman.CreateElSCombat; }
-                    if (_heal == null) { _heal = Spec.ElementalShaman.CreateElSCombat; }
-                    if (_buffs == null) { _buffs = Spec.ElementalShaman.CreateElSBuffs; }
-                    break;
-                case WoWSpec.ShamanEnhancement:
-                    if (_combat == null) { _combat = Spec.EnhancementShaman.CreateESCombat; }
-                    if (_pull == null) { _pull = Spec.EnhancementShaman.CreateESCombat; }
-                    if (_heal == null) { _heal = Spec.EnhancementShaman.CreateESCombat; }
-                    if (_buffs == null) { _buffs = Spec.EnhancementShaman.CreateESBuffs; }
-                    break;
-                case WoWSpec.ShamanRestoration:
-                    if (_combat == null) { _combat = Spec.RestorationShaman.CreateRSCombat; }
-                    if (_pull == null) { _pull = Spec.RestorationShaman.CreateRSCombat; }
-                    if (_heal == null) { _heal = Spec.RestorationShaman.CreateRSCombat; }
-                    if (_buffs == null) { _buffs = Spec.RestorationShaman.CreateRSBuffs; }
-                    break;
-                case WoWSpec.WarlockAffliction:
-                    if (_combat == null) { _combat = Spec.AfflictionWarlock.CreateAWCombat; }
-                    if (_pull == null) { _pull = Spec.AfflictionWarlock.CreateAWCombat; }
-                    if (_heal == null) { _heal = Spec.AfflictionWarlock.CreateAWCombat; }
-                    if (_buffs == null) { _buffs = Spec.AfflictionWarlock.CreateAWBuffs; }
-                    break;
-                case WoWSpec.WarlockDemonology:
-                    if (_combat == null) { _combat = Spec.DemonologyWarlock.CreateDemWCombat; }
-                    if (_pull == null) { _pull = Spec.DemonologyWarlock.CreateDemWCombat; }
-                    if (_heal == null) { _heal = Spec.DemonologyWarlock.CreateDemWCombat; }
-                    if (_buffs == null) { _buffs = Spec.DemonologyWarlock.CreateDemWBuffs; }
-                    break;
-                case WoWSpec.WarlockDestruction:
-                    if (_combat == null) { _combat = Spec.DestructionWarlock.CreateDWCombat; }
-                    if (_pull == null) { _pull = Spec.DestructionWarlock.CreateDWCombat; }
-                    if (_heal == null) { _heal = Spec.DestructionWarlock.CreateDWCombat; }
-                    if (_buffs == null) { _buffs = Spec.DestructionWarlock.CreateDWBuffs; }
-                    break;
-                case WoWSpec.WarriorArms:
-                    if (_combat == null) { _combat = Spec.ArmsWarrior.CreateAWCombat; }
-                    if (_pull == null) { _pull = Spec.ArmsWarrior.CreateAWCombat; }
-                    if (_heal == null) { _heal = Spec.ArmsWarrior.CreateAWCombat; }
-                    if (_buffs == null) { _buffs = Spec.ArmsWarrior.CreateAWBuffs; }
-                    break;
-                case WoWSpec.WarriorFury:
-                    if (_combat == null) { _combat = Spec.FuryWarrior.CreateFWCombat; }
-                    if (_pull == null) { _pull = Spec.FuryWarrior.CreateFWCombat; }
-                    if (_heal == null) { _heal = Spec.FuryWarrior.CreateFWCombat; }
-                    if (_buffs == null) { _buffs = Spec.FuryWarrior.CreateFWBuffs; }
-                    break;
-                case WoWSpec.WarriorProtection:
-                    if (_combat == null) { _combat = Spec.ProtectionWarrior.CreatePWCombat; }
-                    if (_pull == null) { _pull = Spec.ProtectionWarrior.CreatePWCombat; }
-                    if (_heal == null) { _heal = Spec.ProtectionWarrior.CreatePWCombat; }
-                    if (_buffs == null) { _buffs = Spec.ProtectionWarrior.CreatePWBuffs; }
-                    break;
+                Logging.Write("Initializing Pulling");
+                _pull = new LockSelector(
+                    new HookExecutor(HookName(BehaviorType.Pull)));
             }
         }
-        #endregion
 
-        private void RebuildBehaviors()
+        private static string HookName(BehaviorType typ)
         {
-            try
-            {
-                Logging.WriteDiagnostic("RebuildBehaviors called.");
+            return "AdvancedAI." + typ.ToString();
+        }
 
-                //_currentRotation = null; // clear current rotation
-                _combat = null;
-                _buffs = null;
-                _pull = null;
-                _heal = null;
+        private void EnsureComposite(bool error, WoWContext context, BehaviorType type)
+        {
+            var count = 0;
 
-                CombatandBuffSelection();
-                //SetRotation(); // set the new rotation
-            }
-            catch (Exception ex)
+            // Logger.WriteDebug("Creating " + type + " behavior.");
+
+            var composite = CompositeBuilder.GetComposite(Class, TalentManager.CurrentSpec, type, context, out count);
+
+            TreeHooks.Instance.ReplaceHook(HookName(type), composite);
+
+            if ((composite == null || count <= 0) && error)
             {
-                Logging.WriteDiagnostic("[RebuildBehaviors] Exception was thrown: {0}", ex);
+                StopBot(string.Format("AdvancedAI does not support {0} for this {1} {2} in {3} context!", type, StyxWoW.Me.Class, TalentManager.CurrentSpec, context));
             }
         }
+
+        /// <summary>
+        /// This behavior wraps the child behaviors in a 'FrameLock' which can provide a big performance improvement 
+        /// if the child behaviors makes multiple api calls that internally run off a frame in WoW in one CC pulse.
+        /// </summary>
+        private class LockSelector : PrioritySelector
+        {
+            delegate RunStatus TickDelegate(object context);
+
+            TickDelegate _TickSelectedByUser;
+
+            public LockSelector(params Composite[] children)
+                : base(children)
+            {
+                if (true)// Option to use framelock goes here
+                    _TickSelectedByUser = TickWithFrameLock;
+                else
+                    _TickSelectedByUser = TickNoFrameLock;
+            }
+
+            public override RunStatus Tick(object context)
+            {
+                return _TickSelectedByUser(context);
+            }
+
+            private RunStatus TickWithFrameLock(object context)
+            {
+                using (StyxWoW.Memory.AcquireFrame())
+                {
+                    return base.Tick(context);
+                }
+            }
+
+            private RunStatus TickNoFrameLock(object context)
+            {
+                return base.Tick(context);
+            }
+
+        }
+    }
+
+    [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = true)]
+    internal sealed class BehaviorAttribute : Attribute
+    {
+        public BehaviorAttribute(BehaviorType type, WoWClass @class = WoWClass.None, WoWSpec spec = (WoWSpec) int.MaxValue, WoWContext context = WoWContext.All, int priority = 0)
+        {
+            Type = type;
+            SpecificClass = @class;
+            SpecificSpec = spec;
+            SpecificContext = context;
+            PriorityLevel = priority;
+        }
+
+        public BehaviorType Type { get; private set; }
+        public WoWSpec SpecificSpec { get; private set; }
+        public WoWContext SpecificContext { get; private set; }
+        public WoWClass SpecificClass { get; private set; }
+        public int PriorityLevel { get; private set; }
+    }
+
+    public class CallTrace : PrioritySelector
+    {
+        public static DateTime LastCall { get; set; }
+        public static ulong CountCall { get; set; }
+        public static bool TraceActive { get { return AdvancedAI.Trace; } }
+
+        public string Name { get; set; }
+
+        private static bool _init = false;
+
+        private static void Initialize()
+        {
+            if (_init)
+                return;
+
+            _init = true;
+        }
+
+        public CallTrace(string name, params Composite[] children)
+            : base(children)
+        {
+            Initialize();
+
+            Name = name;
+            LastCall = DateTime.MinValue;
+        }
+
+        public override RunStatus Tick(object context)
+        {
+            RunStatus ret;
+            CountCall++;
+
+            if (!TraceActive)
+            {
+                ret = base.Tick(context);
+            }
+            else
+            {
+                DateTime started = DateTime.Now;
+                Logging.WriteDiagnostic("... enter: {0}", Name);
+                ret = base.Tick(context);
+                Logging.WriteDiagnostic("... leave: {0}, took {1} ms", Name, (ulong)(DateTime.Now - started).TotalMilliseconds);
+            }
+
+            return ret;
+        }
+
     }
 }

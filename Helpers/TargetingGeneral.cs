@@ -48,17 +48,17 @@ namespace AdvancedAI.Helpers
                             if (unit == null)
                             {
                                 Logging.Write(targetColor, "Current Kill POI invalid. Clearing POI!");
-                                BotPoi.Clear("Singular detected null POI");
+                                BotPoi.Clear("AdvancedAI detected null POI");
                             }
                             else if (!unit.IsAlive)
                             {
                                 Logging.Write(targetColor, "Current Kill POI dead. Clearing POI " + unit.SafeName() + "!");
-                                BotPoi.Clear("Singular detected Unit is dead");
+                                BotPoi.Clear("AdvancedAI detected Unit is dead");
                             }
                             else if (Blacklist.Contains(unit, BlacklistFlags.Combat))
                             {
                                 Logging.Write(targetColor, "Current Kill POI is blacklisted. Clearing POI " + unit.SafeName() + "!");
-                                BotPoi.Clear("Singular detected Unit is Blacklisted");
+                                BotPoi.Clear("AdvancedAI detected Unit is Blacklisted");
                             }
                             else
                             {
@@ -90,17 +90,17 @@ namespace AdvancedAI.Helpers
                             if (unit == null)
                             {
                                 Logging.Write(targetColor, "Current Kill POI invalid. Clearing POI!");
-                                BotPoi.Clear("Singular detected null POI");
+                                BotPoi.Clear("AdvancedAI detected null POI");
                             }
                             else if (!unit.IsAlive)
                             {
                                 Logging.Write(targetColor, "Current Kill POI dead. Clearing POI " + unit.SafeName() + "!");
-                                BotPoi.Clear("Singular detected Unit is dead");
+                                BotPoi.Clear("AdvancedAI detected Unit is dead");
                             }
                             else if (Blacklist.Contains(unit, BlacklistFlags.Combat))
                             {
                                 Logging.Write(targetColor, "Current Kill POI is blacklisted. Clearing POI " + unit.SafeName() + "!");
-                                BotPoi.Clear("Singular detected Unit is Blacklisted");
+                                BotPoi.Clear("AdvancedAI detected Unit is Blacklisted");
                             }
                             else
                             {

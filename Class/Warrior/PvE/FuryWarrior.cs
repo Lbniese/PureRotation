@@ -1,79 +1,79 @@
-﻿using Styx;
+﻿using System.Linq;
+using AdvancedAI.Helpers;
+using CommonBehaviors.Actions;
+using Styx;
 using Styx.Common;
 using Styx.CommonBot;
 using Styx.TreeSharp;
 using Styx.WoWInternals;
 using Styx.WoWInternals.WoWObjects;
-using AdvancedAI.Helpers;
-using System.Linq;
 using Action = Styx.TreeSharp.Action;
 
-namespace AdvancedAI.Spec
+namespace AdvancedAI.Class.Warrior.PvE
 {
-    static class FuryWarrior
+    public class FuryWarrior
     {
         static LocalPlayer Me { get { return StyxWoW.Me; } }
-        public static Composite CreateFWCombat
+        private const int Enrage = 12880;
+
+        [Behavior(BehaviorType.Combat, WoWClass.Warrior, WoWSpec.WarriorFury)]
+        public static Composite FuryCombat()
         {
-            get
-            {
-                return new PrioritySelector(
-                    new Decorator(ret => AdvancedAI.PvPRot,
-                        FuryWarriorPvP.CreateFWPvPCombat),
-                    new Decorator(ret => Me.HasAura("Dire Fixation"),
-                        new PrioritySelector(
-                            Class.BossMechs.HorridonHeroic())),
-                    Common.CreateInterruptBehavior(),
-                    Spell.Cast("Shattering Throw", ret => Me.CurrentTarget.IsBoss && Me.HasAnyAura("Heroism", "Bloodlust")),
-                    Spell.Cast("Impending Victory", ret => Me.HealthPercent <= 90 && Me.HasAura("Victorious")),
-                    Spell.Cast("Berserker Rage", ret => !Me.HasAura("Enrage") && Me.CurrentTarget.HasAura("Colossus Smash")),
-                    Spell.Cast("Colossus Smash", ret => Me.CurrentRage > 80 && Me.HasAura("Raging Blow!") && Me.HasAura("Enrage")),
-                    HeroicLeap(),
-                    DemoBanner(),
-                    new Decorator(ret => Unit.UnfriendlyUnits(8).Count() > 2,
-                        CreateAoe()),
-                    new Decorator(ret => Me.CurrentTarget.HealthPercent <= 20,
-                        CreateExecuteRange()),
-                    new Decorator(ret => Me.CurrentTarget.HealthPercent > 20,
-                        new PrioritySelector(
-                            Item.UsePotionAndHealthstone(40),
-                            new Decorator(ret => AdvancedAI.Burst,
-                                new PrioritySelector(
-                                    Spell.Cast("Blood Fury", ret => Me.CurrentTarget.IsBoss),
-                                    Spell.Cast("Recklessness", ret => Me.CurrentTarget.IsBoss),
-                                    Spell.Cast("Avatar", ret => Me.CurrentTarget.IsBoss),
-                                    Spell.Cast("Bloodbath"),
-                                    Spell.Cast("Skull Banner", ret => Me.CurrentTarget.IsBoss),
-                                    new Action(ret => { Item.UseHands(); return RunStatus.Failure; }))),
-                            new Decorator(ret => !Me.CurrentTarget.HasAura("Colossus Smash"),
-                                new PrioritySelector(
-                                    Spell.Cast("Bloodthirst"),
-                                    Spell.Cast("Heroic Strike", ctx => Me.CurrentRage > 105 && ColossusSmashCheck()),
-                                    Spell.Cast("Raging Blow", ret => Me.HasAura("Raging Blow!", 2) && ColossusSmashCheck()),
-                                    Spell.Cast("Wild Strike", ret => Me.HasAura("Bloodsurge")),
-                                    Spell.Cast("Dragon Roar", ret => Me.CurrentTarget.Distance <= 8),
-                                    Spell.Cast("Raging Blow", ret => Me.HasAura("Raging Blow!", 1) && ColossusSmashCheck()),
-                                    Spell.Cast("Battle Shout", ret => Me.RagePercent < 30 && Spell.GetSpellCooldown("Colossus Smash").TotalSeconds <= 2),
-                                    Spell.Cast("Shockwave"),
-                                    Spell.Cast("Wild Strike", ret => Me.CurrentRage >= 115 && ColossusSmashCheck()))),
-                            new Decorator(ret => Me.CurrentTarget.HasAura("Colossus Smash"),
-                                new PrioritySelector(
-                                    Spell.Cast("Heroic Strike", ctx => Me.CurrentRage > 30),
-                                    Spell.Cast("Bloodthirst"),
-                                    Spell.Cast("Raging Blow"),
-                                    Spell.Cast("Wild Strike", ret => Me.HasAura("Bloodsurge")))))));
-            }
+            return new PrioritySelector(
+                Common.CreateInterruptBehavior(),
+                HeroicLeap(),
+                DemoBanner(),
+                new Decorator(ret => Me.CurrentTarget != null && (!Me.CurrentTarget.IsWithinMeleeRange || Me.IsCasting || SpellManager.GlobalCooldown),
+                    new ActionAlwaysSucceed()),
+                new Decorator(ret => Me.HasAura("Dire Fixation"),
+                    new PrioritySelector(
+                        BossMechs.HorridonHeroic())),
+                Spell.Cast("Shattering Throw", ret => Me.CurrentTarget.IsBoss() && PartyBuff.WeHaveBloodlust),
+                Spell.Cast("Impending Victory", ret => Me.HealthPercent <= 90 && Me.CachedHasAura("Victorious")),
+                Spell.Cast("Berserker Rage", ret => !Me.CachedHasAura(Enrage) && Me.CurrentTarget.CachedHasAura("Colossus Smash")),
+                Spell.Cast("Colossus Smash", ret => Me.CurrentRage > 80 && Me.CachedHasAura("Raging Blow!") && Me.CachedHasAura(Enrage)),
+                new Decorator(ret => Unit.UnfriendlyUnits(8).Count() > 2,
+                    CreateAoe()),
+                new Decorator(ret => Me.CurrentTarget != null && Me.CurrentTarget.HealthPercent <= 20,
+                    CreateExecuteRange()),
+                new Decorator(ret => Me.CurrentTarget != null && Me.CurrentTarget.HealthPercent > 20,
+                    new PrioritySelector(
+                        Item.UsePotionAndHealthstone(40),
+                        new Decorator(ret => AdvancedAI.Burst && Me.CurrentTarget.IsBoss(),
+                            new PrioritySelector(
+                                Spell.Cast("Blood Fury"),
+                                Spell.Cast("Recklessness"),
+                                Spell.Cast("Avatar"),
+                                Spell.Cast("Skull Banner"))),
+                        Spell.Cast("Bloodbath"),
+                        new Action(ret => { Item.UseHands(); return RunStatus.Failure; }),
+                        new Decorator(ret => !Me.CurrentTarget.CachedHasAura("Colossus Smash"),
+                            new PrioritySelector(
+                                Spell.Cast("Bloodthirst"),
+                                Spell.Cast("Heroic Strike", ctx => Me.CurrentRage > 105 && ColossusSmashCheck()),
+                                Spell.Cast("Raging Blow", ret => Me.CachedHasAura("Raging Blow!", 2) && ColossusSmashCheck()),
+                                Spell.Cast("Wild Strike", ret => Me.CachedHasAura("Bloodsurge")),
+                                Spell.Cast("Dragon Roar", ret => Me.CurrentTarget.Distance <= 8),
+                                Spell.Cast("Raging Blow", ret => Me.CachedHasAura("Raging Blow!", 1) && ColossusSmashCheck()),
+                                Spell.Cast("Battle Shout", ret => Me.RagePercent < 30 && Spell.GetSpellCooldown("Colossus Smash").TotalSeconds <= 2),
+                                Spell.Cast("Shockwave"),
+                                Spell.Cast("Wild Strike", ret => Me.CurrentRage >= 115 && ColossusSmashCheck()))),
+                        new Decorator(ret => Me.CurrentTarget.CachedHasAura("Colossus Smash"),
+                            new PrioritySelector(
+                                Spell.Cast("Heroic Strike", ctx => Me.CurrentRage > 30),
+                                Spell.Cast("Bloodthirst"),
+                                Spell.Cast("Raging Blow"),
+                                Spell.Cast("Wild Strike", ret => Me.CachedHasAura("Bloodsurge")))))));
         }
 
-        internal static Composite CreateFWBuffs
+        [Behavior(BehaviorType.PreCombatBuffs, WoWClass.Warrior, WoWSpec.WarriorFury)]
+        public static Composite FuryPreCombatBuffs()
         {
-            get
-            {
-                return new PrioritySelector(
-                    new Decorator( ret => AdvancedAI.PvPRot,
-                        FuryWarriorPvP.CreateFWPvPBuffs),
-                    Spell.Cast("Battle Shout", ret => !StyxWoW.Me.HasAura("Battle Shout")));
-            }
+            return new PrioritySelector(
+                //new Decorator(ret => AdvancedAI.PvPRot,
+                //    FuryWarriorPvP.CreateFWPvPBuffs),
+                Spell.Cast("Battle Shout", ret => !Me.HasPartyBuff(PartyBuffType.AttackPower)));
+
         }
 
         private static Composite CreateAoe()
@@ -84,22 +84,22 @@ namespace AdvancedAI.Spec
                         Spell.Cast("Whirlwind"),
                         Spell.Cast("Bloodthirst"),
                         Spell.Cast("Raging Blow"))),
-                Spell.Cast("Whirlwind", ret => !Me.HasAura("Meat Cleaver", (int)MathEx.Clamp(1, 3, Unit.UnfriendlyUnits(8).Count() - 1))),
+                Spell.Cast("Whirlwind", ret => !Me.CachedHasAura("Meat Cleaver", (int)MathEx.Clamp(1, 3, Unit.UnfriendlyUnits(8).Count() - 1))),
                 Spell.Cast("Bloodthirst"),
-                Spell.Cast("Raging Blow", ret => Me.HasAura("Meat Cleaver", (int)MathEx.Clamp(1, 3, Unit.UnfriendlyUnits(8).Count() - 1))),
+                Spell.Cast("Raging Blow", ret => Me.CachedHasAura("Meat Cleaver", (int)MathEx.Clamp(1, 3, Unit.UnfriendlyUnits(8).Count() - 1))),
                 Spell.Cast("Cleave", ret => Me.CurrentRage >= 105 && Spell.GetSpellCooldown("Colossus Smash").TotalSeconds >= 3));
         }
 
         private static Composite CreateExecuteRange()
         {
             return new PrioritySelector(
-                new Decorator(ret => !Me.CurrentTarget.HasAura("Colossus Smash"),
+                new Decorator(ret => !Me.CurrentTarget.CachedHasAura("Colossus Smash"),
                     new PrioritySelector(
                         Spell.Cast("Bloodthirst"),
                         Spell.Cast("Raging Blow"),
                         new Decorator(ret => Me.RagePercent < 85,
                             new Action(ret => RunStatus.Success)))),
-                new Decorator(ret => Me.CurrentTarget.HasAura("Colossus Smash"),
+                new Decorator(ret => Me.CurrentTarget.CachedHasAura("Colossus Smash"),
                     new PrioritySelector(
                         Spell.Cast("Execute"))));
         }

@@ -18,7 +18,7 @@ namespace AdvancedAI.Helpers
      * Apply Aura: Mod Stat - % (Strength, Agility, Intellect) Value: 5
      * Apply Aura: 
      */
-
+    
     /// <summary>
     /// indicates buff category an aura belongs to.  values must be a unique bit to allow creating 
     /// masks to represent a single aura that provides buffs in multiple categories, such as 
@@ -41,6 +41,8 @@ namespace AdvancedAI.Helpers
 
     public static class PartyBuff
     {
+        static LocalPlayer Me { get { return StyxWoW.Me; } }
+
         private static Dictionary<string, PartyBuffType> dictBuffs = new Dictionary<string, PartyBuffType>()
         {
             { "Mark of the Wild",                   PartyBuffType.Stats},
@@ -112,7 +114,7 @@ namespace AdvancedAI.Helpers
         /// <returns>true if any buff matching the mask in 'cat' is found, otherwise false</returns>
         public static bool HasPartyBuff(this WoWUnit unit, PartyBuffType cat)
         {
-            foreach (var a in unit.GetAllAuras())
+            foreach (var a in unit.CachedGetAllAuras())
             {
                 PartyBuffType bc = GetPartyBuffForSpell(a.Name);
                 if ((bc & cat) != PartyBuffType.None)
@@ -336,16 +338,15 @@ namespace AdvancedAI.Helpers
                     );
         }
 
+        private static readonly HashSet<int> Hero = new HashSet<int> { 2825, 32182, 80353, 90355 };
+        //"Bloodlust", "Heroism", "Time Warp", "Ancient Hysteria"
         /// <summary>
         /// true: we have a Bloodlust-like buff, typically indicating we should cast 
         /// other long cooldown abilities that we save for such an occassion
         /// </summary>
         public static bool WeHaveBloodlust
         {
-            get
-            {
-                return StyxWoW.Me.HasAnyAura(StyxWoW.Me.IsHorde ? "Bloodlust" : "Heroism", "Time Warp", "Ancient Hysteria");
-            }
+            get { return StyxWoW.Me.CachedHasAnyAura(Hero); }
         }
     }
 }

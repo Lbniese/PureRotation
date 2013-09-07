@@ -15,6 +15,11 @@ namespace AdvancedAI.Managers
 
         static TalentManager()
         {
+            
+        }
+
+        public static void Init()
+        {
             Talents = new List<Talent>();
             TalentId = new int[6];
             Glyphs = new HashSet<string>();

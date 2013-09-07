@@ -4,20 +4,21 @@ using Styx.WoWInternals;
 
 namespace AdvancedAI
 {
-    sealed partial class AdvancedAI
+    partial class AdvancedAI
     {
-        public static bool InterruptsEnabled { get; private set; }
-        public static bool PvPRot { get; private set; }
-        public static bool Burst { get; private set; }
-        public static bool HexFocus { get; private set; }
-        public static bool Movement { get; private set; }
-        public static bool TierBonus { get; private set; }
-        public static bool Aoe { get; private set; }
+        public static bool InterruptsEnabled { get; set; }
+        public static bool PvPRot { get; set; }
+        public static bool Burst { get; set; }
+        public static bool HexFocus { get; set; }
+        public static bool Movement { get; set; }
+        public static bool TierBonus { get; set; }
+        public static bool Aoe { get; set; }
         public static bool BossMechs { get; set; }
-        public static bool Weave { get; private set; }
-        public static bool Dispell { get; private set; }
+        public static bool Weave { get; set; }
+        public static bool Dispell { get; set; }
+        public static bool Trace { get; set; }
 
-        private void UnregisterHotkeys()
+        protected virtual void UnregisterHotkeys()
         {
             HotkeysManager.Unregister("Toggle Interrupt");
             HotkeysManager.Unregister("PvP Toggle");
@@ -29,10 +30,20 @@ namespace AdvancedAI
             HotkeysManager.Unregister("Boss Mechs");
             HotkeysManager.Unregister("Weave");
             HotkeysManager.Unregister("Dispelling");
+            HotkeysManager.Unregister("Trace");
         }
-
-        private static void RegisterHotkeys()
+        protected virtual void RegisterHotkeys()
         {
+            HotkeysManager.Register("Trace",
+                Keys.T,
+                ModifierKeys.Alt,
+                o =>
+                {
+                    Trace = !Trace;
+                    Logging.Write("Trace enabled: " + Trace);
+                });
+            Dispell = false;
+
             HotkeysManager.Register("Dispelling",
                 Keys.D,
                 ModifierKeys.Alt,
