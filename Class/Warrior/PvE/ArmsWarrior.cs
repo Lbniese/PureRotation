@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using AdvancedAI.Class.Warrior.PvP;
 using AdvancedAI.Helpers;
 using CommonBehaviors.Actions;
 using Styx;
@@ -17,8 +18,11 @@ namespace AdvancedAI.Class.Warrior.PvE
         public static Composite ArmsCombat()
         {
             return new PrioritySelector(
-                new Decorator(ret => Me.CurrentTarget != null && (!Me.CurrentTarget.IsWithinMeleeRange || Me.IsCasting || SpellManager.GlobalCooldown),
-                    new ActionAlwaysSucceed()),
+                new Decorator(ret => AdvancedAI.PvPRot,
+                    ArmsWarriorPvP.ArmsPvPCombat()
+                    ),
+                //new Decorator(ret => Me.CurrentTarget != null && (!Me.CurrentTarget.IsWithinMeleeRange || Me.IsCasting || SpellManager.GlobalCooldown),
+                //    new ActionAlwaysSucceed()),
                 new Decorator(ret => Me.CachedHasAura("Dire Fixation"),
                     new PrioritySelector(
                         BossMechs.HorridonHeroic())),
@@ -40,7 +44,7 @@ namespace AdvancedAI.Class.Warrior.PvE
                 Spell.Cast("Heroic Strike", ret => (Me.CurrentTarget.CachedHasAura("Colossus Smash") && Me.CurrentRage >= 80 && Me.CurrentTarget.HealthPercent >= 20) || Me.CurrentRage >= 105),
                 Spell.Cast("Mortal Strike"),
                 Spell.Cast("Dragon Roar", ret => !Me.CurrentTarget.CachedHasAura("Colossus Smash") && Me.CachedHasAura("Bloodbath") && Me.CurrentTarget.Distance <= 8),
-                Spell.Cast("Colossus Smash", ret => Me.CachedHasAuraDown("Colossus Smash", 1, true, 1)),
+                Spell.Cast("Colossus Smash", ret => Me.CachedHasAuraDown("Colossus Smash", 1, true, 1) || !Me.CurrentTarget.HasMyAura("Colossus Smash")),
                 Spell.Cast("Execute", ret => Me.CurrentTarget.CachedHasAura("Colossus Smash") || Me.CachedHasAura("Recklessness") || Me.CurrentRage >= 95),
                 Spell.Cast("Dragon Roar", ret => (!Me.CurrentTarget.HasMyAura("Colossus Smash") && Me.CurrentTarget.HealthPercent < 20) || (Me.HasAura("Bloodbath") && Me.CurrentTarget.HealthPercent >= 20) && Me.CurrentTarget.Distance <= 8),
                 Spell.Cast("Thunder Clap", ret => Unit.UnfriendlyUnits(8).Count() >= 3 && Clusters.GetCluster(Me, Unit.UnfriendlyUnits(8), ClusterType.Radius, 8).Any(u => !u.CachedHasAura("Deep Wounds", 1, true))),

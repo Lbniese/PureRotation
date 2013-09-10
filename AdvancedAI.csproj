@@ -30,12 +30,21 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="fasmdll_managed">
+      <HintPath>..\..\..\..\NonRaid\fasmdll_managed.dll</HintPath>
+    </Reference>
     <Reference Include="Honorbuddy">
-      <HintPath>..\..\..\HBBETA\Honorbuddy.exe</HintPath>
+      <HintPath>..\..\..\..\NonRaid\Honorbuddy.exe</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
+    <Reference Include="RemoteASMNative">
+      <HintPath>..\..\..\..\NonRaid\RemoteASMNative.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data.SQLite">
+      <HintPath>..\..\..\..\NonRaid\System.Data.SQLite.dll</HintPath>
+    </Reference>
     <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
@@ -43,8 +52,11 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="Tripper.RecastManaged">
+      <HintPath>..\..\..\..\NonRaid\Tripper.RecastManaged.dll</HintPath>
+    </Reference>
     <Reference Include="Tripper.Tools">
-      <HintPath>..\..\..\HBBETA\Tripper.Tools.dll</HintPath>
+      <HintPath>..\..\..\..\NonRaid\Tripper.Tools.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -58,6 +70,7 @@
     <Compile Include="Class\Druid\PvE\FeralDruid.cs" />
     <Compile Include="Class\Druid\PvE\GuardianDruid.cs" />
     <Compile Include="Class\Monk\PvE\BrewmasterMonk.cs" />
+    <Compile Include="Class\Monk\PvE\WindwalkerMonk.cs" />
     <Compile Include="Class\Priest\PvE\ShadowPriest.cs" />
     <Compile Include="Class\Shaman\PvE\RestorationShaman.cs" />
     <Compile Include="Class\Warrior\PvE\ArmsWarrior.cs" />

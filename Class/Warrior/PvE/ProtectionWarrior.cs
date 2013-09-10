@@ -65,8 +65,8 @@ namespace AdvancedAI.Class.Warrior.PvE
                     Spell.Cast("Shield Barrier", ret => Me.CurrentRage > 60 && !Me.CachedHasAura("Shield Barrier") && IsCurrentTank() && !AdvancedAI.Weave),
                     Spell.Cast("Shield Barrier", ret => Me.CurrentRage > 30 && Me.CachedHasAura("Shield Block") && Me.HealthPercent <= 70),
 
-                    new Decorator(ret => SpellManager.GlobalCooldown,
-                    new ActionAlwaysSucceed()),
+                    //new Decorator(ret => SpellManager.GlobalCooldown,
+                    //new ActionAlwaysSucceed()),
 
                     Spell.Cast("Shattering Throw", ret => Me.CurrentTarget.IsBoss && PartyBuff.WeHaveBloodlust && !Me.IsMoving),
 
