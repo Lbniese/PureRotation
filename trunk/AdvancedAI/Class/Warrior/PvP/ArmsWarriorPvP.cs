@@ -58,7 +58,7 @@ namespace AdvancedAI.Class.Warrior.PvP
                 Spell.Cast("Victory Rush", ret => Me.HealthPercent <= 90 && Me.CachedHasAura("Victorious")),
                 ShatterBubbles(),
                 new Decorator(
-                    new PrioritySelector(ret => !Me.CurrentTarget.IsStunned() && !Me.CurrentTarget.IsCrowdControlled() && !Me.CurrentTarget.HasAuraWithEffectsing(WoWApplyAuraType.ModDecreaseSpeed) && !Me.CurrentTarget.HasAnyAura("Piercing Howl", "Hamsting"),
+                    new PrioritySelector(ret => Me.CurrentTarget.IsPlayer && !Me.CurrentTarget.IsStunned() && !Me.CurrentTarget.IsCrowdControlled() && !Me.CurrentTarget.HasAuraWithEffectsing(WoWApplyAuraType.ModDecreaseSpeed) && !Me.CurrentTarget.HasAnyAura("Piercing Howl", "Hamsting"),
                 Spell.Cast("Piercing Howl"),
                 Spell.Cast("Hamstring"))),
                 DemoBanner(),
@@ -100,7 +100,8 @@ namespace AdvancedAI.Class.Warrior.PvP
                 Spell.Cast("Heroic Throw"),
                 Spell.Cast("Impending Victory", ret => Me.CurrentTarget.HealthPercent > 20 || Me.HealthPercent < 50),
                 new Decorator(ret => AdvancedAI.Movement,
-                    Movement.CreateMoveToMeleeBehavior(true)));
+                    Movement.CreateMoveToMeleeBehavior(true)),
+                    new ActionAlwaysSucceed());
         }
 
         [Behavior(BehaviorType.PreCombatBuffs, WoWClass.Warrior, WoWSpec.WarriorArms, WoWContext.Battlegrounds)]
@@ -595,5 +596,7 @@ namespace AdvancedAI.Class.Warrior.PvP
             StormBolt
         }
         #endregion
+
+
     }
 }
