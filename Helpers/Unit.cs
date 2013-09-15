@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using Styx;
 using Styx.CommonBot;
 using Styx.WoWInternals;
+using Styx.WoWInternals.DBC;
 using Styx.WoWInternals.WoWObjects;
 using System.Diagnostics;
 using Styx.Common.Helpers;
@@ -382,7 +383,7 @@ namespace AdvancedAI.Helpers
         }
 
         /// <summary>
-        ///   Gets the nearby unfriendly units within *distance* yards.
+        ///   Gets the nearby unfriendly units that we are facing within *distance* yards.
         /// </summary>
         /// <param name="distance"> The distance to check from current target</param>
         /// <value>The nearby unfriendly units.</value>
