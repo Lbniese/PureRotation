@@ -37,6 +37,7 @@ namespace AdvancedAI.Class.Monk.PvE
                 */
                 Spell.Cast("Spear Hand Strike", ret => StyxWoW.Me.CurrentTarget.IsCasting && StyxWoW.Me.CurrentTarget.CanInterruptCurrentSpellCast),
                 Spell.WaitForCastOrChannel(),
+                Item.UsePotionAndHealthstone(40),
                 new Decorator(ret => Me.CurrentTarget.IsBoss(),
                     new PrioritySelector(
                         //new Action(ret => { Item.UseTrinkets(); return RunStatus.Failure; }),
@@ -85,6 +86,7 @@ namespace AdvancedAI.Class.Monk.PvE
                 //Healing Spheres need to work on not happy with this atm
                 //Spell.CastOnGround("Healing Sphere", on => Me.Location, ret => Me.HealthPercent <= 50 && Me.CurrentEnergy >= 60),
 
+                Spell.Cast("Rushing Jade Wind", ret => Unit.UnfriendlyUnits(8).Count() >= 3 && Spell.GetSpellCooldown("Keg Smash").TotalSeconds >= 2),
                 Spell.Cast("Spinning Crane Kick", ret => Unit.UnfriendlyUnits(8).Count() >= 5 && Spell.GetSpellCooldown("Keg Smash").TotalSeconds >= 2),
                 Spell.Cast("Jab", ret => ((Me.CurrentEnergy - 40) + (Spell.GetSpellCooldown("Keg Smash").TotalSeconds * EnergyRegen)) > 40),
 
