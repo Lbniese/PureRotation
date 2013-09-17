@@ -45,9 +45,27 @@ namespace AdvancedAI.Class.Monk.PvE
                         new Action(ret => { Item.UseHands(); return RunStatus.Failure; }))),
                 // Execute if we can
                 Spell.Cast("Touch of Death", ret => Me.CurrentChi >= 3 && Me.CachedHasAura("Death Note")),
-
+                
+                //stance stuff need to work on it more
+                // cant get it to see what stance im in
+                //Spell.Cast("Stance of the Sturdy Ox", ret => IsCurrentTank() && !Me.CachedHasAura("Stance of the Sturdy Ox")),
+                //new Decorator(ret => Me.CachedHasAura("Stance of the Fierce Tiger"),
+                //    new PrioritySelector(
+                //    Spell.Cast("Chi Wave"),
+                //    Spell.Cast("Blackout Kick"),
+                //    Spell.Cast("Rushing Jade Wind", ret => Unit.UnfriendlyUnits(8).Count() >= 3),
+                //    Spell.Cast("Spinning Crane Kick", ret => Unit.UnfriendlyUnits(8).Count() >= 3),
+                //    Spell.Cast("Expel Harm", ret => Me.HealthPercent <= 35),
+                //    Spell.Cast("Jab", ret => Me.CurrentChi <= 4),
+                //    Spell.Cast("Tiger Plam"),
+                //    new ActionAlwaysSucceed()
+                //    )),
+                //new Decorator(ret => Me.CachedHasAura(115069),//115069
+                //    new PrioritySelector(                  
                 //// apply the Weakened Blows debuff. Keg Smash also generates allot of threat 
                 Spell.Cast(KegSmash, ret => Me.CurrentChi <= 3 && Clusters.GetCluster(Me, Unit.NearbyUnfriendlyUnits, ClusterType.Radius, 8).Any(u => !u.CachedHasAura("Weakened Blows"))),
+
+                Spell.CastOnGround("Summon Black Ox Statue", on => Me.Location, ret => !Me.HasAura("Sanctuary of the Ox") && AdvancedAI.UsefulStuff),
 
                 //PB, EB, and Guard are off the GCD
                 //!!!!!!!Purifying Brew !!!!!!!
@@ -86,18 +104,20 @@ namespace AdvancedAI.Class.Monk.PvE
                 //Healing Spheres need to work on not happy with this atm
                 //Spell.CastOnGround("Healing Sphere", on => Me.Location, ret => Me.HealthPercent <= 50 && Me.CurrentEnergy >= 60),
 
-                Spell.Cast("Rushing Jade Wind", ret => Unit.UnfriendlyUnits(8).Count() >= 3 && Spell.GetSpellCooldown("Keg Smash").TotalSeconds >= 2),
-                Spell.Cast("Spinning Crane Kick", ret => Unit.UnfriendlyUnits(8).Count() >= 5 && Spell.GetSpellCooldown("Keg Smash").TotalSeconds >= 2),
+                new Decorator(ret => AdvancedAI.Aoe && Spell.GetSpellCooldown("Keg Smash").TotalSeconds >= 2,
+                    new PrioritySelector(
+                Spell.Cast("Rushing Jade Wind", ret => Unit.UnfriendlyUnits(8).Count() >= 3),
+                Spell.Cast("Spinning Crane Kick", ret => Unit.UnfriendlyUnits(8).Count() >= 5))),
+
                 Spell.Cast("Jab", ret => ((Me.CurrentEnergy - 40) + (Spell.GetSpellCooldown("Keg Smash").TotalSeconds * EnergyRegen)) > 40),
 
                 //Spell.Cast("Jab", ret => Spell.GetSpellCooldown("Keg Smash").TotalSeconds >= (((40 - 0) * (1.0 / EnergyRegen)) / 1.6)),
                 //Spell.Cast("Jab", ret => Me.CurrentEnergy >= 80 || Spell.GetSpellCooldown("Keg Smash").TotalSeconds >= 3),
 
-                //Spell.CastOnGround("Summon Black Ox Statue", on => Me.CurrentTarget.Location, ret => !Me.HasAura("Sanctuary of the Ox") && Me.CurrentTarget.IsBoss),
-                
                 //dont like using this in auto to many probs with it
                 //Spell.Cast("Invoke Xuen, the White Tiger", ret => Me.CurrentTarget.IsBoss && IsCurrentTank()),
                 Spell.Cast("Tiger Palm", ret => Spell.GetSpellCooldown("Keg Smash").TotalSeconds >= 1 && Me.CurrentChi < 3 && Me.CurrentEnergy < 80),
+
                     new ActionAlwaysSucceed());
         }
 
@@ -155,6 +175,13 @@ namespace AdvancedAI.Class.Monk.PvE
                 }
                 return _time_to_max.Value;
             }
+        }
+        #endregion
+
+        #region Is Tank
+        static bool IsCurrentTank()
+        {
+            return StyxWoW.Me.CurrentTarget.CurrentTargetGuid == StyxWoW.Me.Guid;
         }
         #endregion
 
