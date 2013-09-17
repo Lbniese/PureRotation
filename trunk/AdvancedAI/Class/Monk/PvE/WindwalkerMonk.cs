@@ -72,6 +72,7 @@ namespace AdvancedAI.Class.Monk.PvE
                     Spell.Cast("Tiger Palm", ret => Me.CachedHasAura("Combo Breaker: Tiger Palm")),
 
                     Spell.Cast("Spinning Crane Kick", ret => Unit.UnfriendlyUnits(8).Count() >= 4 && AdvancedAI.Aoe),
+                    Spell.Cast("Rushing Jade Wind", ret => Unit.UnfriendlyUnits(8).Count() >= 3 && AdvancedAI.Aoe),
 
                     Spell.Cast("Expel Harm", ret => Me.CurrentChi <= 2 && Me.HealthPercent < 80),
 

@@ -11,7 +11,7 @@ namespace AdvancedAI
         public static bool Burst { get; set; }
         public static bool HexFocus { get; set; }
         public static bool Movement { get; set; }
-        public static bool TierBonus { get; set; }
+        public static bool UsefulStuff { get; set; }
         public static bool Aoe { get; set; }
         public static bool BossMechs { get; set; }
         public static bool Weave { get; set; }
@@ -25,7 +25,7 @@ namespace AdvancedAI
             HotkeysManager.Unregister("Burst");
             HotkeysManager.Unregister("Hex Focus");
             HotkeysManager.Unregister("Movement");
-            HotkeysManager.Unregister("Tier Bonus");
+            HotkeysManager.Unregister("Useful Stuff");
             HotkeysManager.Unregister("AOE");
             HotkeysManager.Unregister("Boss Mechs");
             HotkeysManager.Unregister("Weave");
@@ -113,11 +113,11 @@ namespace AdvancedAI
             ModifierKeys.Control,
             o =>
             {
-                TierBonus = !TierBonus;
-                Logging.Write("Tier Bonus enabled: " + TierBonus);
-                Lua.DoString("print('Tier Bonus Enabled: " + TierBonus + "')");
+                UsefulStuff = !UsefulStuff;
+                Logging.Write("Useful Stuff enabled: " + UsefulStuff);
+                Lua.DoString("print('Useful Stuff Enabled: " + UsefulStuff + "')");
             });
-            TierBonus = false;
+            UsefulStuff = false;
 
             HotkeysManager.Register("AOE",
             Keys.NumPad4,
