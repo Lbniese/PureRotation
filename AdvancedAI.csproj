@@ -71,6 +71,7 @@
     <Compile Include="Class\Druid\PvE\GuardianDruid.cs" />
     <Compile Include="Class\Monk\PvE\BrewmasterMonk.cs" />
     <Compile Include="Class\Monk\PvE\WindwalkerMonk.cs" />
+    <Compile Include="Class\Paladin\PvE\ProtectionPaladin.cs" />
     <Compile Include="Class\Priest\PvE\ShadowPriest.cs" />
     <Compile Include="Class\Shaman\PvE\RestorationShaman.cs" />
     <Compile Include="Class\Warrior\PvE\ArmsWarrior.cs" />
@@ -118,7 +119,6 @@
     <Folder Include="Class\Mage\PvE\" />
     <Folder Include="Class\Mage\PvP\" />
     <Folder Include="Class\Monk\PvP\" />
-    <Folder Include="Class\Paladin\PvE\" />
     <Folder Include="Class\Paladin\PvP\" />
     <Folder Include="Class\Priest\PvP\" />
     <Folder Include="Class\Rogue\PvE\" />

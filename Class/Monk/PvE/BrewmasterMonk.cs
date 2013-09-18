@@ -48,20 +48,21 @@ namespace AdvancedAI.Class.Monk.PvE
                 
                 //stance stuff need to work on it more
                 // cant get it to see what stance im in
-                //Spell.Cast("Stance of the Sturdy Ox", ret => IsCurrentTank() && !Me.CachedHasAura("Stance of the Sturdy Ox")),
-                //new Decorator(ret => Me.CachedHasAura("Stance of the Fierce Tiger"),
-                //    new PrioritySelector(
-                //    Spell.Cast("Chi Wave"),
-                //    Spell.Cast("Blackout Kick"),
-                //    Spell.Cast("Rushing Jade Wind", ret => Unit.UnfriendlyUnits(8).Count() >= 3),
-                //    Spell.Cast("Spinning Crane Kick", ret => Unit.UnfriendlyUnits(8).Count() >= 3),
-                //    Spell.Cast("Expel Harm", ret => Me.HealthPercent <= 35),
-                //    Spell.Cast("Jab", ret => Me.CurrentChi <= 4),
-                //    Spell.Cast("Tiger Plam"),
-                //    new ActionAlwaysSucceed()
-                //    )),
-                //new Decorator(ret => Me.CachedHasAura(115069),//115069
-                //    new PrioritySelector(                  
+                Spell.Cast("Stance of the Sturdy Ox", ret => IsCurrentTank() && !Me.HasAura("Stance of the Sturdy Ox")),
+                new Decorator(ret => Me.HasAura("Stance of the Fierce Tiger"),
+                    new PrioritySelector(
+                    Spell.Cast("Tiger Palm", ret => !Me.CachedHasAura("Tiger Power")),
+                    Spell.Cast("Chi Wave"),
+                    Spell.Cast("Blackout Kick"),
+                    Spell.Cast("Rushing Jade Wind", ret => Unit.UnfriendlyUnits(8).Count() >= 3),
+                    Spell.Cast("Spinning Crane Kick", ret => Unit.UnfriendlyUnits(8).Count() >= 3),
+                    Spell.Cast("Expel Harm", ret => Me.HealthPercent <= 35),
+                    Spell.Cast("Jab", ret => Me.CurrentChi <= 4),
+                    Spell.Cast("Tiger Palm"),
+                    new ActionAlwaysSucceed()
+                    )),
+                new Decorator(ret => Me.HasAura("Stance of the Sturdy Ox"),//115069
+                    new PrioritySelector(                  
                 //// apply the Weakened Blows debuff. Keg Smash also generates allot of threat 
                 Spell.Cast(KegSmash, ret => Me.CurrentChi <= 3 && Clusters.GetCluster(Me, Unit.NearbyUnfriendlyUnits, ClusterType.Radius, 8).Any(u => !u.CachedHasAura("Weakened Blows"))),
 
@@ -85,7 +86,7 @@ namespace AdvancedAI.Class.Monk.PvE
                 Spell.Cast("Guard", ret => Me.CurrentChi >= 2 && Me.CachedHasAura("Power Guard")),
                 //Blackout Kick might have to add guard back but i think its better to open with BK and get shuffle to build AP for Guard
                 Spell.Cast("Blackout Kick", ret => Me.CurrentChi >= 2 && !Me.CachedHasAura("Shuffle")),
-                Spell.Cast("Tiger Palm", ret => Me.CurrentChi >= 2 && !Me.CachedHasAura("Power Guard")),
+                Spell.Cast("Tiger Palm", ret => Me.CurrentChi >= 2 && !Me.CachedHasAura("Power Guard") || !Me.CachedHasAura("Tiger Power")),
                 Spell.Cast("Expel Harm", ret => Me.HealthPercent <= 35),
                 Spell.Cast("Breath of Fire", ret => Me.CurrentChi >= 3 && Me.CachedHasAura("Shuffle") && Me.CachedGetAuraTimeLeft("Shuffle") > 6.5 && Me.CurrentTarget.CachedHasAura("Dizzying Haze")),
 
@@ -118,7 +119,7 @@ namespace AdvancedAI.Class.Monk.PvE
                 //Spell.Cast("Invoke Xuen, the White Tiger", ret => Me.CurrentTarget.IsBoss && IsCurrentTank()),
                 Spell.Cast("Tiger Palm", ret => Spell.GetSpellCooldown("Keg Smash").TotalSeconds >= 1 && Me.CurrentChi < 3 && Me.CurrentEnergy < 80),
 
-                    new ActionAlwaysSucceed());
+                    new ActionAlwaysSucceed())));
         }
 
         #region Zen Heals

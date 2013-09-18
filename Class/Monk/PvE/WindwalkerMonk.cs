@@ -39,7 +39,7 @@ namespace AdvancedAI.Class.Monk.PvE
                     Spell.CastOnGround("Healing Sphere", on => Me.Location, ret => Me.HealthPercent <= 50),
 
                     //Tigerseye
-                    Spell.Cast("Tigereye Brew", ret => Me.CachedHasAura("Tigereye Brew", 10)),
+                    Spell.Cast("Tigereye Brew", ret => Me.CachedHasAura("Tigereye Brew", 19)),
 
                     Spell.Cast("Energizing Brew", ret => Me.CurrentEnergy < 25),
 
