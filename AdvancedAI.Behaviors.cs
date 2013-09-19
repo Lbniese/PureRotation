@@ -58,7 +58,7 @@ namespace AdvancedAI
                     new HookExecutor(HookName(BehaviorType.Heal)));
             }
 
-            if (_pull == null)
+            if (_pull == null && Movement)
             {
                 Logging.Write("Initializing Pulling");
                 _pull = new LockSelector(

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using AdvancedAI.Helpers;
 using AdvancedAI.Managers;
 using AdvancedAI.Utilities;
@@ -7,6 +8,7 @@ using Styx.Common;
 using Styx.CommonBot;
 using Styx.CommonBot.Routines;
 using Styx.Helpers;
+using Styx.TreeSharp;
 using Styx.WoWInternals.WoWObjects;
 
 namespace AdvancedAI
@@ -36,6 +38,8 @@ namespace AdvancedAI
             };
             Spell.GcdInitialize();
             Dispelling.Init();
+            //testing cached units
+            //CachedUnits.Initialize();
             EventHandlers.Init();
             Lists.BossList.Init();
             Instance.AssignBehaviors();
@@ -53,6 +57,17 @@ namespace AdvancedAI
                 return;
             if (TalentManager.Pulse())
                 return;
+
+            if (TalentManager.EventRebuildTimer.IsFinished && TalentManager.RebuildNeeded)
+            {
+                TalentManager.RebuildNeeded = false;
+                Logging.Write("TalentManager: Rebuilding behaviors due to changes detected.");
+                TalentManager.Update();   // reload talents just in case
+                AssignBehaviors();
+                return;
+            }
+
+
             UpdateContext();
             Spell.DoubleCastPreventionDict.RemoveAll(t => DateTime.UtcNow > t);
 
@@ -65,6 +80,9 @@ namespace AdvancedAI
                     PetManager.Pulse();
                     break;
             }
+
+            //Testing chached units
+            //CachedUnits.Pulse();
 
             if (HealerManager.NeedHealTargeting)
                 HealerManager.Instance.Pulse();

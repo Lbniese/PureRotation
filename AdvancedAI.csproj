@@ -33,8 +33,9 @@
     <Reference Include="fasmdll_managed">
       <HintPath>..\..\..\..\NonRaid\fasmdll_managed.dll</HintPath>
     </Reference>
-    <Reference Include="Honorbuddy">
-      <HintPath>..\..\..\..\NonRaid\Honorbuddy.exe</HintPath>
+    <Reference Include="Honorbuddy, Version=2.5.7684.335, Culture=neutral, PublicKeyToken=50a565ab5c01ae50, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\HB5.4TEST\Honorbuddy.exe</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="RemoteASMNative">
@@ -55,8 +56,9 @@
     <Reference Include="Tripper.RecastManaged">
       <HintPath>..\..\..\..\NonRaid\Tripper.RecastManaged.dll</HintPath>
     </Reference>
-    <Reference Include="Tripper.Tools">
-      <HintPath>..\..\..\..\NonRaid\Tripper.Tools.dll</HintPath>
+    <Reference Include="Tripper.Tools, Version=1.0.0.0, Culture=neutral, PublicKeyToken=c40611ce03f849a2, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\HB5.4TEST\Tripper.Tools.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -73,6 +75,7 @@
     <Compile Include="Class\Monk\PvE\WindwalkerMonk.cs" />
     <Compile Include="Class\Paladin\PvE\ProtectionPaladin.cs" />
     <Compile Include="Class\Priest\PvE\ShadowPriest.cs" />
+    <Compile Include="Class\Shaman\PvE\ElementalShaman.cs" />
     <Compile Include="Class\Shaman\PvE\RestorationShaman.cs" />
     <Compile Include="Class\Warrior\PvE\ArmsWarrior.cs" />
     <Compile Include="Class\Warrior\PvE\FuryWarrior.cs" />
