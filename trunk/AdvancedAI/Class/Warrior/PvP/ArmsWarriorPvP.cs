@@ -83,8 +83,8 @@ namespace AdvancedAI.Class.Warrior.PvP
                 Spell.Cast("Charge", on => ChargeInt),
                 Spell.Cast("Heroic Strike", ret => (Me.CurrentTarget.CachedHasAura("Colossus Smash") && Me.CurrentRage >= 70) || Me.CurrentRage >= 95),
 
-                new Decorator(ret => Me.CurrentTarget != null && SpellManager.GlobalCooldown,
-                    new ActionAlwaysSucceed()),
+                //new Decorator(ret => Me.CurrentTarget != null && SpellManager.GlobalCooldown,
+                //    new ActionAlwaysSucceed()),
 
                 Spell.Cast("Mortal Strike"),
                 Spell.Cast("Dragon Roar", ret => !Me.CurrentTarget.CachedHasAura("Colossus Smash") && Me.CachedHasAura("Bloodbath") && Me.CurrentTarget.Distance <= 8),

@@ -14,7 +14,7 @@ namespace AdvancedAI.Class.Warrior.PvE
         static LocalPlayer Me { get { return StyxWoW.Me; } }
         private const int Enrage = 12880;
 
-        [Behavior(BehaviorType.Combat, WoWClass.Warrior, WoWSpec.WarriorArms, WoWContext.All)]
+        [Behavior(BehaviorType.Combat, WoWClass.Warrior, WoWSpec.WarriorArms, WoWContext.Instances | WoWContext.Normal)]
         public static Composite ArmsCombat()
         {
             return new PrioritySelector(
@@ -58,14 +58,14 @@ namespace AdvancedAI.Class.Warrior.PvE
                 Spell.Cast("Impending Victory", ret => Me.HealthPercent < 50));
         }
 
-        [Behavior(BehaviorType.PreCombatBuffs, WoWClass.Warrior, WoWSpec.WarriorArms,WoWContext.All)]
+        [Behavior(BehaviorType.PreCombatBuffs, WoWClass.Warrior, WoWSpec.WarriorArms, WoWContext.Instances | WoWContext.Normal )]
         public static Composite ArmsBuffs()
         {
             return new PrioritySelector(
                 Spell.Cast("Battle Shout", ret => !Me.HasPartyBuff(PartyBuffType.AttackPower)));
         }
 
-        [Behavior(BehaviorType.Pull, WoWClass.Warrior, WoWSpec.WarriorArms, WoWContext.All)]
+        [Behavior(BehaviorType.Pull, WoWClass.Warrior, WoWSpec.WarriorArms, WoWContext.Instances | WoWContext.Normal)]
         public static Composite ArmsPull()
         {
             return new PrioritySelector(
