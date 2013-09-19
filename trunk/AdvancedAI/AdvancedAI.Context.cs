@@ -48,7 +48,7 @@ namespace AdvancedAI
 
                 Map map = Me.CurrentMap;
 
-                if (map.IsBattleground || map.IsArena)
+                if (map.IsBattleground || IsArena())
                 {
                     return WoWContext.Battlegrounds;
                 }
@@ -64,6 +64,19 @@ namespace AdvancedAI
                 return WoWContext.Normal;
             }
         }
+
+        internal static bool IsArena()
+        {
+            return Me.MapId == 3698 || Me.MapId == 3702 || Me.MapId == 3968 || Me.MapId == 4378 || Me.MapId == 4406 || Me.MapId == 6296 || Me.MapId == 6732;
+        }
+
+        //3702
+        //3698
+        //3968
+        //4378
+        //4406
+        //6296
+        //6732
 
         internal static event EventHandler<WoWContextEventArg> OnWoWContextChanged;
 

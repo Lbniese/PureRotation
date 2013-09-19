@@ -319,6 +319,7 @@ namespace AdvancedAI.Managers
             WoWUnit minUnit = null;
 
             // iterate the list so we make a single pass through it
+            //Test Cached Units
             foreach (WoWUnit unit in HealerManager.Instance.TargetList)
             {
                 try

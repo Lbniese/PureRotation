@@ -29,7 +29,7 @@ namespace AdvancedAI.Class.Warrior.PvE
                     new PrioritySelector(
                         BossMechs.HorridonHeroic())),
                 Spell.Cast("Shattering Throw", ret => Me.CurrentTarget.IsBoss() && PartyBuff.WeHaveBloodlust),
-                Spell.Cast("Impending Victory", ret => Me.HealthPercent <= 90 && Me.CachedHasAura("Victorious")),
+                Spell.Cast("Victory Rush", ret => Me.HealthPercent <= 90),
                 Spell.Cast("Berserker Rage", ret => !Me.CachedHasAura(Enrage) && Me.CurrentTarget.CachedHasAura("Colossus Smash")),
                 Spell.Cast("Colossus Smash", ret => Me.CurrentRage > 80 && Me.CachedHasAura("Raging Blow!") && Me.CachedHasAura(Enrage)),
                 new Decorator(ret => Unit.UnfriendlyUnits(8).Count() > 2,
@@ -72,8 +72,18 @@ namespace AdvancedAI.Class.Warrior.PvE
             return new PrioritySelector(
                 //new Decorator(ret => AdvancedAI.PvPRot,
                 //    FuryWarriorPvP.CreateFWPvPBuffs),
-                Spell.Cast("Battle Shout", ret => !Me.HasPartyBuff(PartyBuffType.AttackPower)));
+                Spell.Cast("Battle Shout", ret => !Me.HasPartyBuff(PartyBuffType.AttackPower)),
+                FuryPull());
 
+        }
+
+        [Behavior(BehaviorType.Pull, WoWClass.Warrior, WoWSpec.WarriorFury, WoWContext.Instances | WoWContext.Normal)]
+        public static Composite FuryPull()
+        {
+            return new PrioritySelector(
+                Movement.CreateFaceTargetBehavior(70, false),
+                Spell.CastOnGround("Heroic Leap", on => Me.CurrentTarget.Location, ret => SpellManager.Spells["Charge"].Cooldown),
+                Spell.Cast("Charge"));
         }
 
         private static Composite CreateAoe()

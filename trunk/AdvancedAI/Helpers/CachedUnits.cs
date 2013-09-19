@@ -68,17 +68,14 @@ namespace AdvancedAI.Helpers
             Logging.Write("CachedUnits created!");
         }
 
-        public static Composite Pulse
+        public static void Pulse()
         {
-            get
-            {
-                return new Action(delegate
-                    {
-                        UpdateCache();
+            new Action(delegate
+                {
+                    UpdateCache();
 
                     return RunStatus.Failure;
                 });
-            }
         }
 
         public static bool UpdateCache()

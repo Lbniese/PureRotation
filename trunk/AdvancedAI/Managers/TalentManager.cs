@@ -9,7 +9,7 @@ using Styx.Common;
 
 namespace AdvancedAI.Managers
 {
-    internal static class TalentManager
+    internal class TalentManager
     {
         //public const int TALENT_FLAG_ISEXTRASPEC = 0x10000;
 
@@ -41,10 +41,10 @@ namespace AdvancedAI.Managers
 
         private static int[] GlyphId { get; set; }
 
-        private static WaitTimer EventRebuildTimer = new WaitTimer(TimeSpan.FromSeconds(1));
+        public static WaitTimer EventRebuildTimer = new WaitTimer(TimeSpan.FromSeconds(1));
 
-        private static bool _Rebuild = false;
-        private static bool RebuildNeeded 
+        public static bool _Rebuild = false;
+        public static bool RebuildNeeded 
         {
             get 
             {
@@ -166,8 +166,8 @@ namespace AdvancedAI.Managers
             {
                 RebuildNeeded = false;
                 Logging.Write("TalentManager: Rebuilding behaviors due to changes detected.");
-                //Logger.Write(Color.White, "TalentManager: Rebuilding behaviors due to changes detected.");
-                //SingularRoutine.Instance.RebuildBehaviors();
+                Update();   // reload talents just in case
+                
                 return true;
             }
 
