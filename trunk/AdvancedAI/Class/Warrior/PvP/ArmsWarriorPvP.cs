@@ -43,7 +43,7 @@ namespace AdvancedAI.Class.Warrior.PvP
         public static DateTime LastInterrupt;
 
 
-        [Behavior(BehaviorType.Combat, WoWClass.Warrior, WoWSpec.WarriorArms, WoWContext.Battlegrounds)]
+        [Behavior(BehaviorType.Combat, WoWClass.Warrior, WoWSpec.WarriorArms)]
         public static Composite ArmsPvPCombat()
         {
             return new PrioritySelector(
@@ -57,8 +57,8 @@ namespace AdvancedAI.Class.Warrior.PvP
                 Item.UsePotionAndHealthstone(40),
                 Spell.Cast("Victory Rush", ret => Me.HealthPercent <= 90 && Me.CachedHasAura("Victorious")),
                 ShatterBubbles(),
-                new Decorator(
-                    new PrioritySelector(ret => Me.CurrentTarget.IsPlayer && !Me.CurrentTarget.IsStunned() && !Me.CurrentTarget.IsCrowdControlled() && !Me.CurrentTarget.HasAuraWithEffectsing(WoWApplyAuraType.ModDecreaseSpeed) && !Me.CurrentTarget.HasAnyAura("Piercing Howl", "Hamsting"),
+                new Decorator(ret => /*Me.CurrentTarget.IsPlayer &&*/ !Me.CurrentTarget.IsStunned() && !Me.CurrentTarget.IsCrowdControlled() && (!Me.CurrentTarget.HasAuraWithEffectsing(WoWApplyAuraType.ModDecreaseSpeed) /*w|| !Me.CurrentTarget.CachedHasAura("Hamstring")*/),
+                    new PrioritySelector(
                 Spell.Cast("Piercing Howl"),
                 Spell.Cast("Hamstring"))),
                 DemoBanner(),
@@ -95,7 +95,7 @@ namespace AdvancedAI.Class.Warrior.PvP
                 Spell.Cast("Slam", ret => (Me.CurrentTarget.CachedHasAura("Colossus Smash") || Me.CachedHasAura("Recklessness")) && Me.CurrentTarget.HealthPercent >= 20),
                 Spell.Cast("Overpower", ret => Me.CurrentTarget.HealthPercent >= 20 || Me.CachedHasAura("Sudden Execute")),
                 Spell.Cast("Execute", ret => !Me.CachedHasAura("Sudden Execute")),
-                Spell.Cast("Slam", ret => Me.CurrentRage >= 50 && Me.CurrentTarget.HealthPercent >= 20),
+                Spell.Cast("Slam", ret => Me.CurrentRage >= 40 && Me.CurrentTarget.HealthPercent >= 20),
                 Spell.Cast("Battle Shout"),
                 Spell.Cast("Heroic Throw"),
                 Spell.Cast("Impending Victory", ret => Me.CurrentTarget.HealthPercent > 20 || Me.HealthPercent < 50),
@@ -104,7 +104,7 @@ namespace AdvancedAI.Class.Warrior.PvP
                     new ActionAlwaysSucceed());
         }
 
-        [Behavior(BehaviorType.PreCombatBuffs, WoWClass.Warrior, WoWSpec.WarriorArms, WoWContext.Battlegrounds)]
+        [Behavior(BehaviorType.PreCombatBuffs, WoWClass.Warrior, WoWSpec.WarriorArms)]
         public static Composite CreateAWPvPBuffs()
         {
             return new PrioritySelector(
@@ -537,6 +537,27 @@ namespace AdvancedAI.Class.Warrior.PvP
         }
 
         #endregion
+
+        public static void UseTrinkets()
+        {
+            WoWItem firstTrinket = StyxWoW.Me.Inventory.Equipped.Trinket1;
+            WoWItem secondTrinket = StyxWoW.Me.Inventory.Equipped.Trinket2;
+
+            if (firstTrinket != null && CanUseEquippedItem(firstTrinket))
+                firstTrinket.Use();
+
+            if (secondTrinket != null && CanUseEquippedItem(secondTrinket))
+                secondTrinket.Use();
+        }
+        private static bool CanUseEquippedItem(WoWItem item)
+        {
+            // Check for engineering tinkers!
+            string itemSpell = Lua.GetReturnVal<string>("return GetItemSpell(" + item.Entry + ")", 0);
+            if (string.IsNullOrEmpty(itemSpell))
+                return false;
+
+            return item.Usable && item.Cooldown <= 0;
+        }
 
         #region ValidUnit
         public static bool ValidUnit(WoWUnit p)
