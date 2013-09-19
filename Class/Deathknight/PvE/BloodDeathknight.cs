@@ -18,13 +18,13 @@ namespace AdvancedAI.Spec
         private static int UnholyRuneSlotsActive { get { return Me.GetRuneCount(4) + Me.GetRuneCount(5); } }
 
         [Behavior(BehaviorType.Combat, WoWClass.DeathKnight, WoWSpec.DeathKnightBlood)]
-        internal static Composite BloodCombat()
+        public static Composite BloodDKCombat()
         {
             return new PrioritySelector(
                 Common.CreateInterruptBehavior(),
                 Spell.WaitForCastOrChannel(),
                 CreateApplyDiseases(),
-                BloodPreCombatBuffs(),
+                BloodDKPreCombatBuffs(),
                 new Action(ret => { Item.UseHands(); return RunStatus.Failure; }),
                 new Throttle(1, 2,
                     new PrioritySelector(
@@ -55,7 +55,7 @@ namespace AdvancedAI.Spec
         }
 
         [Behavior(BehaviorType.PreCombatBuffs, WoWClass.DeathKnight, WoWSpec.DeathKnightBlood)]
-        private static Composite BloodPreCombatBuffs()
+        public static Composite BloodDKPreCombatBuffs()
         {
             return new PrioritySelector(
                 Spell.Cast("Bone Shield", ret => !Me.HasAura("Bone Shield")),

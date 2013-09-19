@@ -46,7 +46,7 @@ namespace AdvancedAI.Spec
                 // Interrupt please.
                 Spell.Cast("Mind Freeze", ret => Me.CurrentTarget.IsCasting && Me.CurrentTarget.CanInterruptCurrentSpellCast),
                 Spell.Cast("Strangulate", ret => Me.CurrentTarget.IsCasting && Me.CurrentTarget.CanInterruptCurrentSpellCast),
-
+                
                 //Staying Alive
                 Spell.Cast("Conversion",
                     ret => Me.HealthPercent < 50 && Me.RunicPowerPercent >= 20 && !Me.HasAura("Conversion")),
