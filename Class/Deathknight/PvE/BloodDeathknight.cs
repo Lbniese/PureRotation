@@ -13,9 +13,13 @@ namespace AdvancedAI.Spec
     class BloodDeathknight
     {
         static LocalPlayer Me { get { return StyxWoW.Me; } }
-        private static int BloodRuneSlotsActive { get { return Me.GetRuneCount(0) + Me.GetRuneCount(1); } }
-        private static int FrostRuneSlotsActive { get { return Me.GetRuneCount(2) + Me.GetRuneCount(3); } }
-        private static int UnholyRuneSlotsActive { get { return Me.GetRuneCount(4) + Me.GetRuneCount(5); } }
+        private static int BloodRuneSlotsActive { get { return Me.BloodRuneCount; } }
+        private static int FrostRuneSlotsActive { get { return Me.FrostRuneCount; } }
+        private static int UnholyRuneSlotsActive { get { return Me.UnholyRuneCount; } }
+        private static int DeathRuneSlotsActive { get { return Me.DeathRuneCount; } }
+        //private static int BloodRuneSlotsActive { get { return Me.GetRuneCount(0) + Me.GetRuneCount(1); } }
+        //private static int FrostRuneSlotsActive { get { return Me.GetRuneCount(2) + Me.GetRuneCount(3); } }
+        //private static int UnholyRuneSlotsActive { get { return Me.GetRuneCount(4) + Me.GetRuneCount(5); } }
 
         [Behavior(BehaviorType.Combat, WoWClass.DeathKnight, WoWSpec.DeathKnightBlood)]
         public static Composite BloodDKCombat()
@@ -59,6 +63,7 @@ namespace AdvancedAI.Spec
         {
             return new PrioritySelector(
                 Spell.Cast("Bone Shield", ret => !Me.HasAura("Bone Shield")),
+                Spell.Cast("Conversion", ret => Me.HealthPercent < 60 && Me.RunicPowerPercent > 20 && !Me.CachedHasAura("Conversion")),
                 Spell.Cast("Vampiric Blood", ret => Me.HealthPercent < 60
                         && (!Me.HasAnyAura("Bone Shield", "Vampiric Blood", "Dancing Rune Weapon", "Lichborne", "Icebound Fortitude"))),
                 Spell.Cast("Icebound Fortitude", ret => StyxWoW.Me.HealthPercent < 30
