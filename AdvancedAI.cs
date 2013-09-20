@@ -19,7 +19,7 @@ namespace AdvancedAI
         public override WoWClass Class { get { return StyxWoW.Me.Class; } }
         static LocalPlayer Me { get { return StyxWoW.Me; } }
 
-        private static AdvancedAI Instance { get; set; }
+        public static AdvancedAI Instance { get; set; }
         public AdvancedAI() { Instance = this; }
 
         public override void Initialize()
@@ -29,6 +29,9 @@ namespace AdvancedAI
             TalentManager.Init();
             TalentManager.Update();
             UpdateContext();
+            // Do this now, so we ensure we update our context when needed.
+            BotEvents.Player.OnMapChanged += e => UpdateContext();
+
             OnWoWContextChanged += (orig, ne) =>
             {
                 Logging.Write("Context changed, re-creating behaviors");

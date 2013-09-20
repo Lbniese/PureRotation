@@ -56,23 +56,7 @@ namespace AdvancedAI.Helpers
                 (a.Spell.Mechanic == WoWSpellMechanic.Interrupted ||
                 a.Spell.Mechanic == WoWSpellMechanic.Silenced));
         }
-
-        // This dictionary uses Unit.Entry as key and WoWSpellSchool as value.
-        static readonly Dictionary<uint, WoWSpellSchool> ImmuneNpcs = new Dictionary<uint, WoWSpellSchool>();
-
-        public static void Add(uint mobId, WoWSpellSchool school)
-        {
-            if (!ImmuneNpcs.ContainsKey(mobId))
-            {
-                ImmuneNpcs.Add(mobId, school);
-            }
-        }
-
-        public static bool IsImmune(this WoWUnit unit, WoWSpellSchool school)
-        {
-            return unit != null && ImmuneNpcs.ContainsKey(unit.Entry) && (ImmuneNpcs[unit.Entry] & school) > 0;
-        }
-
+      
         public static bool IsSlowed(this WoWUnit unit)
         {
             return unit.GetAllAuras().Any(a => a.Spell.SpellEffects.Any(e => e.AuraType == WoWApplyAuraType.ModDecreaseSpeed));

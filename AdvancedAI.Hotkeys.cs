@@ -8,6 +8,7 @@ namespace AdvancedAI
     {
         public static bool InterruptsEnabled { get; set; }
         public static bool PvPRot { get; set; }
+        public static bool PvERot { get; set; }
         public static bool Burst { get; set; }
         public static bool HexFocus { get; set; }
         public static bool Movement { get; set; }
@@ -22,6 +23,7 @@ namespace AdvancedAI
         {
             HotkeysManager.Unregister("Toggle Interrupt");
             HotkeysManager.Unregister("PvP Toggle");
+            HotkeysManager.Unregister("PvE Toggle");
             HotkeysManager.Unregister("Burst");
             HotkeysManager.Unregister("Hex Focus");
             HotkeysManager.Unregister("Movement");
@@ -74,6 +76,17 @@ namespace AdvancedAI
                 Lua.DoString("print('PvP Enabled: " + PvPRot + "')");
             });
             PvPRot = false;
+
+            HotkeysManager.Register("PvE Toggle",
+            Keys.O,
+            ModifierKeys.Alt,
+            o =>
+            {
+                PvERot = !PvERot;
+                Logging.Write("PvE enabled: " + PvERot);
+                Lua.DoString("print('PvE Enabled: " + PvERot + "')");
+            });
+            PvERot = false;
 
             HotkeysManager.Register("Burst",
             Keys.NumPad1,
