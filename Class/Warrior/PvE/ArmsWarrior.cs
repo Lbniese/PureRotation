@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using AdvancedAI.Class.Warrior.PvP;
 using AdvancedAI.Helpers;
+using AdvancedAI.Managers;
 using CommonBehaviors.Actions;
 using Styx;
 using Styx.CommonBot;
@@ -13,6 +14,7 @@ namespace AdvancedAI.Class.Warrior.PvE
     {
         static LocalPlayer Me { get { return StyxWoW.Me; } }
         private const int Enrage = 12880;
+        private static bool HasTalent(WarriorTalents tal) { return TalentManager.IsSelected((int)tal); }
 
         [Behavior(BehaviorType.Combat, WoWClass.Warrior, WoWSpec.WarriorArms, WoWContext.Instances | WoWContext.Normal)]
         public static Composite ArmsCombat()
