@@ -354,7 +354,9 @@ namespace AdvancedAI.Helpers
         {
             var dist = distance * distance;
             var curTarLocation = StyxWoW.Me.CurrentTarget.Location;
-            return NearbyUnfriendlyUnits.Where(
+            //return NearbyUnfriendlyUnits.Where(
+            //            p => ValidUnit(p) && p.Location.DistanceSqr(curTarLocation) <= dist).ToList();
+            return UnfriendlyUnits(40).Where(
                         p => ValidUnit(p) && p.Location.DistanceSqr(curTarLocation) <= dist).ToList();
         }
 

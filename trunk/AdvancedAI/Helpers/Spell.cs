@@ -1826,7 +1826,8 @@ namespace AdvancedAI.Helpers
                 }
             }
 
-            if ((spell.CastTime != 0u || IsFunnel(spell)) && Me.IsMoving && !AllowMovingWhileCasting(spell))
+            //if ((spell.CastTime != 0u || IsFunnel(spell)) && Me.IsMoving && !AllowMovingWhileCasting(spell))
+            if (spell.CastTime != 0u && Me.IsMoving && !AllowMovingWhileCasting(spell))
             {
                 return false;
             }
