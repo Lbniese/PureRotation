@@ -167,7 +167,7 @@ namespace AdvancedAI.Managers
                 RebuildNeeded = false;
                 Logging.Write("TalentManager: Rebuilding behaviors due to changes detected.");
                 Update();   // reload talents just in case
-                
+                AdvancedAI.Instance.AssignBehaviors();
                 return true;
             }
 
