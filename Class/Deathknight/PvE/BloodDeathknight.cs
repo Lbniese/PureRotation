@@ -1,4 +1,5 @@
 ﻿using AdvancedAI.Managers;
+using CommonBehaviors.Actions;
 using Styx;
 using Styx.CommonBot;
 using Styx.TreeSharp;
@@ -27,6 +28,8 @@ namespace AdvancedAI.Spec
             return new PrioritySelector(
                 Common.CreateInterruptBehavior(),
                 Spell.WaitForCastOrChannel(),
+                new Decorator(ret => Me.CurrentTarget == null,
+                    new ActionAlwaysSucceed()),
                 CreateApplyDiseases(),
                 BloodDKPreCombatBuffs(),
                 new Action(ret => { Item.UseHands(); return RunStatus.Failure; }),
