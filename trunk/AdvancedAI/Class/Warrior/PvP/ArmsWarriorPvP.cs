@@ -43,7 +43,7 @@ namespace AdvancedAI.Class.Warrior.PvP
         public static DateTime LastInterrupt;
 
 
-        [Behavior(BehaviorType.Combat, WoWClass.Warrior, WoWSpec.WarriorArms)]
+        [Behavior(BehaviorType.Combat, WoWClass.Warrior, WoWSpec.WarriorArms, WoWContext.Battlegrounds)]
         public static Composite ArmsPvPCombat()
         {
             return new PrioritySelector(
@@ -104,7 +104,7 @@ namespace AdvancedAI.Class.Warrior.PvP
                     new ActionAlwaysSucceed());
         }
 
-        [Behavior(BehaviorType.PreCombatBuffs, WoWClass.Warrior, WoWSpec.WarriorArms)]
+        [Behavior(BehaviorType.PreCombatBuffs, WoWClass.Warrior, WoWSpec.WarriorArms, WoWContext.Battlegrounds)]
         public static Composite CreateAWPvPBuffs()
         {
             return new PrioritySelector(
