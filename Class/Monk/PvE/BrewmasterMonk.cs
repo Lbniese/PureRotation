@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
 using AdvancedAI.Helpers;
 using CommonBehaviors.Actions;
 using Styx;
@@ -38,11 +34,11 @@ namespace AdvancedAI.Class.Monk.PvE
                 Spell.Cast("Spear Hand Strike", ret => StyxWoW.Me.CurrentTarget.IsCasting && StyxWoW.Me.CurrentTarget.CanInterruptCurrentSpellCast),
                 Spell.WaitForCastOrChannel(),
                 Item.UsePotionAndHealthstone(40),
-                new Decorator(ret => Me.CurrentTarget.IsBoss(),
-                    new PrioritySelector(
+                //new Decorator(ret => Me.CurrentTarget.IsBoss(),
+                //    new PrioritySelector(
                         //new Action(ret => { Item.UseTrinkets(); return RunStatus.Failure; }),
                         new Action(ret => { Item.UseWaist(); return RunStatus.Failure; }),
-                        new Action(ret => { Item.UseHands(); return RunStatus.Failure; }))),
+                        new Action(ret => { Item.UseHands(); return RunStatus.Failure; }),
                 // Execute if we can
                 Spell.Cast("Touch of Death", ret => Me.CurrentChi >= 3 && Me.CachedHasAura("Death Note")),
                 
