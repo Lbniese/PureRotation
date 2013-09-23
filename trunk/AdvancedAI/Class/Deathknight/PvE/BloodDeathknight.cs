@@ -22,6 +22,11 @@ namespace AdvancedAI.Spec
         //private static int FrostRuneSlotsActive { get { return Me.GetRuneCount(2) + Me.GetRuneCount(3); } }
         //private static int UnholyRuneSlotsActive { get { return Me.GetRuneCount(4) + Me.GetRuneCount(5); } }
 
+        public static bool HasTalent(DeathKnightTalents tal)
+        {
+            return TalentManager.IsSelected((int)tal);
+        }
+
         [Behavior(BehaviorType.Combat, WoWClass.DeathKnight, WoWSpec.DeathKnightBlood)]
         public static Composite BloodDKCombat()
         {
@@ -37,20 +42,24 @@ namespace AdvancedAI.Spec
                 new Decorator(ret => Unit.UnfriendlyUnits(12).Count() >= 2 && !Me.HasAura("Unholy Blight") && AdvancedAI.Aoe && ShouldSpreadDiseases,
                     new Throttle(1, 2,
                             new PrioritySelector(
-                                Spell.Cast("Blood Boil", ret => TalentManager.IsSelected((int)DeathKnightTalents.RoillingBlood)),
-                                Spell.Cast("Pestilence", ret => !TalentManager.IsSelected((int)DeathKnightTalents.RoillingBlood))))),
+                                Spell.Cast("Blood Boil", ret => SpellManager.HasSpell("Roiling Blood")),
+                                Spell.Cast("Pestilence", ret => !SpellManager.HasSpell("Roiling Blood"))))),
+                
+                //using line for talent testing
+                //Spell.Cast("Dark Command", ret => SpellManager.HasSpell("Roiling Blood")),
 
                 Spell.Cast("Death Strike", ret => Me.HealthPercent < 40 || 
                                                     (Me.UnholyRuneCount + Me.FrostRuneCount + Me.DeathRuneCount >= 4) || 
                                                     (Me.HealthPercent < 90 && (Me.GetAuraTimeLeft("Blood Shield").TotalSeconds < 2)) ||
-                                                    IsCurrentTank() && !Me.CachedHasAura("Blood Shield")),
+                                                    IsCurrentTank() && !Me.CachedHasAura("Blood Shield") ||
+                                                    Me.HasAura("Blood Charge", 10)),
                 DnD(),
                 Spell.Cast("Blood Boil", ret => Me.HasAura(81141) && AdvancedAI.Aoe && !SpellManager.CanCast("Death and Decay")),
                 Spell.Cast("Rune Tap", ret => Me.HealthPercent <= 80 && Me.BloodRuneCount >= 1),
 
                 new Decorator(ret => Me.CurrentRunicPower >= 30 && !Me.HasAura("Lichborne"),
                     Spell.Cast("Rune Strike", ret => (Me.CurrentRunicPower >= 60 || Me.HealthPercent > 90) && 
-                                                     (Me.UnholyRuneCount == 0 || Me.FrostRuneCount == 0))),
+                                                     (Me.UnholyRuneCount == 0 || Me.FrostRuneCount == 0 || Me.BloodRuneCount == 0))),
 
                 Spell.Cast("Soul Reaper", ret => Me.BloodRuneCount > 0 && Me.CurrentTarget != null && Me.CurrentTarget.HealthPercent <= 35), 
                 Spell.Cast("Blood Boil", ret => AdvancedAI.Aoe && !SpellManager.CanCast("Death and Decay") && Unit.UnfriendlyUnits(10).Count() >= 3),
@@ -72,6 +81,7 @@ namespace AdvancedAI.Spec
         public static Composite BloodDKCombatBuffs()
         {
             return new PrioritySelector(
+                Spell.Cast("Blood Tap", ret => Me.HasAura("Blood Charge", 5) && Me.HealthPercent < 90 && !SpellManager.CanCast("Death Strike")),
                 Spell.Cast("Bone Shield", ret => !Me.HasAura("Bone Shield")),
                 Spell.Cast("Conversion", ret => Me.HealthPercent < 60 && Me.RunicPowerPercent > 20 && !Me.CachedHasAura("Conversion")),
                  Spell.Cast("Conversion", ret => Me.HealthPercent > 60 && Me.CachedHasAura("Conversion")),
@@ -84,7 +94,7 @@ namespace AdvancedAI.Spec
                 Spell.Cast("Death Pact", ret => Me.HealthPercent < 45),
                 //Spell.Cast("Army of the Dead", ret => Me.HealthPercent < 40),
                 Spell.Cast("Empower Rune Weapon", ret => Me.HealthPercent < 45 && !SpellManager.CanCast("Death Strike")),
-                Spell.Cast("Blood Tap", ret => Me.HasAura("Blood Charge", 5) && (BloodRuneSlotsActive == 0 || FrostRuneSlotsActive == 0 || UnholyRuneSlotsActive == 0)),
+                Spell.Cast("Blood Tap", ret => Me.HasAura("Blood Charge", 10) && (BloodRuneSlotsActive == 0 || FrostRuneSlotsActive == 0 || UnholyRuneSlotsActive == 0)),
                 Spell.Cast("Plague Leech", ret => CanCastPlagueLeech));
         }
 
@@ -158,9 +168,9 @@ namespace AdvancedAI.Spec
 
         #region DeathKnightTalents
 
-        private enum DeathKnightTalents
+        internal enum DeathKnightTalents
         {
-            RoillingBlood = 1,//Tier 1
+            RoilingBlood = 1,//Tier 1
             PlagueLeech,
             UnholyBlight,
             LichBorne,//Tier 2
