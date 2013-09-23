@@ -61,8 +61,8 @@ namespace AdvancedAI.Spec
                     Spell.Cast("Rune Strike", ret => (Me.CurrentRunicPower >= 60 || Me.HealthPercent > 90) && 
                                                      (Me.UnholyRuneCount == 0 || Me.FrostRuneCount == 0 || Me.BloodRuneCount == 0))),
 
-                Spell.Cast("Soul Reaper", ret => Me.BloodRuneCount > 0 && Me.CurrentTarget != null && Me.CurrentTarget.HealthPercent <= 35), 
-                Spell.Cast("Blood Boil", ret => AdvancedAI.Aoe && !SpellManager.CanCast("Death and Decay") && Unit.UnfriendlyUnits(10).Count() >= 3),
+                Spell.Cast("Soul Reaper", ret => Me.BloodRuneCount > 0 && Me.CurrentTarget != null && Me.CurrentTarget.HealthPercent <= 35),
+                Spell.Cast("Blood Boil", ret => AdvancedAI.Aoe && !SpellManager.CanCast("Death and Decay") && Unit.UnfriendlyUnits(10).Count() >= 3 && Me.BloodRuneCount > 0),
                 Spell.Cast("Heart Strike", ret => Me.BloodRuneCount > 0),
                 //Spell.CastOnGround("Death and Decay", ret => Me.CurrentTarget.Location /*ret => AdvancedAI.Aoe && Unit.UnfriendlyUnitsNearTarget(12f).Count() >= 1*/),
                 Spell.Cast("Horn of Winter", ret => Me.CurrentRunicPower < 90));
