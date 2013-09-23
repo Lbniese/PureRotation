@@ -61,14 +61,14 @@ namespace AdvancedAI
             if (TalentManager.Pulse())
                 return;
 
-            if (TalentManager.EventRebuildTimer.IsFinished && TalentManager.RebuildNeeded)
-            {
-                TalentManager.RebuildNeeded = false;
-                Logging.Write("TalentManager: Rebuilding behaviors due to changes detected.");
-                TalentManager.Update();   // reload talents just in case
-                AssignBehaviors();
-                return;
-            }
+            //if (TalentManager.EventRebuildTimer.IsFinished && TalentManager.RebuildNeeded)
+            //{
+            //    TalentManager.RebuildNeeded = false;
+            //    Logging.Write("TalentManager: Rebuilding behaviors due to changes detected.");
+            //    TalentManager.Update();   // reload talents just in case
+            //    AssignBehaviors();
+            //    return;
+            //}
 
 
             UpdateContext();
