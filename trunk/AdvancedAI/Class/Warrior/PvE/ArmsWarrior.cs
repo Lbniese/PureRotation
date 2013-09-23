@@ -29,6 +29,7 @@ namespace AdvancedAI.Class.Warrior.PvE
                     new PrioritySelector(
                         BossMechs.HorridonHeroic())),
                 Common.CreateInterruptBehavior(),
+                Spell.Cast("Taunt", ret => HasTalent(WarriorTalents.Bloodbath)),
                 Spell.Cast("Victory Rush", ret => Me.HealthPercent <= 90 && Me.CachedHasAura("Victorious")),
                 Spell.Cast("Die by the Sword", ret => Me.HealthPercent <= 20),
                 Item.UsePotionAndHealthstone(50),
@@ -105,7 +106,7 @@ namespace AdvancedAI.Class.Warrior.PvE
         }
 
         #region WarriorTalents
-        public enum WarriorTalents
+        enum WarriorTalents
         {
             None = 0,
             Juggernaut,

@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using AdvancedAI.Helpers;
 using Styx;
+using Styx.CommonBot.Routines;
 using Styx.WoWInternals;
 using Styx.Common.Helpers;
 using Styx.Common;
 
 namespace AdvancedAI.Managers
 {
-    internal class TalentManager
+    internal static class TalentManager
     {
         //public const int TALENT_FLAG_ISEXTRASPEC = 0x10000;
 
@@ -25,10 +26,12 @@ namespace AdvancedAI.Managers
             Glyphs = new HashSet<string>();
             GlyphId = new int[6];
 
+            Lua.Events.AttachEvent("PLAYER_LEVEL_UP", UpdateTalentManager);
             Lua.Events.AttachEvent("CHARACTER_POINTS_CHANGED", UpdateTalentManager);
             Lua.Events.AttachEvent("GLYPH_UPDATED", UpdateTalentManager);
             Lua.Events.AttachEvent("ACTIVE_TALENT_GROUP_CHANGED", UpdateTalentManager);
             Lua.Events.AttachEvent("PLAYER_SPECIALIZATION_CHANGED", UpdateTalentManager);
+            Lua.Events.AttachEvent("LEARNED_SPELL_IN_TAB", UpdateTalentManager);
         }
 
         public static WoWSpec CurrentSpec { get; private set; }
@@ -78,17 +81,28 @@ namespace AdvancedAI.Managers
 
         private static void UpdateTalentManager(object sender, LuaEventArgs args)
         {
+            // Since we hooked this in ctor, make sure we are the selected CC
+            if (RoutineManager.Current.Name != AdvancedAI.Instance.Name)
+                return;
+
             var oldSpec = CurrentSpec;
             int[] oldTalent = TalentId;
             int[] oldGlyph = GlyphId;
 
+            Logging.WriteDiagnostic("{0} Event Fired!", args.EventName);
+
             Update();
+
+            if (args.EventName == "PLAYER_LEVEL_UP")
+            {
+                RebuildNeeded = true;
+                Logging.Write("TalentManager: Your character has leveled up! Now level {0}", args.Args[0]);
+            }
 
             if (CurrentSpec != oldSpec)
             {
                 RebuildNeeded = true;
                 Logging.Write("TalentManager: Your spec has been changed.");
-                //Logger.Write( Color.White, "TalentManager: Your spec has been changed.");
             }
 
             int i;
@@ -98,7 +112,6 @@ namespace AdvancedAI.Managers
                 {
                     RebuildNeeded = true;
                     Logging.Write("TalentManager: Your talents have changed.");
-                    //Logger.Write(Color.White, "TalentManager: Your talents have changed.");
                     break;
                 }
             }
@@ -109,7 +122,6 @@ namespace AdvancedAI.Managers
                 {
                     RebuildNeeded = true;
                     Logging.Write("TalentManager: Your glyphs have changed.");
-                    //Logger.Write(Color.White, "TalentManager: Your glyphs have changed.");
                     break;
                 }
             }

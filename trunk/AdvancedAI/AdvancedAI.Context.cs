@@ -71,7 +71,7 @@ namespace AdvancedAI
 
                 Map map = StyxWoW.Me.CurrentMap;
 
-                if (map.IsBattleground || map.IsArena)
+                if (map.IsBattleground || IsArena())
                 {
                     return WoWContext.Battlegrounds;
                 }

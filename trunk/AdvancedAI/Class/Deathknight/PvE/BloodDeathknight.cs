@@ -157,8 +157,6 @@ namespace AdvancedAI.Spec
                 new Action(ret =>
                 {
                     var tpos = StyxWoW.Me.CurrentTarget.Location;
-                    var trot = StyxWoW.Me.CurrentTarget.Rotation;
-                    var myPos = StyxWoW.Me.Location;
                     
                     SpellManager.Cast("Death and Decay");
                     SpellManager.ClickRemoteLocation(tpos);
