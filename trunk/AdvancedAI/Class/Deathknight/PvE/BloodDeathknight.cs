@@ -104,7 +104,7 @@ namespace AdvancedAI.Spec
             return new PrioritySelector(
 
                 Spell.Cast("Anti-Magic Shell", ret => Me.CurrentTarget.IsCasting),
-                Spell.Cast("Asphyxiate", ret => Unit.UnfriendlyUnits(8).Count() <= 3),
+                Spell.Cast("Asphyxiate", ret => Unit.UnfriendlyUnits(8).Count() < 3),
                 Spell.Cast("Remorseless Winter", ret => Unit.UnfriendlyUnits(8).Count() >= 3),
                 Spell.Cast("Desecrated Ground", ret => Me.IsCrowdControlled())
 
