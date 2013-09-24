@@ -74,8 +74,10 @@
     <Compile Include="Class\Monk\PvE\BrewmasterMonk.cs" />
     <Compile Include="Class\Monk\PvE\WindwalkerMonk.cs" />
     <Compile Include="Class\Paladin\PvE\ProtectionPaladin.cs" />
+    <Compile Include="Class\Paladin\PvE\RetributionPaladin.cs" />
     <Compile Include="Class\Priest\PvE\ShadowPriest.cs" />
     <Compile Include="Class\Shaman\PvE\ElementalShaman.cs" />
+    <Compile Include="Class\Shaman\PvE\EnhancementShaman.cs" />
     <Compile Include="Class\Shaman\PvE\RestorationShaman.cs" />
     <Compile Include="Class\Warrior\PvE\ArmsWarrior.cs" />
     <Compile Include="Class\Warrior\PvE\FuryWarrior.cs" />

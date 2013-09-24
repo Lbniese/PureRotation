@@ -124,6 +124,7 @@ namespace AdvancedAI.Spec
             None = 0,
             Flametongue = 5,
             Earthliving = 3345,
+
         }
 
         private static Decorator CreateShamanImbueMainHandBehavior(params Imbue[] imbueList)
