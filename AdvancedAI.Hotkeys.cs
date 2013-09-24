@@ -18,6 +18,7 @@ namespace AdvancedAI
         public static bool Weave { get; set; }
         public static bool Dispell { get; set; }
         public static bool Trace { get; set; }
+        public static bool LFRMode { get; set; }
 
         protected virtual void UnregisterHotkeys()
         {
@@ -33,6 +34,7 @@ namespace AdvancedAI
             HotkeysManager.Unregister("Weave");
             HotkeysManager.Unregister("Dispelling");
             HotkeysManager.Unregister("Trace");
+            HotkeysManager.Unregister("LFR Mode");
         }
         protected virtual void RegisterHotkeys()
         {
@@ -164,6 +166,17 @@ namespace AdvancedAI
                 Lua.DoString("print('Weave Enabled: " + Weave + "')");
             });
             Weave = true;
+
+            HotkeysManager.Register("LFR Mode",
+            Keys.NumPad7,
+            ModifierKeys.Control,
+            o =>
+            {
+                LFRMode = !LFRMode;
+                Logging.Write("LFR Mode enabled: " + LFRMode);
+                Lua.DoString("print('LFR Mode Enabled: " + LFRMode + "')");
+            });
+            Weave = false;
 
         }
 

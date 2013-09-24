@@ -22,10 +22,6 @@ namespace AdvancedAI.Spec
         //private static int FrostRuneSlotsActive { get { return Me.GetRuneCount(2) + Me.GetRuneCount(3); } }
         //private static int UnholyRuneSlotsActive { get { return Me.GetRuneCount(4) + Me.GetRuneCount(5); } }
 
-        public static bool HasTalent(DeathKnightTalents tal)
-        {
-            return TalentManager.IsSelected((int)tal);
-        }
 
         [Behavior(BehaviorType.Combat, WoWClass.DeathKnight, WoWSpec.DeathKnightBlood)]
         public static Composite BloodDKCombat()
@@ -37,6 +33,10 @@ namespace AdvancedAI.Spec
                 //Spell.WaitForCastOrChannel(),
                 CreateApplyDiseases(),
                 BloodDKCombatBuffs(),
+
+                new Decorator(ret => AdvancedAI.LFRMode,
+                    CreateAFK()),
+
                 new Action(ret => { Item.UseHands(); return RunStatus.Failure; }),
 
                 new Decorator(ret => Unit.UnfriendlyUnits(12).Count() >= 2 && !Me.HasAura("Unholy Blight") && AdvancedAI.Aoe && ShouldSpreadDiseases,
@@ -47,7 +47,7 @@ namespace AdvancedAI.Spec
                 
                 //using line for talent testing
                 //Spell.Cast("Dark Command", ret => SpellManager.HasSpell("Roiling Blood")),
-
+                
                 Spell.Cast("Death Strike", ret => Me.HealthPercent < 40 || 
                                                     (Me.UnholyRuneCount + Me.FrostRuneCount + Me.DeathRuneCount >= 4) || 
                                                     (Me.HealthPercent < 90 && (Me.GetAuraTimeLeft("Blood Shield").TotalSeconds < 2)) ||
@@ -81,6 +81,7 @@ namespace AdvancedAI.Spec
         public static Composite BloodDKCombatBuffs()
         {
             return new PrioritySelector(
+                Spell.Cast("Dancing Rune Weapon", ret => IsCurrentTank()),
                 Spell.Cast("Blood Tap", ret => Me.HasAura("Blood Charge", 5) && Me.HealthPercent < 90 && !SpellManager.CanCast("Death Strike")),
                 Spell.Cast("Bone Shield", ret => !Me.HasAura("Bone Shield")),
                 Spell.Cast("Conversion", ret => Me.HealthPercent < 60 && Me.RunicPowerPercent > 20 && !Me.CachedHasAura("Conversion")),
@@ -97,6 +98,18 @@ namespace AdvancedAI.Spec
                 Spell.Cast("Blood Tap", ret => Me.HasAura("Blood Charge", 10) && (BloodRuneSlotsActive == 0 || FrostRuneSlotsActive == 0 || UnholyRuneSlotsActive == 0)),
                 Spell.Cast("Plague Leech", ret => CanCastPlagueLeech));
         }
+
+        private static Composite CreateAFK()
+        {
+            return new PrioritySelector(
+
+                Spell.Cast("Anti-Magic Shell", ret => Me.CurrentTarget.IsCasting),
+                Spell.Cast("Asphyxiate", ret => Unit.UnfriendlyUnits(8).Count() <= 3),
+                Spell.Cast("Remorseless Winter", ret => Unit.UnfriendlyUnits(8).Count() >= 3),
+                Spell.Cast("Desecrated Ground", ret => Me.IsCrowdControlled())
+
+            );
+    }
 
         private static Composite CreateApplyDiseases()
         {
