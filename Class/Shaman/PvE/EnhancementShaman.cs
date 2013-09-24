@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AdvancedAI;
 using AdvancedAI.Helpers;
+using AdvancedAI.Managers;
 using CommonBehaviors.Actions;
 using Styx;
 using Styx.CommonBot;
@@ -47,7 +48,8 @@ namespace AdvancedAI.Spec
                     //new Decorator(ret => AdvancedAI.PvPRot,
                     //              EnhancementShamanPvP.CreateESPvPCombat),
 
-                    Spell.Cast("Healing Stream Totem", ret => Me.HealthPercent < 80),
+                    Spell.Cast("Healing Stream Totem", ret => Me.HealthPercent < 80 && !Totems.Exist(WoWTotemType.Water)),
+                    Spell.Cast("Healing Tide Totem", ret => HealerManager.GetCountWithHealth(55) > 6 && !Totems.Exist(WoWTotemType.Water)),
 
                     //burst
                     new Decorator(ret => AdvancedAI.Burst,
