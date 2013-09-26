@@ -107,7 +107,6 @@
     <Compile Include="Helpers\Totems.cs" />
     <Compile Include="Helpers\Unit.cs" />
     <Compile Include="Lists\BossList.cs" />
-    <Compile Include="Helpers\CachedUnits.cs" />
     <Compile Include="Lists\SpellList.CleanseBlacklist.cs" />
     <Compile Include="Lists\SpellList.cs" />
     <Compile Include="Lists\SpellList.PurgeWhitelist.cs" />

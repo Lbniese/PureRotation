@@ -225,14 +225,14 @@ namespace AdvancedAI.Managers
             }
         }
 
-        public static WoWPlayer GetTank
+        public WoWPlayer GetTank
         {
             get
             {
                 // Got a Focus Tank?
                 if (StyxWoW.Me.FocusedUnit != null)
                 {
-                    var focustank = CachedUnits.HealList.FirstOrDefault(p => p.Guid == StyxWoW.Me.FocusedUnit.Guid);
+                    var focustank = HealList.FirstOrDefault(p => p.Guid == StyxWoW.Me.FocusedUnit.Guid);
                     if (focustank != null && focustank.IsValid)
                     {
                         return focustank.ToPlayer();
@@ -242,7 +242,7 @@ namespace AdvancedAI.Managers
                 // Using Lazy Raider ?
                 if (RaFHelper.Leader != null && RaFHelper.Leader.CurrentHealth > 1 && RaFHelper.Leader != StyxWoW.Me)
                 {
-                    var raFHelpertank = CachedUnits.HealList.FirstOrDefault(p => p.Guid == RaFHelper.Leader.Guid);
+                    var raFHelpertank = HealList.FirstOrDefault(p => p.Guid == RaFHelper.Leader.Guid);
                     if (raFHelpertank != null && raFHelpertank.IsValid)
                     {
                         return raFHelpertank.ToPlayer();
@@ -250,17 +250,17 @@ namespace AdvancedAI.Managers
                 }
 
                 // We in a raid?, lets see if we can get the mainTank as specified by Blizzard (this is decided by iLvL)
-                var maintTank = CachedUnits.TankList.FirstOrDefault(p => p.IsAlive && p.IsValid && p.Distance < 40 && p.IsMainTank());
+                var maintTank = Group.Tanks.FirstOrDefault(p => p.IsAlive && p.IsValid && p.Distance < 40 && p.IsMainTank());
 
                 if (maintTank != null) return maintTank;
 
                 // We in a raid?, Main Tank may be dead, lets get the OffTank.
-                var offTank = CachedUnits.TankList.FirstOrDefault(p => p.IsAlive && p.IsValid && p.Distance < 40 && p.IsAssistTank());
+                var offTank = Group.Tanks.FirstOrDefault(p => p.IsAlive && p.IsValid && p.Distance < 40 && p.IsAssistTank());
 
                 if (offTank != null) return offTank;
 
                 // Hmm ok..we must be in a Party (5 man) lets query the tank by role.
-                var partyTank = CachedUnits.TankList.FirstOrDefault(p => p.IsAlive && p.IsValid && p.Distance < 40);
+                var partyTank = Group.Tanks.FirstOrDefault(p => p.IsAlive && p.IsValid && p.Distance < 40);
                 if (partyTank != null) return partyTank;
 
                 // Damn couldnt find a tank ima be the boss!

@@ -2055,16 +2055,6 @@ namespace AdvancedAI.Helpers
             return cachedauras.Any(a => auras.Contains(a.Name));
         }
 
-        public static bool CachedAnyFriendlyHasMyAura(string aura, int expiry = 1000)
-        {
-            return CachedUnits.HealList.Any(u => u.ToUnit().CachedGetAllAuras(expiry).Any(a => a.Name == aura && a.CreatorGuid == Me.Guid));
-        }
-
-        public static bool CachedAnyEnemeyHasMyAura(string aura, int expiry = 1000)
-        {
-            return CachedUnits.AttackableUnits.Any(u => u.CachedGetAllAuras(expiry).Any(a => a.Name == aura && a.CreatorGuid == Me.Guid));
-        }
-
         public static uint CachedStackCount(this WoWUnit unit, string aura, bool fromMyAura = true, int expiry = 1000)
         {
             {
@@ -2140,33 +2130,6 @@ namespace AdvancedAI.Helpers
                     return cachedResult.TimeLeft.TotalMilliseconds;
             }
             return 0;
-        }
-
-        // Counts (cached) to blanket check the AttackableUnits for aura(s)
-        internal static int CountUnitAura(HashSet<int> aura)
-        {
-            return CachedUnits.AttackableUnits.Count(unit => !unit.CachedHasAnyAura(aura));
-        }
-
-        internal static int CountUnitAura(int aura)
-        {
-            return CachedUnits.AttackableUnits.Count(unit => !unit.ToPlayer().CachedHasAura(aura));
-        }
-
-        internal static int CountUnitAura(string aura)
-        {
-            return CachedUnits.AttackableUnits.Count(unit => !unit.CachedHasAura(aura));
-        }
-
-        // Gets (cached) target to apply an aura too
-        internal static WoWUnit GetUnbuffedTarget(int withoutBuff)
-        {
-            return CachedUnits.AttackableUnits.FirstOrDefault(unit => unit != null && !unit.CachedHasAura(withoutBuff));
-        }
-
-        internal static WoWUnit GetUnbuffedTarget(HashSet<int> withoutBuff)
-        {
-            return CachedUnits.AttackableUnits.FirstOrDefault(unit => unit != null && !unit.CachedHasAnyAura(withoutBuff));
         }
 
         public static bool CachedHasAuraWithEffect(this WoWUnit unit, WoWApplyAuraType auraType, int miscValue, int basePointsMin, int basePointsMax)
