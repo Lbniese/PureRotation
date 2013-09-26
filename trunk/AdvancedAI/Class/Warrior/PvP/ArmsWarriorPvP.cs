@@ -105,7 +105,7 @@ namespace AdvancedAI.Class.Warrior.PvP
         }
 
         [Behavior(BehaviorType.PreCombatBuffs, WoWClass.Warrior, WoWSpec.WarriorArms, WoWContext.Battlegrounds)]
-        public static Composite CreateAWPvPBuffs()
+        public static Composite ArmsPvPPreCombatBuffs()
         {
             return new PrioritySelector(
                 Spell.BuffSelf("Battle Shout"));

@@ -33,6 +33,9 @@
     <Reference Include="fasmdll_managed">
       <HintPath>..\..\..\..\NonRaid\fasmdll_managed.dll</HintPath>
     </Reference>
+    <Reference Include="GreyMagic">
+      <HintPath>..\..\..\GreyMagic.dll</HintPath>
+    </Reference>
     <Reference Include="Honorbuddy, Version=2.5.7684.335, Culture=neutral, PublicKeyToken=50a565ab5c01ae50, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\Honorbuddy.exe</HintPath>

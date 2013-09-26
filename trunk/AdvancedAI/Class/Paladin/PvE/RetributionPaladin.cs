@@ -1,17 +1,11 @@
 ﻿using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using AdvancedAI;
 using AdvancedAI.Helpers;
-using CommonBehaviors.Actions;
 using Styx;
-using Styx.CommonBot;
 using Styx.TreeSharp;
 using Styx.WoWInternals;
 using Styx.WoWInternals.WoWObjects;
-using Action = Styx.TreeSharp.Action;
 
-namespace AdvancedAI.Spec
+namespace AdvancedAI.Class.Paladin.PvE
 {
     internal class RetributionPaladin
     {
@@ -69,7 +63,7 @@ namespace AdvancedAI.Spec
         }
 
         [Behavior(BehaviorType.PreCombatBuffs, WoWClass.Paladin, WoWSpec.PaladinRetribution,WoWContext.Instances | WoWContext.Normal)]
-        public static Composite RetributionBuffs()
+        public static Composite RetributionPreCombatBuffs()
         {
             return new PrioritySelector(
                 //new Decorator(ret => AdvancedAI.PvPRot,

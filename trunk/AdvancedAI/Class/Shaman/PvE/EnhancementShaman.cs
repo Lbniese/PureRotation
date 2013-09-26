@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using AdvancedAI;
 using AdvancedAI.Helpers;
 using AdvancedAI.Managers;
 using CommonBehaviors.Actions;
@@ -13,7 +10,7 @@ using Styx.WoWInternals;
 using Styx.WoWInternals.WoWObjects;
 using Action = Styx.TreeSharp.Action;
 
-namespace AdvancedAI.Spec
+namespace AdvancedAI.Class.Shaman.PvE
 {
     class EnhancementShaman
     {
@@ -24,7 +21,7 @@ namespace AdvancedAI.Spec
 
         
         [Behavior(BehaviorType.PreCombatBuffs, WoWClass.Shaman, WoWSpec.ShamanEnhancement,WoWContext.Instances | WoWContext.Normal)]
-        public static Composite EnhancementBuffs()        
+        public static Composite EnhancementPreCombatBuffs()        
             {
                 return new PrioritySelector(
                     //new Decorator(ret => AdvancedAI.PvPRot,

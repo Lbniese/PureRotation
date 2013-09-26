@@ -1,16 +1,12 @@
 ﻿using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using AdvancedAI.Helpers;
-using CommonBehaviors.Actions;
 using Styx;
 using Styx.CommonBot;
 using Styx.TreeSharp;
 using Styx.WoWInternals;
 using Styx.WoWInternals.WoWObjects;
-using Action = Styx.TreeSharp.Action;
 
-namespace AdvancedAI.Spec
+namespace AdvancedAI.Class.Paladin.PvE
 {
     class ProtectionPaladin
     {
@@ -95,7 +91,7 @@ namespace AdvancedAI.Spec
 
 
         [Behavior(BehaviorType.PreCombatBuffs, WoWClass.Paladin, WoWSpec.PaladinProtection,WoWContext.Instances | WoWContext.Normal)]
-        public static Composite ProtectionBuffs()
+        public static Composite ProtectionPreCombatBuffs()
         {
                 return new PrioritySelector(
                     //new Decorator(ret => AdvancedAI.PvPRot,
