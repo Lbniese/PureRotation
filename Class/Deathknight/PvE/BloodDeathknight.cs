@@ -83,7 +83,7 @@ namespace AdvancedAI.Class.Deathknight.PvE
                 Spell.Cast("Blood Tap", ret => Me.HasAura("Blood Charge", 5) && Me.HealthPercent < 90 && !SpellManager.CanCast("Death Strike")),
                 Spell.Cast("Bone Shield", ret => !Me.HasAura("Bone Shield")),
                 Spell.Cast("Conversion", ret => Me.HealthPercent < 60 && Me.RunicPowerPercent > 20 && !Me.CachedHasAura("Conversion")),
-                 Spell.Cast("Conversion", ret => Me.HealthPercent > 60 && Me.CachedHasAura("Conversion")),
+                 Spell.Cast("Conversion", ret => Me.HealthPercent > 90 && Me.CachedHasAura("Conversion")),
                 Spell.Cast("Vampiric Blood", ret => Me.HealthPercent < 60
                         && (!Me.HasAnyAura("Bone Shield", "Vampiric Blood", "Dancing Rune Weapon", "Lichborne", "Icebound Fortitude"))),
                 Spell.Cast("Icebound Fortitude", ret => Me.HealthPercent < 30
