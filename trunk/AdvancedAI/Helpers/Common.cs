@@ -119,30 +119,30 @@ namespace AdvancedAI.Helpers
             #region Melee Range
 
             if ( Me.Class == WoWClass.Paladin )
-                prioSpell.AddChild( Spell.Cast("Rebuke", ctx => _unitInterrupt));
+                prioSpell.AddChild( Spell.Cast("Rebuke", ctx => _unitInterrupt, true));
 
             if ( Me.Class == WoWClass.Rogue)
             {
-                prioSpell.AddChild( Spell.Cast("Kick", ctx => _unitInterrupt));
+                prioSpell.AddChild( Spell.Cast("Kick", ctx => _unitInterrupt, true));
                 prioSpell.AddChild( Spell.Cast("Gouge", ctx => _unitInterrupt, ret => !_unitInterrupt.IsBoss() && Me.IsSafelyFacing(_unitInterrupt)));
             }
 
             if ( Me.Class == WoWClass.Warrior)
-                prioSpell.AddChild( Spell.Cast("Pummel", ctx => _unitInterrupt));
+                prioSpell.AddChild( Spell.Cast("Pummel", ctx => _unitInterrupt, true));
 
             if ( Me.Class == WoWClass.Monk )
-                prioSpell.AddChild( Spell.Cast("Spear Hand Strike", ctx => _unitInterrupt));
+                prioSpell.AddChild( Spell.Cast("Spear Hand Strike", ctx => _unitInterrupt, true));
 
             if ( Me.Class == WoWClass.Druid)
             {
                 // Spell.Cast("Skull Bash (Cat)", ctx => _unitInterrupt, ret => StyxWoW.Me.Shapeshift == ShapeshiftForm.Cat));
                 // Spell.Cast("Skull Bash (Bear)", ctx => _unitInterrupt, ret => StyxWoW.Me.Shapeshift == ShapeshiftForm.Bear));
-                prioSpell.AddChild( Spell.Cast("Skull Bash", ctx => _unitInterrupt, ret => StyxWoW.Me.Shapeshift == ShapeshiftForm.Bear || StyxWoW.Me.Shapeshift == ShapeshiftForm.Cat));
+                prioSpell.AddChild( Spell.Cast("Skull Bash", ctx => _unitInterrupt, ret => StyxWoW.Me.Shapeshift == ShapeshiftForm.Bear || StyxWoW.Me.Shapeshift == ShapeshiftForm.Cat, true));
                 prioSpell.AddChild( Spell.Cast("Mighty Bash", ctx => _unitInterrupt, ret => !_unitInterrupt.IsBoss() && _unitInterrupt.IsWithinMeleeRange));
             }
 
             if ( Me.Class == WoWClass.DeathKnight)
-                prioSpell.AddChild( Spell.Cast("Mind Freeze", ctx => _unitInterrupt));
+                prioSpell.AddChild( Spell.Cast("Mind Freeze", ctx => _unitInterrupt, true));
 
             if ( Me.Race == WoWRace.Pandaren )
                 prioSpell.AddChild( Spell.Cast("Quaking Palm", ctx => _unitInterrupt));
@@ -152,7 +152,7 @@ namespace AdvancedAI.Helpers
             #region 8 Yard Range
 
             if ( Me.Race == WoWRace.BloodElf )
-                prioSpell.AddChild(Spell.Cast("Arcane Torrent", ctx => _unitInterrupt, req => _unitInterrupt.Distance < 8 && !Unit.NearbyUnfriendlyUnits.Any(u => u.IsSensitiveDamage( 8f))));
+                prioSpell.AddChild(Spell.Cast("Arcane Torrent", ctx => _unitInterrupt, req => _unitInterrupt.Distance < 8 && !Unit.NearbyUnfriendlyUnits.Any(u => u.IsSensitiveDamage( 8f)), true));
 
             if ( Me.Race == WoWRace.Tauren)
                 prioSpell.AddChild(Spell.Cast("War Stomp", ctx => _unitInterrupt, ret => _unitInterrupt.Distance < 8 && !_unitInterrupt.IsBoss() && !Unit.NearbyUnfriendlyUnits.Any(u => u.IsSensitiveDamage( 8f))));
@@ -175,7 +175,7 @@ namespace AdvancedAI.Helpers
             #region 25 yards
 
             if ( Me.Class == WoWClass.Shaman)
-                prioSpell.AddChild( Spell.Cast("Wind Shear", ctx => _unitInterrupt, req => Me.IsSafelyFacing(_unitInterrupt)));
+                prioSpell.AddChild( Spell.Cast("Wind Shear", ctx => _unitInterrupt, req => Me.IsSafelyFacing(_unitInterrupt), true));
 
             #endregion
 
@@ -189,29 +189,29 @@ namespace AdvancedAI.Helpers
                 prioSpell.AddChild( Spell.Cast("Heroic Throw", ctx => _unitInterrupt, ret => TalentManager.HasGlyph("Gag Order") && !_unitInterrupt.IsBoss()));
 
             if ( Me.Class == WoWClass.Priest ) 
-                prioSpell.AddChild( Spell.Cast("Silence", ctx => _unitInterrupt));
+                prioSpell.AddChild( Spell.Cast("Silence", ctx => _unitInterrupt, true));
 
             if (Me.Class == WoWClass.DeathKnight)
-                prioSpell.AddChild(Spell.Cast("Strangulate", ctx => _unitInterrupt));
+                prioSpell.AddChild(Spell.Cast("Strangulate", ctx => _unitInterrupt, true));
 
             if (Me.Class == WoWClass.Mage)
-                prioSpell.AddChild(Spell.Cast("Frostjaw", ctx => _unitInterrupt));
+                prioSpell.AddChild(Spell.Cast("Frostjaw", ctx => _unitInterrupt, true));
 
             #endregion
 
             #region 40 yards
 
             if ( Me.Class == WoWClass.Mage)
-                prioSpell.AddChild( Spell.Cast("Counterspell", ctx => _unitInterrupt));
+                prioSpell.AddChild( Spell.Cast("Counterspell", ctx => _unitInterrupt, true));
 
             if ( Me.Class == WoWClass.Hunter)
-                prioSpell.AddChild( Spell.Cast("Silencing Shot", ctx => _unitInterrupt));
+                prioSpell.AddChild( Spell.Cast("Silencing Shot", ctx => _unitInterrupt, true));
 
             if ( Me.Class == WoWClass.Druid)
-                prioSpell.AddChild( Spell.Cast("Solar Beam", ctx => _unitInterrupt, ret => StyxWoW.Me.Shapeshift == ShapeshiftForm.Moonkin));
+                prioSpell.AddChild( Spell.Cast("Solar Beam", ctx => _unitInterrupt, ret => StyxWoW.Me.Shapeshift == ShapeshiftForm.Moonkin, true));
 
             if (Me.Specialization == WoWSpec.ShamanElemental || Me.Specialization == WoWSpec.ShamanEnhancement )
-                prioSpell.AddChild( Spell.Cast("Solar Beam", ctx => _unitInterrupt, ret => true));
+                prioSpell.AddChild( Spell.Cast("Solar Beam", ctx => _unitInterrupt, true));
 
             #endregion
 

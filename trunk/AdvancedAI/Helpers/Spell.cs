@@ -623,9 +623,9 @@ namespace AdvancedAI.Helpers
         /// <param name = "name">The name.</param>
         /// <param name = "onUnit">The on unit.</param>
         /// <returns>.</returns>
-        public static Composite Cast(string name, UnitSelectionDelegate onUnit)
+        public static Composite Cast(string name, UnitSelectionDelegate onUnit, bool returnFailure = false)
         {
-            return Cast(sp => name, onUnit);
+            return Cast(sp => name, onUnit, returnFailure);
         }
 
         /// <summary>
@@ -639,6 +639,11 @@ namespace AdvancedAI.Helpers
         /// <param name = "onUnit">The on unit.</param>
         /// <param name = "requirements">The requirements.</param>
         /// <returns>.</returns>
+        public static Composite Cast(string name, UnitSelectionDelegate onUnit, SimpleBooleanDelegate requirements, bool returnFailure = false)
+        {
+            return Cast(sp => name, onUnit, requirements, returnFailure);
+        }
+
         public static Composite Cast(string name, UnitSelectionDelegate onUnit, SimpleBooleanDelegate requirements)
         {
             return Cast(sp => name, onUnit, requirements);
