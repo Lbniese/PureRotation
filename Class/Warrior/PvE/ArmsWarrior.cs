@@ -62,7 +62,7 @@ namespace AdvancedAI.Class.Warrior.PvE
         }
 
         [Behavior(BehaviorType.PreCombatBuffs, WoWClass.Warrior, WoWSpec.WarriorArms, WoWContext.Instances | WoWContext.Normal )]
-        public static Composite ArmsBuffs()
+        public static Composite ArmsPreCombatBuffs()
         {
             return new PrioritySelector(
                 Spell.Cast("Battle Shout", ret => !Me.HasPartyBuff(PartyBuffType.AttackPower)));

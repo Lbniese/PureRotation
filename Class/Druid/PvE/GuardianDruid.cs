@@ -6,8 +6,7 @@ using Styx.WoWInternals.WoWObjects;
 using AdvancedAI.Helpers;
 using System.Linq;
 
-
-namespace AdvancedAI.Spec
+namespace AdvancedAI.Class.Druid.PvE
 {
     class GuardianDruid
     {

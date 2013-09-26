@@ -7,9 +7,8 @@ using Styx.WoWInternals;
 using Styx.WoWInternals.WoWObjects;
 using AdvancedAI.Helpers;
 using System.Linq;
-using Action = Styx.TreeSharp.Action;
 
-namespace AdvancedAI.Spec
+namespace AdvancedAI.Class.Deathknight.PvE
 {
     class BloodDeathknight
     {
@@ -69,7 +68,7 @@ namespace AdvancedAI.Spec
         }
 
         [Behavior(BehaviorType.PreCombatBuffs, WoWClass.DeathKnight, WoWSpec.DeathKnightBlood)]
-        public static Composite PreBloodDKCombatBuffs()
+        public static Composite BloodDKPreCombatBuffs()
         {
             return new PrioritySelector(
                 Spell.Cast("Bone Shield", ret => !Me.HasAura("Bone Shield")),
@@ -77,7 +76,6 @@ namespace AdvancedAI.Spec
             ));
         }
 
-        [Behavior(BehaviorType.CombatBuffs, WoWClass.DeathKnight, WoWSpec.DeathKnightBlood)]
         public static Composite BloodDKCombatBuffs()
         {
             return new PrioritySelector(

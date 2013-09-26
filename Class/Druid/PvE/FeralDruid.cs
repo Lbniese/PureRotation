@@ -5,9 +5,8 @@ using Styx.TreeSharp;
 using Styx.WoWInternals.WoWObjects;
 using AdvancedAI.Helpers;
 using AdvancedAI.Managers;
-using Action = Styx.TreeSharp.Action;
 
-namespace AdvancedAI.Spec
+namespace AdvancedAI.Class.Druid.PvE
 {
     class FeralDruid
     {      

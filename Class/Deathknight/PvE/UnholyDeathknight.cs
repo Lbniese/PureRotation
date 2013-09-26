@@ -6,9 +6,8 @@ using Styx.TreeSharp;
 using Styx.WoWInternals.WoWObjects;
 using AdvancedAI.Helpers;
 using System.Linq;
-using Action = Styx.TreeSharp.Action;
 
-namespace AdvancedAI.Spec
+namespace AdvancedAI.Class.Deathknight.PvE
 {
     class UnholyDeathknight
     {
@@ -19,7 +18,7 @@ namespace AdvancedAI.Spec
         internal static int UnholyRuneSlotsActive { get { return Me.GetRuneCount(4) + Me.GetRuneCount(5); } }
 
         [Behavior(BehaviorType.Combat, WoWClass.DeathKnight, WoWSpec.DeathKnightUnholy)]
-        public static Composite CreateUDKCombat()
+        public static Composite UnholyDKCombat()
         {
                 return new PrioritySelector(
                     Spell.WaitForCastOrChannel(),

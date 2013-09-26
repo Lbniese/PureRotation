@@ -19,6 +19,7 @@ namespace AdvancedAI
         public static bool Dispell { get; set; }
         public static bool Trace { get; set; }
         public static bool LFRMode { get; set; }
+        public static bool ManualContext { get; set; }
 
         protected virtual void UnregisterHotkeys()
         {
@@ -35,9 +36,20 @@ namespace AdvancedAI
             HotkeysManager.Unregister("Dispelling");
             HotkeysManager.Unregister("Trace");
             HotkeysManager.Unregister("LFR Mode");
+            HotkeysManager.Unregister("Manual Context");
         }
         protected virtual void RegisterHotkeys()
         {
+            HotkeysManager.Register("Manual Context",
+                Keys.L,
+                ModifierKeys.Alt,
+                o =>
+                {
+                    ManualContext = !ManualContext;
+                    Logging.Write("Manual Context enabled: " + ManualContext);
+                });
+            ManualContext = false;
+
             HotkeysManager.Register("Trace",
                 Keys.T,
                 ModifierKeys.Alt,
@@ -46,7 +58,7 @@ namespace AdvancedAI
                     Trace = !Trace;
                     Logging.Write("Trace enabled: " + Trace);
                 });
-            Dispell = false;
+            Trace = false;
 
             HotkeysManager.Register("Dispelling",
                 Keys.D,
@@ -123,7 +135,7 @@ namespace AdvancedAI
             });
             Movement = false;
 
-            HotkeysManager.Register("Tier Bonus",
+            HotkeysManager.Register("Useful Stuff",
             Keys.NumPad3,
             ModifierKeys.Control,
             o =>
@@ -176,7 +188,7 @@ namespace AdvancedAI
                 Logging.Write("LFR Mode enabled: " + LFRMode);
                 Lua.DoString("print('LFR Mode Enabled: " + LFRMode + "')");
             });
-            Weave = false;
+            LFRMode = false;
 
         }
 

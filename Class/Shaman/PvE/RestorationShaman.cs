@@ -6,14 +6,12 @@ using Styx.TreeSharp;
 using Styx.WoWInternals;
 using Styx.WoWInternals.WoWObjects;
 using AdvancedAI.Helpers;
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Action = Styx.TreeSharp.Action;
 
-
-namespace AdvancedAI.Spec
+namespace AdvancedAI.Class.Shaman.PvE
 {
     class RestorationShaman
     {
@@ -87,7 +85,7 @@ namespace AdvancedAI.Spec
         }
 
         [Behavior(BehaviorType.PreCombatBuffs, WoWClass.Shaman, WoWSpec.ShamanRestoration)]
-        public static Composite RestorationBuffs()
+        public static Composite RestorationPreCombatBuffs()
         {
             return new PrioritySelector(
                 //new Decorator(ret => AdvancedAI.PvPRot,
