@@ -593,9 +593,9 @@ namespace AdvancedAI.Helpers
         /// </remarks>
         /// <param name = "name">The name.</param>
         /// <returns>.</returns>
-        public static Composite Cast(string name)
+        public static Composite Cast(string name, bool returnFailure = false)
         {
-            return Cast(sp => name);
+            return Cast(sp => name, returnFailure);
         }
 
         /// <summary>
@@ -608,7 +608,7 @@ namespace AdvancedAI.Helpers
         /// <param name = "name">The name.</param>
         /// <param name = "requirements">The requirements.</param>
         /// <returns>.</returns>
-        public static Composite Cast(string name, SimpleBooleanDelegate requirements)
+        public static Composite Cast(string name, SimpleBooleanDelegate requirements, bool returnFailure = false)
         {
             return Cast(sp => name, requirements);
         }
@@ -672,9 +672,9 @@ namespace AdvancedAI.Helpers
         /// </remarks>
         /// <param name = "name">The name.</param>
         /// <returns>.</returns>
-        public static Composite Cast(SimpleStringDelegate name)
+        public static Composite Cast(SimpleStringDelegate name, bool returnFailure = false)
         {
-            return Cast(name, onUnit => StyxWoW.Me.CurrentTarget);
+            return Cast(name, onUnit => StyxWoW.Me.CurrentTarget, returnFailure);
         }
 
         /// <summary>
@@ -687,9 +687,9 @@ namespace AdvancedAI.Helpers
         /// <param name = "name">The name.</param>
         /// <param name = "onUnit">The on unit.</param>
         /// <returns>.</returns>
-        public static Composite Cast(SimpleStringDelegate name, UnitSelectionDelegate onUnit)
+        public static Composite Cast(SimpleStringDelegate name, UnitSelectionDelegate onUnit, bool returnFailure = false)
         {
-            return Cast(name, onUnit, req => true);
+            return Cast(name, onUnit, req => true, returnFailure);
         }
 
         /// <summary>
@@ -702,9 +702,9 @@ namespace AdvancedAI.Helpers
         /// <param name = "name">The name.</param>
         /// <param name = "requirements">The requirements.</param>
         /// <returns>.</returns>
-        public static Composite Cast(SimpleStringDelegate name, SimpleBooleanDelegate requirements)
+        public static Composite Cast(SimpleStringDelegate name, SimpleBooleanDelegate requirements, bool returnFailure = false)
         {
-            return Cast(name, onUnit => StyxWoW.Me.CurrentTarget, requirements);
+            return Cast(name, onUnit => StyxWoW.Me.CurrentTarget, requirements, returnFailure);
         }
 
         /// <summary>
@@ -718,9 +718,9 @@ namespace AdvancedAI.Helpers
         /// <param name = "onUnit">The on unit.</param>
         /// <param name = "requirements">The requirements.</param>
         /// <returns>.</returns>
-        public static Composite Cast(SimpleStringDelegate name, UnitSelectionDelegate onUnit, SimpleBooleanDelegate requirements)
+        public static Composite Cast(SimpleStringDelegate name, UnitSelectionDelegate onUnit, SimpleBooleanDelegate requirements, bool returnFailure = false)
         {
-            return Cast(name, ret => true, onUnit, requirements);
+            return Cast(name, ret => true, onUnit, requirements, null, LagTolerance.Yes, false, returnFailure);
         }
 
         public static Composite CastLikeMonk(string name, UnitSelectionDelegate onUnit, SimpleBooleanDelegate requirements)
@@ -1384,9 +1384,10 @@ namespace AdvancedAI.Helpers
         /// <param name = "requirements">The requirements.</param>
         /// <param name="cancel">The cancel cast in progress delegate</param>
         /// <param name="allow">allow next spell to queue before this one completes</param>
+        /// <param name="fail">allow next spell to return runstatus failure when casted</param>
         /// <returns>.</returns>
         public static Composite Cast(SimpleStringDelegate name, SimpleBooleanDelegate checkMovement, UnitSelectionDelegate onUnit,
-            SimpleBooleanDelegate requirements, SimpleBooleanDelegate cancel = null, LagTolerance allow = LagTolerance.Yes, bool skipWowCheck = false)
+            SimpleBooleanDelegate requirements, SimpleBooleanDelegate cancel = null, LagTolerance allow = LagTolerance.Yes, bool skipWowCheck = false, bool returnFailure = false)
         {
             return new Decorator(
                 ret => name != null && checkMovement != null && onUnit != null && requirements != null && name(ret) != null,
@@ -1430,7 +1431,7 @@ namespace AdvancedAI.Helpers
                                     return RunStatus.Failure;
                                 }
                                 
-                                return RunStatus.Success;
+                                return returnFailure ? RunStatus.Failure : RunStatus.Success;
                             }),
 #if OLD_WAY_OF_ENSURING
                             // when accountForLag = true, wait for in progress spell (if any) to complete
