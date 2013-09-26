@@ -58,20 +58,16 @@ namespace AdvancedAI.Class.Warrior.PvE
                                 Spell.Cast("Battle Shout", ret => Me.RagePercent < 30 && Spell.GetSpellCooldown("Colossus Smash").TotalSeconds <= 2),
                                 Spell.Cast("Shockwave"),
                                 Spell.Cast("Wild Strike", ret => Me.CurrentRage >= 115 && ColossusSmashCheck()))),
-                        new Decorator(ret => Me.CurrentTarget.CachedHasAura("Colossus Smash"),
-                            new PrioritySelector(
-                                Spell.Cast("Heroic Strike", ctx => Me.CurrentRage > 30),
-                                Spell.Cast("Bloodthirst"),
-                                Spell.Cast("Raging Blow"),
-                                Spell.Cast("Wild Strike", ret => Me.CachedHasAura("Bloodsurge")))))));
+                        Spell.Cast("Heroic Strike", ret => Me.CurrentRage > 30, true),
+                        Spell.Cast("Bloodthirst"),
+                        Spell.Cast("Raging Blow"),
+                        Spell.Cast("Wild Strike", ret => Me.CachedHasAura("Bloodsurge")))));
         }
 
         [Behavior(BehaviorType.PreCombatBuffs, WoWClass.Warrior, WoWSpec.WarriorFury)]
         public static Composite FuryPreCombatBuffs()
         {
             return new PrioritySelector(
-                //new Decorator(ret => AdvancedAI.PvPRot,
-                //    FuryWarriorPvP.CreateFWPvPBuffs),
                 Spell.Cast("Battle Shout", ret => !Me.HasPartyBuff(PartyBuffType.AttackPower)),
                 FuryPull());
 
@@ -97,7 +93,7 @@ namespace AdvancedAI.Class.Warrior.PvE
                 Spell.Cast("Whirlwind", ret => !Me.CachedHasAura("Meat Cleaver", (int)MathEx.Clamp(1, 3, Unit.UnfriendlyUnits(8).Count() - 1))),
                 Spell.Cast("Bloodthirst"),
                 Spell.Cast("Raging Blow", ret => Me.CachedHasAura("Meat Cleaver", (int)MathEx.Clamp(1, 3, Unit.UnfriendlyUnits(8).Count() - 1))),
-                Spell.Cast("Cleave", ret => Me.CurrentRage >= 105 && Spell.GetSpellCooldown("Colossus Smash").TotalSeconds >= 3));
+                Spell.Cast("Cleave", ret => Me.CurrentRage >= 105 && Spell.GetSpellCooldown("Colossus Smash").TotalSeconds >= 3, true));
         }
 
         private static Composite CreateExecuteRange()
