@@ -17,10 +17,11 @@ namespace AdvancedAI.Class.Druid.PvE
         {
             return new PrioritySelector(
                 // Don't do anything if we have no target, nothing in melee range, or we're casting. (Includes vortex!)
-                new Decorator(ret => !Me.GotTarget || !Me.CurrentTarget.IsWithinMeleeRange || Me.IsCasting || Me.CurrentPendingCursorSpell != null,
+                new Decorator(ret => !Me.GotTarget || !Me.CurrentTarget.IsWithinMeleeRange || Me.IsCasting,
                     new ActionAlwaysSucceed()),
 
-                Spell.Cast("Bear Form", ret => Me.Shapeshift != ShapeshiftForm.Bear),
+                //Spell.Cast("Bear Form", ret => Me.Shapeshift != ShapeshiftForm.Bear),
+                Spell.Cast("Skull Bash", ret => Me.CurrentTarget.IsCasting && StyxWoW.Me.CurrentTarget.CanInterruptCurrentSpellCast),
 
                 new Decorator(ret => AdvancedAI.Burst,
                     CreateCooldowns()),
@@ -56,14 +57,12 @@ namespace AdvancedAI.Class.Druid.PvE
                 Spell.Cast("Cenarion Ward", on => Me),
                 // Enrage if we need 20 more rage for a FR or SD
                 Spell.Cast("Enrage", ret => Me.RagePercent < 40),
-                // Do interrupts when we're allowed to.
-                Spell.Cast("Skull Bash", on => InterruptableUnit(), ret => AdvancedAI.InterruptsEnabled && InterruptableUnit() != null),
-
+                
                 //Cast("Incarnation: Son of Ursoc", ret => !StyxWoW.Me.HasAura("Berserk")),
 
                 // Symbiosis effect.
                 //Cast("Bone Shield", ret => StyxWoW.Me, ret => !StyxWoW.Me.HasAura("Bone Shield")),
-                Spell.Cast("Incarnation", ret => KeyboardPolling.IsKeyDown(Keys.Q) && KeyboardPolling.IsKeyDown(Keys.LMenu)),
+                //Spell.Cast("Incarnation", ret => KeyboardPolling.IsKeyDown(Keys.Q) && KeyboardPolling.IsKeyDown(Keys.LMenu)),
 
                 // Could be tweaked to be lower. Probably 40.
                 Spell.Cast("Barkskin", ret => Me.HealthPercent <= 60),
@@ -97,7 +96,7 @@ namespace AdvancedAI.Class.Druid.PvE
             return new Decorator(ret => Unit.UnfriendlyUnits(8).Count() >= 2,
                 new PrioritySelector(
                 // Best whenn used on 3-5 mobs. Not 30+
-                    Spell.Cast("Berserk", ret => !Me.CachedHasAura("Incarnation: Son of Ursoc")),
+                   // Spell.Cast("Berserk", ret => !Me.CachedHasAura("Incarnation: Son of Ursoc")),
                     Spell.Cast("Swipe")
                     ));
         }
