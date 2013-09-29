@@ -82,7 +82,8 @@ namespace AdvancedAI.Class.Warrior.PvP
                 Spell.Cast("Intervene", on => BestInterveneTarget),
                 Spell.Cast("Charge", on => ChargeInt),
                 Spell.Cast("Heroic Strike", ret => (Me.CurrentTarget.CachedHasAura("Colossus Smash") && Me.CurrentRage >= 70) || Me.CurrentRage >= 95),
-
+                Spell.Cast("Sweeping Strikes", ret => Unit.UnfriendlyUnits(8).Count() >= 2 && AdvancedAI.Aoe),
+                Spell.Cast("Bladestorm", ret => Me.HasAura("Bloodbath") && Me.CurrentTarget.Distance <= 8),
                 //new Decorator(ret => Me.CurrentTarget != null && SpellManager.GlobalCooldown,
                 //    new ActionAlwaysSucceed()),
 

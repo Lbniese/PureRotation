@@ -17,11 +17,11 @@ namespace AdvancedAI.Class.Druid.PvE
         {
             return new PrioritySelector(
                 // Don't do anything if we have no target, nothing in melee range, or we're casting. (Includes vortex!)
-                new Decorator(ret => !Me.GotTarget || !Me.CurrentTarget.IsWithinMeleeRange || Me.IsCasting,
+                new Decorator(ret => !Me.GotTarget ||  Me.IsCasting,
                     new ActionAlwaysSucceed()),
 
                 //Spell.Cast("Bear Form", ret => Me.Shapeshift != ShapeshiftForm.Bear),
-                Spell.Cast("Skull Bash", ret => Me.CurrentTarget.IsCasting && StyxWoW.Me.CurrentTarget.CanInterruptCurrentSpellCast),
+                Spell.Cast("Skull Bash", ret => Me.CurrentTarget.IsCasting && Me.CurrentTarget.CanInterruptCurrentSpellCast),
 
                 new Decorator(ret => AdvancedAI.Burst,
                     CreateCooldowns()),
@@ -37,7 +37,7 @@ namespace AdvancedAI.Class.Druid.PvE
                 // Mangle on CD
                 Spell.Cast("Mangle"),
                 // Thrash on CD to keep up the debuffs + mangle procs
-                Spell.Cast("Thrash", reqs => Spell.GetSpellCooldown("Thrash").TotalSeconds <= 0),
+                Spell.Cast("Thrash", ret => Unit.UnfriendlyUnits(8).Count() >= 1),
                 // AOE comes in before lac/ff
                 CreateAoe(),
                 // Lac for threat + mangle procs
@@ -54,10 +54,17 @@ namespace AdvancedAI.Class.Druid.PvE
         private static Composite CreateCooldowns()
         {
             return new PrioritySelector(
+                new Decorator(ret => IsCurrentTank(),
+                    new PrioritySelector(
+                        new Action(ret => { Item.UseTrinkets(); return RunStatus.Failure; }),
+                        new Action(ret => { Item.UseHands(); return RunStatus.Failure; }))),
+
                 Spell.Cast("Cenarion Ward", on => Me),
                 // Enrage if we need 20 more rage for a FR or SD
                 Spell.Cast("Enrage", ret => Me.RagePercent < 40),
-                
+
+                Spell.Cast("Healing Touch", ret => Me.HasAura(145162) && Me.HealthPercent <= 90 || Me.HasAura(145162) && Me.GetAuraTimeLeft(145162).TotalSeconds < 1.5),
+
                 //Cast("Incarnation: Son of Ursoc", ret => !StyxWoW.Me.HasAura("Berserk")),
 
                 // Symbiosis effect.
@@ -68,13 +75,13 @@ namespace AdvancedAI.Class.Druid.PvE
                 Spell.Cast("Barkskin", ret => Me.HealthPercent <= 60),
 
                 // Could be tweaked to be lower, again. 50 seems reasonable. May add a toggle for this to deal with big spike damage manually.
-                Spell.Cast("Survival Instincts", ret => Me.HealthPercent <= 30),
+                Spell.Cast("Survival Instincts", ret => Me.HealthPercent <= 50 && !Me.CachedHasAura("Might of Ursoc")),
 
                 // We need health FAST. Get some.
-                Spell.Cast("Might of Ursoc", ret => Me.HealthPercent <= 30),
+                Spell.Cast("Might of Ursoc", ret => Me.HealthPercent <= 30 && !Me.CachedHasAura("Survival Instincts")),
 
                 // Never higher than 70 here. It heals 30% of our health. Wasted heal if we use it above 70.
-                Spell.Cast("Renewal", ret => Me.HealthPercent <= 50 || Me.HasAura("Might of Ursoc")),
+                Spell.Cast("Renewal", ret => Me.HealthPercent <= 50 || Me.CachedHasAura("Might of Ursoc")),
 
                 // Emergency heals.
                 Item.UsePotionAndHealthstone(40),
@@ -84,7 +91,7 @@ namespace AdvancedAI.Class.Druid.PvE
                 Spell.Cast("Frenzied Regeneration",
                     ret =>
                     Me.HealthPercent <= 65 && Me.CurrentRage >= 60 &&
-                    !Me.HasAura("Frenzied Regeneration")),
+                    !Me.CachedHasAura("Frenzied Regeneration")),
 
                 // Don't overwrite SDs. But keep it up as much as possible.
                 Spell.Cast("Savage Defense", ret => !Me.CachedHasAura("Savage Defense"))
