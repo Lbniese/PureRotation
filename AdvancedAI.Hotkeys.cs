@@ -46,7 +46,7 @@ namespace AdvancedAI
                 o =>
                 {
                     ManualContext = !ManualContext;
-                    Logging.Write("Manual Context enabled: " + ManualContext);
+                    Logging.Write("Manual Context enabled: " + ManualContext + "')");
                 });
             ManualContext = false;
 
@@ -56,7 +56,7 @@ namespace AdvancedAI
                 o =>
                 {
                     Trace = !Trace;
-                    Logging.Write("Trace enabled: " + Trace);
+                    Logging.Write("Trace enabled: " + Trace + "')");
                 });
             Trace = false;
 
@@ -66,7 +66,7 @@ namespace AdvancedAI
                 o =>
                 {
                     Dispell = !Dispell;
-                    Logging.Write("Dispelling enabled: " + Dispell);
+                    Logging.Write("Dispelling enabled: " + Dispell + "')");
                 });
             Dispell = true;
 
@@ -76,7 +76,7 @@ namespace AdvancedAI
                 o =>
                 {
                     InterruptsEnabled = !InterruptsEnabled;
-                    Logging.Write("Interrupts enabled: " + InterruptsEnabled);
+                    Logging.Write("Interrupts enabled: " + InterruptsEnabled + "')");
                 });
             InterruptsEnabled = true;
 
