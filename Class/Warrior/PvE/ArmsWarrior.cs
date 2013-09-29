@@ -44,7 +44,7 @@ namespace AdvancedAI.Class.Warrior.PvE
                 new Action(ret => { Item.UseHands(); return RunStatus.Failure; }),
                 Spell.Cast("Berserker Rage", ret => !Me.CachedHasAura(Enrage)),
                 Spell.Cast("Sweeping Strikes", ret => Unit.UnfriendlyUnits(8).Count() >= 2),
-                Spell.Cast("Heroic Strike", ret => (Me.CurrentTarget.CachedHasAura("Colossus Smash") && Me.CurrentRage >= 80 && Me.CurrentTarget.HealthPercent >= 20) || Me.CurrentRage >= 105),
+                Spell.Cast("Heroic Strike", ret => (Me.CurrentTarget.CachedHasAura("Colossus Smash") && Me.CurrentRage >= 80 && Me.CurrentTarget.HealthPercent >= 20) || Me.CurrentRage >= 105, true),
                 Spell.Cast("Mortal Strike"),
                 Spell.Cast("Dragon Roar", ret => !Me.CurrentTarget.CachedHasAura("Colossus Smash") && Me.CachedHasAura("Bloodbath") && Me.CurrentTarget.Distance <= 8),
                 Spell.Cast("Colossus Smash", ret => Me.CurrentTarget.CachedHasAuraDown("Colossus Smash", 1, true, 1) || !Me.CurrentTarget.HasMyAura("Colossus Smash")),
