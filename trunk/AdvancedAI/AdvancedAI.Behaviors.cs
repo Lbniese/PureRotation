@@ -17,11 +17,12 @@ namespace AdvancedAI
 {
     partial class AdvancedAI
     {
-        private Composite _combat, _preCombatBuffs, _pull, _heal;
+        private Composite _combat, _preCombatBuffs, _pull, _heal, _deathBehavior;
         public override Composite PreCombatBuffBehavior { get { return _preCombatBuffs; } }
         public override Composite CombatBehavior { get { return _combat; } }
         public override Composite PullBehavior { get { return _pull; } }
         public override Composite HealBehavior { get { return _heal; } }
+        public override Composite DeathBehavior { get { return _deathBehavior; } }
         WoWContext _context = CurrentWoWContext;
         
         public void AssignBehaviors()
@@ -42,6 +43,7 @@ namespace AdvancedAI
                 EnsureComposite(false, _context, BehaviorType.Heal);
                 EnsureComposite(false, _context, BehaviorType.PreCombatBuffs);
                 EnsureComposite(false, _context, BehaviorType.Pull);
+                EnsureComposite(false, _context, BehaviorType.Death);
             }
         }
 
@@ -75,6 +77,13 @@ namespace AdvancedAI
                 Logging.Write("Initializing Pulling");
                 _pull = new LockSelector(
                     new HookExecutor(HookName(BehaviorType.Pull)));
+            }
+
+            if (_deathBehavior == null)
+            {
+                Logging.Write("Initializing Death Behavior");
+                _deathBehavior = new LockSelector(
+                    new HookExecutor(HookName(BehaviorType.Death)));
             }
         }
 

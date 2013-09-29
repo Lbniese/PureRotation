@@ -168,7 +168,7 @@ namespace AdvancedAI.Helpers
                 prioSpell.AddChild( Spell.Cast("Hammer of Justice", ctx => _unitInterrupt));
 
             if (Me.Class == WoWClass.Warrior) 
-                prioSpell.AddChild( Spell.Cast("Disrupting Shout", ctx => _unitInterrupt));
+                prioSpell.AddChild( Spell.Cast("Disrupting Shout", ctx => _unitInterrupt, true));
 
             #endregion
 
@@ -195,7 +195,7 @@ namespace AdvancedAI.Helpers
                 prioSpell.AddChild(Spell.Cast("Strangulate", ctx => _unitInterrupt, true));
 
             if (Me.Class == WoWClass.Mage)
-                prioSpell.AddChild(Spell.Cast("Frostjaw", ctx => _unitInterrupt, true));
+                prioSpell.AddChild(Spell.Cast("Frostjaw", ctx => _unitInterrupt));
 
             #endregion
 
