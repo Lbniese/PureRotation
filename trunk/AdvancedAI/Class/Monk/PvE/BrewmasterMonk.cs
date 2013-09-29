@@ -74,7 +74,9 @@ namespace AdvancedAI.Class.Monk.PvE
                             new PrioritySelector(
                                 Spell.Cast("Purifying Brew", ret => Me.CachedHasAura("Moderate Stagger") && Me.HealthPercent <= 70),
                                 Spell.Cast("Purifying Brew", ret => Me.CachedHasAura("Light Stagger") && Me.HealthPercent < 40))))),
-                
+
+                Item.UsePotionAndHealthstone(40),
+
                 //Elusive Brew will made auto at lower stacks when I can keep up 80 to 90% up time this is just to keep from capping
                 Spell.Cast("Elusive Brew", ret => Me.CachedHasAura("Elusive Brew", 12) && !Me.CachedHasAura(ElusiveBrew)),
 
