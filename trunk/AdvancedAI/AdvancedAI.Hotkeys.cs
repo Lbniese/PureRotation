@@ -47,7 +47,7 @@ namespace AdvancedAI
                 {
                     ManualContext = !ManualContext;
                     Logging.Write("Manual Context enabled: " + ManualContext);
-                    Lua.DoString("print('PvP Enabled: " + ManualContext + "')");
+                    Lua.DoString("print('Manual Context Enabled: " + ManualContext + "')");
                 });
             ManualContext = false;
 
@@ -58,7 +58,7 @@ namespace AdvancedAI
                 {
                     Trace = !Trace;
                     Logging.Write("Trace enabled: " + Trace);
-                    Lua.DoString("print('PvP Enabled: " + Trace + "')");
+                    Lua.DoString("print('Trace Enabled: " + Trace + "')");
                 });
             Trace = false;
 
@@ -69,7 +69,7 @@ namespace AdvancedAI
                 {
                     Dispell = !Dispell;
                     Logging.Write("Dispelling enabled: " + Dispell);
-                    Lua.DoString("print('PvP Enabled: " + Dispell + "')");
+                    Lua.DoString("print('Dispelling Enabled: " + Dispell + "')");
                 });
             Dispell = true;
 
@@ -80,7 +80,7 @@ namespace AdvancedAI
                 {
                     InterruptsEnabled = !InterruptsEnabled;
                     Logging.Write("Interrupts enabled: " + InterruptsEnabled);
-                    Lua.DoString("print('PvP Enabled: " + InterruptsEnabled + "')");
+                    Lua.DoString("print('Interrupts Enabled: " + InterruptsEnabled + "')");
                 });
             InterruptsEnabled = true;
 
