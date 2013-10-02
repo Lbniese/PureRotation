@@ -12,7 +12,6 @@ namespace AdvancedAI.Class.Paladin.PvE
     {
         static LocalPlayer Me { get { return StyxWoW.Me; } }
         
-        [Behavior(BehaviorType.Combat, WoWClass.Paladin, WoWSpec.PaladinProtection, WoWContext.Instances | WoWContext.Normal)]
         public static Composite ProtectionCombat()           
             {
                 return new PrioritySelector(
@@ -90,7 +89,6 @@ namespace AdvancedAI.Class.Paladin.PvE
         }
 
 
-        [Behavior(BehaviorType.PreCombatBuffs, WoWClass.Paladin, WoWSpec.PaladinProtection,WoWContext.Instances | WoWContext.Normal)]
         public static Composite ProtectionPreCombatBuffs()
         {
                 return new PrioritySelector(

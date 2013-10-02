@@ -14,7 +14,6 @@ namespace AdvancedAI.Class.Paladin.PvE
             get { return StyxWoW.Me; }
         }
 
-        [Behavior(BehaviorType.Combat, WoWClass.Paladin, WoWSpec.PaladinRetribution,WoWContext.Instances | WoWContext.Normal)]
         public static Composite RetributionCombat()
         {
             return new Throttle(
@@ -62,7 +61,6 @@ namespace AdvancedAI.Class.Paladin.PvE
 
         }
 
-        [Behavior(BehaviorType.PreCombatBuffs, WoWClass.Paladin, WoWSpec.PaladinRetribution,WoWContext.Instances | WoWContext.Normal)]
         public static Composite RetributionPreCombatBuffs()
         {
             return new PrioritySelector(

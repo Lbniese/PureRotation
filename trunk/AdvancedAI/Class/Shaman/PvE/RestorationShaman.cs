@@ -18,7 +18,6 @@ namespace AdvancedAI.Class.Shaman.PvE
         static LocalPlayer Me { get { return StyxWoW.Me; } }
         static WoWUnit healtarget { get { return HealerManager.FindLowestHealthTarget(); } }
 
-        [Behavior(BehaviorType.Combat | BehaviorType.Heal, WoWClass.Shaman, WoWSpec.ShamanRestoration)]
         public static Composite RestorationCombat()
         {
             HealerManager.NeedHealTargeting = true;
@@ -84,7 +83,6 @@ namespace AdvancedAI.Class.Shaman.PvE
                             cancel => healtarget.HealthPercent < 70))));
         }
 
-        [Behavior(BehaviorType.PreCombatBuffs, WoWClass.Shaman, WoWSpec.ShamanRestoration)]
         public static Composite RestorationPreCombatBuffs()
         {
             return new PrioritySelector(

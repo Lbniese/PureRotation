@@ -18,7 +18,6 @@ namespace AdvancedAI.Class.Monk.PvE
 
         static LocalPlayer Me { get { return StyxWoW.Me; } }
 
-        [Behavior(BehaviorType.Combat, WoWClass.Monk, WoWSpec.MonkWindwalker)]
         public static Composite WindwalkerCombat()
         {
             return new PrioritySelector(

@@ -42,8 +42,6 @@ namespace AdvancedAI.Class.Warrior.PvP
         #endregion
         public static DateTime LastInterrupt;
 
-
-        [Behavior(BehaviorType.Combat, WoWClass.Warrior, WoWSpec.WarriorArms, WoWContext.Battlegrounds)]
         public static Composite ArmsPvPCombat()
         {
             return new PrioritySelector(
@@ -105,7 +103,6 @@ namespace AdvancedAI.Class.Warrior.PvP
                     new ActionAlwaysSucceed());
         }
 
-        [Behavior(BehaviorType.PreCombatBuffs, WoWClass.Warrior, WoWSpec.WarriorArms, WoWContext.Battlegrounds)]
         public static Composite ArmsPvPPreCombatBuffs()
         {
             return new PrioritySelector(
@@ -139,7 +136,8 @@ namespace AdvancedAI.Class.Warrior.PvP
         #endregion
         
         #region BestInterrupt
-        public static WoWUnit BestInterrupt
+
+        private static WoWUnit BestInterrupt
         {
             get
             {

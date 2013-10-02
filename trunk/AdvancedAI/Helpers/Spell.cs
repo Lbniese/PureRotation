@@ -1789,6 +1789,11 @@ namespace AdvancedAI.Helpers
 
         #region Cast Hack - allows casting spells that CanCast returns False
 
+        public static bool CanCastHack(string castName)
+        {
+            return CanCastHack(castName, Me.CurrentTarget, skipWowCheck: false);
+        }
+
         /// <summary>
         /// CastHack following done because CanCast() wants spell as "Metamorphosis: Doom" while Cast() and aura name are "Doom"
         /// </summary>

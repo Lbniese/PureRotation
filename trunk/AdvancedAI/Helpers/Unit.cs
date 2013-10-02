@@ -718,6 +718,12 @@ namespace AdvancedAI.Helpers
                     e.BasePoints >= basePointsMin && e.BasePoints <= basePointsMax
                     select a).Any();
         }
+
+        public static bool HasAuraWithEffect(this WoWUnit unit, WoWApplyAuraType applyType)
+        {
+            return unit.Auras.Values.Any(a => a.Spell != null && a.Spell.SpellEffects.Any(se => applyType == se.AuraType));
+        }
+
         public static bool HasSunders(this WoWUnit unit)
         {
             // Remember; this is negative values [debuff]. So min is -12, max is -4. Duh.

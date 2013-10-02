@@ -27,7 +27,6 @@ namespace AdvancedAI.Class.Druid.PvE
          * 108381 = Dream of Cenarius (Damage part)
         */
 
-        [Behavior(BehaviorType.Combat, WoWClass.Druid, WoWSpec.DruidFeral)]
         public static Composite FeralCombat()
         {
             return new PrioritySelector(

@@ -82,6 +82,7 @@
     <Compile Include="Class\Shaman\PvE\ElementalShaman.cs" />
     <Compile Include="Class\Shaman\PvE\EnhancementShaman.cs" />
     <Compile Include="Class\Shaman\PvE\RestorationShaman.cs" />
+    <Compile Include="Class\Warlock\PvE\AfflictionWarlock.cs" />
     <Compile Include="Class\Warrior\PvE\ArmsWarrior.cs" />
     <Compile Include="Class\Warrior\PvE\FuryWarrior.cs" />
     <Compile Include="Class\Warrior\PvE\ProtectionWarrior.cs" />
@@ -90,9 +91,7 @@
     <Compile Include="Helpers\Clusters.cs" />
     <Compile Include="Helpers\CombatLog.cs" />
     <Compile Include="Helpers\Common.cs" />
-    <Compile Include="Helpers\CompositeBuilder.cs" />
     <Compile Include="Helpers\DeadlyBossMods.cs" />
-    <Compile Include="Helpers\Death.cs" />
     <Compile Include="Helpers\Dispelling.cs" />
     <Compile Include="Helpers\Extensions.cs" />
     <Compile Include="Helpers\Group.cs" />
@@ -133,7 +132,6 @@
     <Folder Include="Class\Rogue\PvE\" />
     <Folder Include="Class\Rogue\PvP\" />
     <Folder Include="Class\Shaman\PvP\" />
-    <Folder Include="Class\Warlock\PvE\" />
     <Folder Include="Class\Warlock\PvP\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

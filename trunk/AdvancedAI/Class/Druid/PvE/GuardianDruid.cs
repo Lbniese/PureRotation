@@ -12,7 +12,6 @@ namespace AdvancedAI.Class.Druid.PvE
     {
         static LocalPlayer Me { get { return StyxWoW.Me; } }
 
-        [Behavior(BehaviorType.Combat, WoWClass.Druid, WoWSpec.DruidGuardian)]
         public static Composite GuardianCombat()
         {
             return new PrioritySelector(

@@ -21,7 +21,6 @@ namespace AdvancedAI.Class.Deathknight.PvE
             get { return Me.Inventory.Equipped.MainHand != null && Me.Inventory.Equipped.OffHand != null; }
         }
 
-        [Behavior(BehaviorType.PreCombatBuffs, WoWClass.DeathKnight, WoWSpec.DeathKnightFrost)]
         public static Composite FrostDKPreCombatBuffs()
         {
             return new PrioritySelector(
@@ -29,7 +28,6 @@ namespace AdvancedAI.Class.Deathknight.PvE
 
         }
 
-        [Behavior(BehaviorType.Combat, WoWClass.DeathKnight, WoWSpec.DeathKnightFrost)]
         public static Composite FrostDKCombat()
         {
             return new PrioritySelector(

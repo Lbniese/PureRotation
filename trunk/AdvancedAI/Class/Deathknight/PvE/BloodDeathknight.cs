@@ -22,7 +22,6 @@ namespace AdvancedAI.Class.Deathknight.PvE
         //private static int UnholyRuneSlotsActive { get { return Me.GetRuneCount(4) + Me.GetRuneCount(5); } }
 
 
-        [Behavior(BehaviorType.Combat, WoWClass.DeathKnight, WoWSpec.DeathKnightBlood)]
         public static Composite BloodDKCombat()
         {
             return new PrioritySelector(
@@ -67,7 +66,6 @@ namespace AdvancedAI.Class.Deathknight.PvE
                 Spell.Cast("Horn of Winter", ret => Me.CurrentRunicPower < 90));
         }
 
-        [Behavior(BehaviorType.PreCombatBuffs, WoWClass.DeathKnight, WoWSpec.DeathKnightBlood)]
         public static Composite BloodDKPreCombatBuffs()
         {
             return new PrioritySelector(

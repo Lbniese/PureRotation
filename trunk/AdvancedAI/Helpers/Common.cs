@@ -288,6 +288,86 @@ namespace AdvancedAI.Helpers
                 );
         }
 
+        /// <summary>
+        ///  Creates a behavior to start auto attacking to current target.
+        /// </summary>
+        /// <remarks>
+        ///  Created 23/05/2011
+        /// </remarks>
+        /// <param name="includePet"> This will also toggle pet auto attack. </param>
+        /// <returns></returns>
+        public static Composite CreateAutoAttack(bool includePet)
+        {
+            var prio = new PrioritySelector();
+
+            var autoAttack = Me.Class == WoWClass.DeathKnight
+                || (Me.Class == WoWClass.Druid && Me.Specialization != WoWSpec.DruidRestoration)
+                || Me.Class == WoWClass.Monk
+                || (Me.Class == WoWClass.Paladin && Me.Specialization != WoWSpec.PaladinHoly)
+                || Me.Class == WoWClass.Rogue
+                || (Me.Class == WoWClass.Shaman && Me.Specialization != WoWSpec.ShamanRestoration)
+                || Me.Class == WoWClass.Warrior;
+
+            if (autoAttack)
+            {
+                prio.AddChild(
+                    new Throttle(TimeSpan.FromMilliseconds(500),
+                        new Decorator(
+                            ret => !StyxWoW.Me.IsAutoAttacking,
+                            new Action(ret =>
+                            {
+                                Lua.DoString("StartAttack()");
+                                return RunStatus.Failure;
+                            })
+                            )
+                        )
+                    );
+            }
+
+            if (includePet)
+            {
+                // pet assist: always keep pet on my target
+                prio.AddChild(
+                    new ThrottlePasses(TimeSpan.FromMilliseconds(500),
+                        new Decorator(
+                    // check pet targeting same target as Me
+                            ret => Me.GotAlivePet && (!Me.Pet.GotTarget || Me.Pet.CurrentTargetGuid != Me.CurrentTargetGuid),
+                            new Action(delegate
+                            {
+                                PetManager.CastPetAction("Attack", Me.CurrentTarget);
+                                return RunStatus.Failure;
+                            })
+                            )
+                        )
+                    );
+            }
+
+            if (includePet)
+            {
+                // pet tank: if pet's target isn't targeting Me, check if we should switch to one that is targeting Me
+                prio.AddChild(
+                    new ThrottlePasses(TimeSpan.FromMilliseconds(500),
+                        new Decorator(
+                            ret => Me.GotAlivePet && (!Me.Pet.GotTarget || Me.Pet.CurrentTarget.CurrentTargetGuid != Me.Guid),
+                            new PrioritySelector(
+                                ctx => Unit.NearbyUnfriendlyUnits.FirstOrDefault(u => u.Combat && u.GotTarget && u.CurrentTarget.IsMe) ?? Me.CurrentTarget,
+                                new Decorator(
+                                    ret => ret != null && Me.Pet.CurrentTargetGuid != ((WoWUnit)ret).Guid,
+                                    new Action(r =>
+                                    {
+                                        PetManager.CastPetAction("Attack", (WoWUnit)r);
+                                        return RunStatus.Failure;
+                                    })
+                                    )
+                                )
+                            )
+                        )
+                    );
+            }
+
+            return prio;
+        }
+
 
         /// <summary>
         /// This is meant to replace the 'SleepForLagDuration()' method. Should only be used in a Sequence
