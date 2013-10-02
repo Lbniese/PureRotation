@@ -17,7 +17,6 @@ namespace AdvancedAI.Class.Deathknight.PvE
         internal static int FrostRuneSlotsActive { get { return Me.GetRuneCount(2) + Me.GetRuneCount(3); } }
         internal static int UnholyRuneSlotsActive { get { return Me.GetRuneCount(4) + Me.GetRuneCount(5); } }
 
-        [Behavior(BehaviorType.Combat, WoWClass.DeathKnight, WoWSpec.DeathKnightUnholy)]
         public static Composite UnholyDKCombat()
         {
                 return new PrioritySelector(

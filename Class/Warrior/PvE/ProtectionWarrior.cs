@@ -17,7 +17,6 @@ namespace AdvancedAI.Class.Warrior.PvE
         static LocalPlayer Me { get { return StyxWoW.Me; } }
         private const int Enrage = 12880;
 
-        [Behavior(BehaviorType.Combat, WoWClass.Warrior, WoWSpec.WarriorProtection)]
         public static Composite ProtCombat()
         {
             return new PrioritySelector(
@@ -87,7 +86,6 @@ namespace AdvancedAI.Class.Warrior.PvE
                     Spell.Cast("Devastate"));
         }
 
-        [Behavior(BehaviorType.PreCombatBuffs, WoWClass.Warrior, WoWSpec.WarriorProtection)]
         internal static Composite ProtPreCombatBuffs()
         {
             return new PrioritySelector(

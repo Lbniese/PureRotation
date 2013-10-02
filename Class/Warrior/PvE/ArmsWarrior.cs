@@ -16,7 +16,6 @@ namespace AdvancedAI.Class.Warrior.PvE
         private const int Enrage = 12880;
         private static bool HasTalent(WarriorTalents tal) { return TalentManager.IsSelected((int)tal); }
 
-        [Behavior(BehaviorType.Combat, WoWClass.Warrior, WoWSpec.WarriorArms, WoWContext.Instances | WoWContext.Normal)]
         public static Composite ArmsCombat()
         {
             return new PrioritySelector(
@@ -61,14 +60,12 @@ namespace AdvancedAI.Class.Warrior.PvE
                 Spell.Cast("Impending Victory", ret => Me.HealthPercent < 50));
         }
 
-        [Behavior(BehaviorType.PreCombatBuffs, WoWClass.Warrior, WoWSpec.WarriorArms, WoWContext.Instances | WoWContext.Normal )]
         public static Composite ArmsPreCombatBuffs()
         {
             return new PrioritySelector(
                 Spell.Cast("Battle Shout", ret => !Me.HasPartyBuff(PartyBuffType.AttackPower)));
         }
 
-        [Behavior(BehaviorType.Pull, WoWClass.Warrior, WoWSpec.WarriorArms, WoWContext.Instances | WoWContext.Normal)]
         public static Composite ArmsPull()
         {
             return new PrioritySelector(

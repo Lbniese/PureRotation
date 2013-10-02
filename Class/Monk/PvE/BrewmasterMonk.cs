@@ -18,7 +18,6 @@ namespace AdvancedAI.Class.Monk.PvE
         private const int KegSmash = 121253;
         private const int ElusiveBrew = 115308;
 
-        [Behavior(BehaviorType.Combat, WoWClass.Monk, WoWSpec.MonkBrewmaster)]
         public static Composite BrewmasterCombat()
         {
             return new PrioritySelector(

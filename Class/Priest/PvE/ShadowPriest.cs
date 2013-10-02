@@ -19,7 +19,6 @@ namespace AdvancedAI.Class.Priest.PvE
         private const int Insanity = 129197;
         private static uint Orbs { get { return Me.GetCurrentPower(WoWPowerType.ShadowOrbs); } }
 
-        [Behavior(BehaviorType.Combat, WoWClass.Priest, WoWSpec.PriestShadow)]
         public static Composite ShadowCombat()
         {
             return new PrioritySelector(
@@ -59,7 +58,6 @@ namespace AdvancedAI.Class.Priest.PvE
                 Spell.Cast("Shadow Word: Pain", ret => Me.IsMoving));
         }
 
-        [Behavior(BehaviorType.PreCombatBuffs, WoWClass.Priest, WoWSpec.PriestShadow)]
         public static Composite ShadowPreCombatBuffs()
         {
             return new PrioritySelector(

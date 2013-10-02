@@ -16,7 +16,6 @@ namespace AdvancedAI.Class.Warrior.PvE
         static LocalPlayer Me { get { return StyxWoW.Me; } }
         private const int Enrage = 12880;
 
-        [Behavior(BehaviorType.Combat, WoWClass.Warrior, WoWSpec.WarriorFury)]
         public static Composite FuryCombat()
         {
             return new PrioritySelector(
@@ -64,7 +63,6 @@ namespace AdvancedAI.Class.Warrior.PvE
                         Spell.Cast("Wild Strike", ret => Me.CachedHasAura("Bloodsurge")))));
         }
 
-        [Behavior(BehaviorType.PreCombatBuffs, WoWClass.Warrior, WoWSpec.WarriorFury)]
         public static Composite FuryPreCombatBuffs()
         {
             return new PrioritySelector(
@@ -73,7 +71,6 @@ namespace AdvancedAI.Class.Warrior.PvE
 
         }
 
-        [Behavior(BehaviorType.Pull, WoWClass.Warrior, WoWSpec.WarriorFury, WoWContext.Instances | WoWContext.Normal)]
         public static Composite FuryPull()
         {
             return new PrioritySelector(

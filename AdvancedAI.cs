@@ -61,16 +61,6 @@ namespace AdvancedAI
             if (TalentManager.Pulse())
                 return;
 
-            //if (TalentManager.EventRebuildTimer.IsFinished && TalentManager.RebuildNeeded)
-            //{
-            //    TalentManager.RebuildNeeded = false;
-            //    Logging.Write("TalentManager: Rebuilding behaviors due to changes detected.");
-            //    TalentManager.Update();   // reload talents just in case
-            //    AssignBehaviors();
-            //    return;
-            //}
-
-
             UpdateContext();
             Spell.DoubleCastPreventionDict.RemoveAll(t => DateTime.UtcNow > t);
 
@@ -83,9 +73,6 @@ namespace AdvancedAI
                     PetManager.Pulse();
                     break;
             }
-
-            //Testing chached units
-            //CachedUnits.Pulse();
 
             if (HealerManager.NeedHealTargeting)
                 HealerManager.Instance.Pulse();

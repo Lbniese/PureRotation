@@ -20,7 +20,6 @@ namespace AdvancedAI.Class.Shaman.PvE
         #region Buffs
 
         
-        [Behavior(BehaviorType.PreCombatBuffs, WoWClass.Shaman, WoWSpec.ShamanEnhancement,WoWContext.Instances | WoWContext.Normal)]
         public static Composite EnhancementPreCombatBuffs()        
             {
                 return new PrioritySelector(
@@ -38,7 +37,6 @@ namespace AdvancedAI.Class.Shaman.PvE
 
         #region Combat
 
-        [Behavior(BehaviorType.Combat, WoWClass.Shaman, WoWSpec.ShamanEnhancement,WoWContext.Instances | WoWContext.Normal)]
         public static Composite EnhancementCombat()
             {
                 return new PrioritySelector(
