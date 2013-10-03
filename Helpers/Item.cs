@@ -110,7 +110,7 @@ namespace AdvancedAI.Helpers
         public static void UseWaist()
         {
             WoWItem waist = StyxWoW.Me.Inventory.Equipped.Waist;
-            if (waist != null &&  Me.CurrentTarget != null && Me.Combat && CanUseEquippedItem(waist))
+            if (waist != null && Me.CurrentTarget != null && Me.Combat && CanUseEquippedItem(waist))
                 waist.Use();
             var tpos = StyxWoW.Me.CurrentTarget.Location;
             SpellManager.ClickRemoteLocation(tpos);

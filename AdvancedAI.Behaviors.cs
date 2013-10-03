@@ -341,9 +341,9 @@ namespace AdvancedAI
                         break;
                     case WoWSpec.MonkBrewmaster:
                         if (_combat == null) { _combat = BrewmasterMonk.BrewmasterCombat(); }
-                        if (_pull == null) { _pull = BrewmasterMonk.BrewmasterCombat(); }
-                        if (_heal == null) { _heal = BrewmasterMonk.BrewmasterCombat(); }
-                        if (_preCombatBuffs == null) { _preCombatBuffs = BrewmasterMonk.BrewmasterCombat(); }
+                        if (_pull == null) { _pull = null; }
+                        if (_heal == null) { _heal = null; }
+                        if (_preCombatBuffs == null) { _preCombatBuffs = BrewmasterMonk.BrewmasterPreCombatBuffs(); }
                         break;
                     case WoWSpec.MonkMistweaver:
                         if (_combat == null) { _combat = null; }

@@ -197,7 +197,7 @@ namespace AdvancedAI.Helpers
         /// <summary>
         /// minimum TimeSpan to wait between PartyBuff casts
         /// </summary>
-        public static TimeSpan spanBuffFrequency = new TimeSpan(0,0,20);
+        public static TimeSpan spanBuffFrequency = new TimeSpan(0,0,5);
 
         private static int _secsBeforeBattle = 0;
 

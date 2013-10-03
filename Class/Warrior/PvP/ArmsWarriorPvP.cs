@@ -45,7 +45,7 @@ namespace AdvancedAI.Class.Warrior.PvP
         public static Composite ArmsPvPCombat()
         {
             return new PrioritySelector(
-                new Decorator(ret => Me.CurrentTarget != null && Me.IsCasting,
+                new Decorator(ret => !Me.Combat && Me.IsCasting,
                     new ActionAlwaysSucceed()),
                 CreateChargeBehavior(),
                 Spell.Cast("Rallying Cry", ret => Me.HealthPercent <= 30),

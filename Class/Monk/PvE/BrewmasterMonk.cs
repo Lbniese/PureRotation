@@ -31,7 +31,6 @@ namespace AdvancedAI.Class.Monk.PvE
                 /*Things to fix
                  * using glyph of expel harm to heal ppl dont want to have to page heal manger if i dont have to to keep it faster i guess
                 */
-                BrewmasterPreCombatBuffs(),
                 new Decorator(ret => !Me.Combat,
                     new ActionAlwaysSucceed()),
                 Spell.Cast("Spear Hand Strike", ret => StyxWoW.Me.CurrentTarget.IsCasting && StyxWoW.Me.CurrentTarget.CanInterruptCurrentSpellCast),
@@ -101,10 +100,13 @@ namespace AdvancedAI.Class.Monk.PvE
                 Spell.Cast("Chi Wave"),
                 //Spell.Cast("Chi Wave", on => Me, ret => Me.HealthPercent <= 85),
                 Spell.Cast("Zen Sphere", on => Tanking),
-                //Spell.Cast("Expel Harm", on => EHtar),
-                Spell.Cast("Expel Harm", ret => Me.HealthPercent <= 60),
+                
+                Spell.Cast("Expel Harm", on => EHtar, ret => Me.HealthPercent > 70 && TalentManager.HasGlyph("Targeted Expulsion")),
+                Spell.Cast("Expel Harm", ret => Me.HealthPercent <= 70 && TalentManager.HasGlyph("Targeted Expulsion") || Me.HealthPercent < 85 && !TalentManager.HasGlyph("Targeted Expulsion")),
 
                 //Healing Spheres need to work on not happy with this atm
+                HealingSphere(),
+                HealingSphereTank(),
                 //Spell.CastOnGround("Healing Sphere", on => Me.Location, ret => Me.HealthPercent <= 50 && Me.CurrentEnergy >= 60),
 
                 new Decorator(ret => AdvancedAI.Aoe && Spell.GetSpellCooldown("Keg Smash").TotalSeconds >= 2,
@@ -129,7 +131,6 @@ namespace AdvancedAI.Class.Monk.PvE
             return new PrioritySelector(
                 //new Decorator(ret => AdvancedAI.PvPRot,
                 //    ProtectionPaladinPvP.CreatePPPvPBuffs)
-                //Spell.Cast("Legacy of the Emperor", ret => !Me.HasPartyBuff(PartyBuffType.Stats))
                 PartyBuff.BuffGroup("Legacy of the Emperor")
                     );
         }
@@ -139,7 +140,7 @@ namespace AdvancedAI.Class.Monk.PvE
         {
             get
             {
-                var _tank = Group.Tanks.FirstOrDefault(u => StyxWoW.Me.CurrentTarget.ThreatInfo.TargetGuid == u.Guid && u.HealthPercent < 90 && u.Distance < 40);
+                var _tank = Group.Tanks.FirstOrDefault(u => StyxWoW.Me.CurrentTarget.ThreatInfo.TargetGuid == u.Guid && u.Distance < 40);
                 return _tank;
             }
         }
@@ -200,9 +201,37 @@ namespace AdvancedAI.Class.Monk.PvE
                     var tpos = Me.CurrentTarget.Location;
                     var mpos = Me.Location;
 
-
                     SpellManager.Cast("Summon Black Ox Statue");
                     SpellManager.ClickRemoteLocation(mpos);
+                }));
+        }
+        #endregion
+
+        #region Healing Sphere
+        private static Composite HealingSphere()
+        {
+            return new Decorator(ret => Me.HealthPercent <= 50 && Me.CurrentEnergy >= 60,
+                new Action(ret =>
+                {
+                    var mpos = Me.Location;
+                    
+                    SpellManager.Cast("Healing Sphere");
+                    SpellManager.ClickRemoteLocation(mpos);
+                }));
+        }
+        #endregion
+
+        #region Healing Sphere Other tank
+        private static Composite HealingSphereTank()
+        {
+            return new Decorator(ret => !IsCurrentTank() && Tanking.HealthPercent <= 50 && AdvancedAI.UsefulStuff,
+                new Action(ret =>
+                {
+                    var mpos = Me.Location;
+                    var otpos = Tanking.Location;
+
+                    SpellManager.Cast("Healing Sphere");
+                    SpellManager.ClickRemoteLocation(otpos);
                 }));
         }
         #endregion
@@ -224,6 +253,21 @@ namespace AdvancedAI.Class.Monk.PvE
                                     where Dispelling.CanDispel(unit)
                                     select unit).OrderByDescending(u => u.HealthPercent).LastOrDefault();
                 return dispelothers;
+            }
+        }
+        #endregion
+
+        #region Expel Harm
+        public static WoWUnit EHtar
+        {
+            get
+            {
+                var EHheal = (from unit in ObjectManager.GetObjectsOfTypeFast<WoWPlayer>()
+                                    where unit.IsAlive
+                                    where unit.Distance < 40
+                                    where unit.HealthPercent < 80
+                                    select unit).OrderByDescending(u => u.HealthPercent).LastOrDefault();
+                return EHheal;
             }
         }
 
