@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using AdvancedAI.Helpers;
 using AdvancedAI.Managers;
 using CommonBehaviors.Actions;
@@ -12,7 +11,7 @@ using Action = Styx.TreeSharp.Action;
 
 namespace AdvancedAI.Class.Monk.PvE
 {
-    class BrewmasterMonk
+    static class BrewmasterMonk
     {
         static LocalPlayer Me { get { return StyxWoW.Me; } }
         private static double? _time_to_max;
@@ -24,8 +23,6 @@ namespace AdvancedAI.Class.Monk.PvE
         public static Composite BrewmasterCombat()
         {
             return new PrioritySelector(
-                //new Decorator(ret => AdvancedAI.PvPRot,
-                //    BrewmasterMonkPvP.CreateBMPvPCombat),
                 new Throttle(1,
                     new Action(context => ResetVariables())),
                 /*Things to fix
@@ -36,30 +33,26 @@ namespace AdvancedAI.Class.Monk.PvE
                 Spell.Cast("Spear Hand Strike", ret => StyxWoW.Me.CurrentTarget.IsCasting && StyxWoW.Me.CurrentTarget.CanInterruptCurrentSpellCast),
                 Spell.WaitForCastOrChannel(),
                 Item.UsePotionAndHealthstone(40),
-                //new Decorator(ret => Me.CurrentTarget.IsBoss(),
-                        //new PrioritySelector(
-                        ////new Action(ret => { Item.UseTrinkets(); return RunStatus.Failure; }),
-                        new Action(ret => { Item.UseWaist(); return RunStatus.Failure; }),
-                        new Action(ret => { Item.UseHands(); return RunStatus.Failure; }),
+                new Action(ret => { Item.UseWaist(); return RunStatus.Failure; }),
+                new Action(ret => { Item.UseHands(); return RunStatus.Failure; }),
+
                 // Execute if we can
                 Spell.Cast("Touch of Death", ret => Me.CurrentChi >= 3 && Me.CachedHasAura("Death Note")),
-                
                 //stance stuff need to work on it more
                 Spell.Cast("Stance of the Sturdy Ox", ret => IsCurrentTank() && !Me.HasAura("Stance of the Sturdy Ox")),
+
                 new Decorator(ret => Me.HasAura("Stance of the Fierce Tiger"),
                     new PrioritySelector(
-                    Spell.Cast("Tiger Palm", ret => !Me.CachedHasAura("Tiger Power")),
-                    Spell.Cast("Chi Wave"),
-                    Spell.Cast("Blackout Kick"),
-                    Spell.Cast("Rushing Jade Wind", ret => Unit.UnfriendlyUnits(8).Count() >= 3),
-                    Spell.Cast("Spinning Crane Kick", ret => Unit.UnfriendlyUnits(8).Count() >= 3),
-                    Spell.Cast("Expel Harm", ret => Me.HealthPercent <= 35),
-                    Spell.Cast("Jab", ret => Me.CurrentChi <= 4),
-                    Spell.Cast("Tiger Palm"),
-                    new ActionAlwaysSucceed()
-                    )),
-                new Decorator(ret => Me.HasAura("Stance of the Sturdy Ox"),//115069
-                    new PrioritySelector(                  
+                        Spell.Cast("Tiger Palm", ret => !Me.CachedHasAura("Tiger Power")),
+                        Spell.Cast("Chi Wave"),
+                        Spell.Cast("Blackout Kick"),
+                        Spell.Cast("Rushing Jade Wind", ret => Unit.UnfriendlyUnits(8).Count() >= 3),
+                        Spell.Cast("Spinning Crane Kick", ret => Unit.UnfriendlyUnits(8).Count() >= 3),
+                        Spell.Cast("Expel Harm", ret => Me.HealthPercent <= 35),
+                        Spell.Cast("Jab", ret => Me.CurrentChi <= 4),
+                        Spell.Cast("Tiger Palm"),
+                        new ActionAlwaysSucceed())),
+                
                 //// apply the Weakened Blows debuff. Keg Smash also generates allot of threat 
                 Spell.Cast(KegSmash, ret => Me.CurrentChi <= 3 && Clusters.GetCluster(Me, Unit.NearbyUnfriendlyUnits, ClusterType.Radius, 8).Any(u => !u.CachedHasAura("Weakened Blows"))),
 
@@ -111,8 +104,8 @@ namespace AdvancedAI.Class.Monk.PvE
 
                 new Decorator(ret => AdvancedAI.Aoe && Spell.GetSpellCooldown("Keg Smash").TotalSeconds >= 2,
                     new PrioritySelector(
-                Spell.Cast("Rushing Jade Wind", ret => Unit.UnfriendlyUnits(8).Count() >= 3),
-                Spell.Cast("Spinning Crane Kick", ret => Unit.UnfriendlyUnits(8).Count() >= 5))),
+                        Spell.Cast("Rushing Jade Wind", ret => Unit.UnfriendlyUnits(8).Count() >= 3),
+                        Spell.Cast("Spinning Crane Kick", ret => Unit.UnfriendlyUnits(8).Count() >= 5))),
 
                 Spell.Cast("Jab", ret => ((Me.CurrentEnergy - 40) + (Spell.GetSpellCooldown("Keg Smash").TotalSeconds * EnergyRegen)) > 40),
 
@@ -122,21 +115,18 @@ namespace AdvancedAI.Class.Monk.PvE
                 //dont like using this in auto to many probs with it
                 //Spell.Cast("Invoke Xuen, the White Tiger", ret => Me.CurrentTarget.IsBoss && IsCurrentTank()),
                 Spell.Cast("Tiger Palm", ret => Spell.GetSpellCooldown("Keg Smash").TotalSeconds >= 1 && Me.CurrentChi < 3 && Me.CurrentEnergy < 80),
-
-                    new ActionAlwaysSucceed())));
+                new ActionAlwaysSucceed());
         }
 
         public static Composite BrewmasterPreCombatBuffs()
         {
             return new PrioritySelector(
-                //new Decorator(ret => AdvancedAI.PvPRot,
-                //    ProtectionPaladinPvP.CreatePPPvPBuffs)
-                PartyBuff.BuffGroup("Legacy of the Emperor")
-                    );
+                PartyBuff.BuffGroup("Legacy of the Emperor"));
         }
 
         #region Zen Heals
-        public static WoWUnit Tanking
+
+        private static WoWUnit Tanking
         {
             get
             {
@@ -147,7 +137,8 @@ namespace AdvancedAI.Class.Monk.PvE
         #endregion
 
         #region Energy Crap
-        protected static double EnergyRegen
+
+        private static double EnergyRegen
         {
             get
             {
@@ -159,7 +150,8 @@ namespace AdvancedAI.Class.Monk.PvE
                 return _EnergyRegen.Value;
             }
         }
-        protected static double energy
+
+        private static double energy
         {
             get
             {
@@ -178,7 +170,8 @@ namespace AdvancedAI.Class.Monk.PvE
             _EnergyRegen = null;
             return RunStatus.Failure;
         }
-        protected static double time_to_max
+
+        private static double time_to_max
         {
             get
             {
@@ -244,7 +237,8 @@ namespace AdvancedAI.Class.Monk.PvE
         #endregion
 
         #region Dispelling
-        public static WoWUnit Dispeltar
+
+        private static WoWUnit Dispeltar
         {
             get
             {
@@ -258,7 +252,8 @@ namespace AdvancedAI.Class.Monk.PvE
         #endregion
 
         #region Expel Harm
-        public static WoWUnit EHtar
+
+        private static WoWUnit EHtar
         {
             get
             {
@@ -271,7 +266,7 @@ namespace AdvancedAI.Class.Monk.PvE
             }
         }
 
-        public static Composite CreateDispelBehavior()
+        private static Composite CreateDispelBehavior()
         {
             return new PrioritySelector(
                 Spell.Cast("Detox", on => Me, ret => Dispelling.CanDispel(Me)),
