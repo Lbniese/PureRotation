@@ -36,7 +36,8 @@ namespace AdvancedAI.Class.Deathknight.PvE
                     CreateAFK()),
 
                 new Action(ret => { Item.UseHands(); return RunStatus.Failure; }),
-                new Action(ret => { Item.UseWaist(); return RunStatus.Failure; }),
+                //new Action(ret => { Item.UseWaist(); return RunStatus.Failure; }), 
+                
                 new Decorator(ret => Unit.UnfriendlyUnits(12).Count() >= 2 && !Me.HasAura("Unholy Blight") && AdvancedAI.Aoe && ShouldSpreadDiseases,
                     new Throttle(1, 2,
                             new PrioritySelector(

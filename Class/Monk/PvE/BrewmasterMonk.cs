@@ -43,16 +43,18 @@ namespace AdvancedAI.Class.Monk.PvE
 
                 new Decorator(ret => Me.HasAura("Stance of the Fierce Tiger"),
                     new PrioritySelector(
-                        Spell.Cast("Tiger Palm", ret => !Me.CachedHasAura("Tiger Power")),
-                        Spell.Cast("Chi Wave"),
-                        Spell.Cast("Blackout Kick"),
-                        Spell.Cast("Rushing Jade Wind", ret => Unit.UnfriendlyUnits(8).Count() >= 3),
-                        Spell.Cast("Spinning Crane Kick", ret => Unit.UnfriendlyUnits(8).Count() >= 3),
-                        Spell.Cast("Expel Harm", ret => Me.HealthPercent <= 35),
-                        Spell.Cast("Jab", ret => Me.CurrentChi <= 4),
-                        Spell.Cast("Tiger Palm"),
-                        new ActionAlwaysSucceed())),
-                
+                    HealingSphereTank(),
+                    Spell.Cast("Tiger Palm", ret => !Me.CachedHasAura("Tiger Power")),
+                    Spell.Cast("Chi Wave"),
+                    Spell.Cast("Blackout Kick"),
+                    Spell.Cast("Rushing Jade Wind", ret => Unit.UnfriendlyUnits(8).Count() >= 3),
+                    Spell.Cast("Spinning Crane Kick", ret => Unit.UnfriendlyUnits(8).Count() >= 3),
+                    Spell.Cast("Expel Harm", ret => Me.HealthPercent <= 35),
+                    Spell.Cast("Jab", ret => Me.CurrentChi <= 4),
+                    Spell.Cast("Tiger Palm"),
+                    new ActionAlwaysSucceed()
+                    )),
+
                 //// apply the Weakened Blows debuff. Keg Smash also generates allot of threat 
                 Spell.Cast(KegSmash, ret => Me.CurrentChi <= 3 && Clusters.GetCluster(Me, Unit.NearbyUnfriendlyUnits, ClusterType.Radius, 8).Any(u => !u.CachedHasAura("Weakened Blows"))),
 
@@ -220,7 +222,6 @@ namespace AdvancedAI.Class.Monk.PvE
             return new Decorator(ret => !IsCurrentTank() && Tanking.HealthPercent <= 50 && AdvancedAI.UsefulStuff,
                 new Action(ret =>
                 {
-                    var mpos = Me.Location;
                     var otpos = Tanking.Location;
 
                     SpellManager.Cast("Healing Sphere");
