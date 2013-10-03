@@ -10,7 +10,7 @@ using System.Linq;
 
 namespace AdvancedAI.Class.Deathknight.PvE
 {
-    class BloodDeathknight
+    static class BloodDeathknight
     {
         static LocalPlayer Me { get { return StyxWoW.Me; } }
         private static int BloodRuneSlotsActive { get { return Me.BloodRuneCount; } }
@@ -22,7 +22,7 @@ namespace AdvancedAI.Class.Deathknight.PvE
         //private static int UnholyRuneSlotsActive { get { return Me.GetRuneCount(4) + Me.GetRuneCount(5); } }
 
 
-        public static Composite BloodDKCombat()
+        public static Composite BloodCombat()
         {
             return new PrioritySelector(
                 Common.CreateInterruptBehavior(),
@@ -30,7 +30,7 @@ namespace AdvancedAI.Class.Deathknight.PvE
                     new ActionAlwaysSucceed()),
                 //Spell.WaitForCastOrChannel(),
                 CreateApplyDiseases(),
-                BloodDKCombatBuffs(),
+                BloodCombatBuffs(),
 
                 new Decorator(ret => AdvancedAI.LFRMode,
                     CreateAFK()),
@@ -42,10 +42,7 @@ namespace AdvancedAI.Class.Deathknight.PvE
                             new PrioritySelector(
                                 Spell.Cast("Blood Boil", ret => SpellManager.HasSpell("Roiling Blood")),
                                 Spell.Cast("Pestilence", ret => !SpellManager.HasSpell("Roiling Blood"))))),
-                
-                //using line for talent testing
-                //Spell.Cast("Dark Command", ret => SpellManager.HasSpell("Roiling Blood")),
-                
+               
                 Spell.Cast("Death Strike", ret => Me.HealthPercent < 40 || 
                                                     (Me.UnholyRuneCount + Me.FrostRuneCount + Me.DeathRuneCount >= 4) || 
                                                     (Me.HealthPercent < 90 && (Me.GetAuraTimeLeft("Blood Shield").TotalSeconds < 2)) ||
@@ -53,7 +50,7 @@ namespace AdvancedAI.Class.Deathknight.PvE
                                                     Me.HasAura("Blood Charge", 10)),
                 DnD(),
                 Spell.Cast("Blood Boil", ret => Me.HasAura(81141) && AdvancedAI.Aoe && !SpellManager.CanCast("Death and Decay")),
-                Spell.Cast("Rune Tap", ret => Me.HealthPercent <= 80 && Me.BloodRuneCount >= 1),
+                Spell.Cast("Rune Tap", ret => Me.HealthPercent <= 80 && Me.BloodRuneCount >= 1, true),
 
                 new Decorator(ret => Me.CurrentRunicPower >= 30 && !Me.HasAura("Lichborne"),
                     Spell.Cast("Rune Strike", ret => (Me.CurrentRunicPower >= 60 || Me.HealthPercent > 90) && 
@@ -62,28 +59,26 @@ namespace AdvancedAI.Class.Deathknight.PvE
                 Spell.Cast("Soul Reaper", ret => Me.BloodRuneCount > 0 && Me.CurrentTarget != null && Me.CurrentTarget.HealthPercent <= 35),
                 Spell.Cast("Blood Boil", ret => AdvancedAI.Aoe && !SpellManager.CanCast("Death and Decay") && Unit.UnfriendlyUnits(10).Count() >= 3 && Me.BloodRuneCount > 0),
                 Spell.Cast("Heart Strike", ret => Me.BloodRuneCount > 0),
-                //Spell.CastOnGround("Death and Decay", ret => Me.CurrentTarget.Location /*ret => AdvancedAI.Aoe && Unit.UnfriendlyUnitsNearTarget(12f).Count() >= 1*/),
                 Spell.Cast("Horn of Winter", ret => Me.CurrentRunicPower < 90));
         }
 
-        public static Composite BloodDKPreCombatBuffs()
+        public static Composite BloodPreCombatBuffs()
         {
             return new PrioritySelector(
                 Spell.Cast("Bone Shield", ret => !Me.HasAura("Bone Shield")),
-                Spell.Cast("Horn of Winter", ret => !Me.HasPartyBuff(PartyBuffType.AttackPower)
-            ));
+                Spell.Cast("Horn of Winter", ret => !Me.HasPartyBuff(PartyBuffType.AttackPower)));
         }
 
-        public static Composite BloodDKCombatBuffs()
+        private static Composite BloodCombatBuffs()
         {
             return new PrioritySelector(
-                Spell.Cast("Dancing Rune Weapon", ret => IsCurrentTank()),
+                Spell.Cast("Dancing Rune Weapon", ret => IsCurrentTank(), true),
                 Spell.Cast("Blood Tap", ret => Me.HasAura("Blood Charge", 5) && Me.HealthPercent < 90 && !SpellManager.CanCast("Death Strike")),
-                Spell.Cast("Bone Shield", ret => !Me.HasAura("Bone Shield")),
+                Spell.Cast("Bone Shield", ret => !Me.HasAura("Bone Shield"), true),
                 Spell.Cast("Conversion", ret => Me.HealthPercent < 60 && Me.RunicPowerPercent > 20 && !Me.CachedHasAura("Conversion")),
                  Spell.Cast("Conversion", ret => Me.HealthPercent > 90 && Me.CachedHasAura("Conversion")),
                 Spell.Cast("Vampiric Blood", ret => Me.HealthPercent < 60
-                        && (!Me.HasAnyAura("Bone Shield", "Vampiric Blood", "Dancing Rune Weapon", "Lichborne", "Icebound Fortitude"))),
+                        && (!Me.HasAnyAura("Bone Shield", "Vampiric Blood", "Dancing Rune Weapon", "Lichborne", "Icebound Fortitude")), true),
                 Spell.Cast("Icebound Fortitude", ret => Me.HealthPercent < 30
                         && (!Me.HasAnyAura("Bone Shield", "Vampiric Blood", "Dancing Rune Weapon", "Lichborne", "Icebound Fortitude"))),
                 Spell.Cast("Might of Ursoc", ret => Me.HealthPercent < 60),
@@ -102,9 +97,7 @@ namespace AdvancedAI.Class.Deathknight.PvE
                 Spell.Cast("Anti-Magic Shell", ret => Me.CurrentTarget.IsCasting),
                 Spell.Cast("Asphyxiate", ret => Unit.UnfriendlyUnits(8).Count() < 3),
                 Spell.Cast("Remorseless Winter", ret => Unit.UnfriendlyUnits(8).Count() >= 3),
-                Spell.Cast("Desecrated Ground", ret => Me.IsCrowdControlled())
-
-            );
+                Spell.Cast("Desecrated Ground", ret => Me.IsCrowdControlled()));
     }
 
         private static Composite CreateApplyDiseases()
@@ -123,7 +116,7 @@ namespace AdvancedAI.Class.Deathknight.PvE
         {
             get
             {
-                int radius = TalentManager.HasGlyph("Pestilence") ? 15 : 10;
+                var radius = TalentManager.HasGlyph("Pestilence") ? 15 : 10;
 
                 return Me.CurrentTarget.CachedHasAura("Blood Plague")
                     && Me.CurrentTarget.CachedHasAura("Frost Fever")
@@ -139,8 +132,8 @@ namespace AdvancedAI.Class.Deathknight.PvE
                 if (!Me.GotTarget)
                     return false;
 
-                int frostFever = (int)Me.CurrentTarget.GetAuraTimeLeft("Frost Fever").TotalMilliseconds;
-                int bloodPlague = (int)Me.CurrentTarget.GetAuraTimeLeft("Blood Plague").TotalMilliseconds;
+                var frostFever = (int)Me.CurrentTarget.GetAuraTimeLeft("Frost Fever").TotalMilliseconds;
+                var bloodPlague = (int)Me.CurrentTarget.GetAuraTimeLeft("Blood Plague").TotalMilliseconds;
                 return (frostFever.Between(350, 3000) || bloodPlague.Between(350, 3000))
                     && (BloodRuneSlotsActive == 0 || FrostRuneSlotsActive == 0 || UnholyRuneSlotsActive == 0);
             }

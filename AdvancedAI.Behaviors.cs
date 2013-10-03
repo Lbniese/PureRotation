@@ -262,10 +262,10 @@ namespace AdvancedAI
                 switch (StyxWoW.Me.Specialization)
                 {
                     case WoWSpec.DeathKnightBlood:
-                        if (_combat == null) { _combat = BloodDeathknight.BloodDKCombat(); }
-                        if (_pull == null) { _pull = BloodDeathknight.BloodDKCombat(); }
-                        if (_heal == null) { _heal = BloodDeathknight.BloodDKCombat(); }
-                        if (_preCombatBuffs == null) { _preCombatBuffs = BloodDeathknight.BloodDKPreCombatBuffs(); }
+                        if (_combat == null) { _combat = BloodDeathknight.BloodCombat(); }
+                        if (_pull == null) { _pull = BloodDeathknight.BloodCombat(); }
+                        if (_heal == null) { _heal = BloodDeathknight.BloodCombat(); }
+                        if (_preCombatBuffs == null) { _preCombatBuffs = BloodDeathknight.BloodPreCombatBuffs(); }
                         break;
                     case WoWSpec.DeathKnightFrost:
                         if (_combat == null) { _combat = FrostDeathknight.FrostDKCombat(); }
