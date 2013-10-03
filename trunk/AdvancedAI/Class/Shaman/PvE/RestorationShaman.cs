@@ -27,7 +27,7 @@ namespace AdvancedAI.Class.Shaman.PvE
                 Spell.WaitForCastOrChannel(),
                 //new Decorator(ret => AdvancedAI.PvPRot,
                 //    RestorationShamanPvP.CreateRSPvPCombat),
-                new Decorator(ret => (Me.Combat || healtarget.Combat || healtarget.GetPredictedHealthPercent() <= 99) && !Me.Mounted,
+                new Decorator(ret => (Me.Combat || healtarget.Combat /*|| healtarget.GetPredictedHealthPercent() <= 99*/) && !Me.Mounted,
                     new PrioritySelector(
                         //Totems.CreateTotemsBehavior(),
                         RollRiptide(),
@@ -56,6 +56,10 @@ namespace AdvancedAI.Class.Shaman.PvE
                             ret => !Totems.Exist(WoWTotemType.Water) && Me.ManaPercent < 80),
                         HealingRain(),
                         ChainHeal(),
+                        Spell.Cast("Elemental Blast",
+                            on => BoltTar()),
+                            //ret => SpellManager.HasSpell("Elemental Blast"),
+                            //cancel => healtarget.HealthPercent < 40),
                         Spell.Cast("Greater Healing Wave", 
                             on => healtarget,
                             //ret => AvegreaterhealingWave() < Deficit(),//55

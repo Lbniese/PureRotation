@@ -1,7 +1,10 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using AdvancedAI.Helpers;
+using AdvancedAI.Managers;
 using CommonBehaviors.Actions;
 using Styx;
+using Styx.CommonBot;
 using Styx.TreeSharp;
 using Styx.WoWInternals;
 using Styx.WoWInternals.WoWObjects;
@@ -26,23 +29,23 @@ namespace AdvancedAI.Class.Monk.PvE
                 new Throttle(1,
                     new Action(context => ResetVariables())),
                 /*Things to fix
-                 * energy capping 
-                 * need to check healing spheres 
-                 * IsCurrentTank() code does not work (this would be nice to have working)
+                 * using glyph of expel harm to heal ppl dont want to have to page heal manger if i dont have to to keep it faster i guess
                 */
+                BrewmasterPreCombatBuffs(),
+                new Decorator(ret => !Me.Combat,
+                    new ActionAlwaysSucceed()),
                 Spell.Cast("Spear Hand Strike", ret => StyxWoW.Me.CurrentTarget.IsCasting && StyxWoW.Me.CurrentTarget.CanInterruptCurrentSpellCast),
                 Spell.WaitForCastOrChannel(),
                 Item.UsePotionAndHealthstone(40),
                 //new Decorator(ret => Me.CurrentTarget.IsBoss(),
-                //    new PrioritySelector(
-                        //new Action(ret => { Item.UseTrinkets(); return RunStatus.Failure; }),
+                        //new PrioritySelector(
+                        ////new Action(ret => { Item.UseTrinkets(); return RunStatus.Failure; }),
                         new Action(ret => { Item.UseWaist(); return RunStatus.Failure; }),
                         new Action(ret => { Item.UseHands(); return RunStatus.Failure; }),
                 // Execute if we can
                 Spell.Cast("Touch of Death", ret => Me.CurrentChi >= 3 && Me.CachedHasAura("Death Note")),
                 
                 //stance stuff need to work on it more
-                // cant get it to see what stance im in
                 Spell.Cast("Stance of the Sturdy Ox", ret => IsCurrentTank() && !Me.HasAura("Stance of the Sturdy Ox")),
                 new Decorator(ret => Me.HasAura("Stance of the Fierce Tiger"),
                     new PrioritySelector(
@@ -61,7 +64,8 @@ namespace AdvancedAI.Class.Monk.PvE
                 //// apply the Weakened Blows debuff. Keg Smash also generates allot of threat 
                 Spell.Cast(KegSmash, ret => Me.CurrentChi <= 3 && Clusters.GetCluster(Me, Unit.NearbyUnfriendlyUnits, ClusterType.Radius, 8).Any(u => !u.CachedHasAura("Weakened Blows"))),
 
-                Spell.CastOnGround("Summon Black Ox Statue", on => Me.Location, ret => !Me.HasAura("Sanctuary of the Ox") && AdvancedAI.UsefulStuff),
+                OxStatue(),
+                //Spell.CastOnGround("Summon Black Ox Statue", on => Me.Location, ret => !Me.HasAura("Sanctuary of the Ox") && AdvancedAI.UsefulStuff),
 
                 //PB, EB, and Guard are off the GCD
                 //!!!!!!!Purifying Brew !!!!!!!
@@ -82,7 +86,7 @@ namespace AdvancedAI.Class.Monk.PvE
                 //Guard
                 Spell.Cast("Guard", ret => Me.CurrentChi >= 2 && Me.CachedHasAura("Power Guard")),
                 //Blackout Kick might have to add guard back but i think its better to open with BK and get shuffle to build AP for Guard
-                Spell.Cast("Blackout Kick", ret => Me.CurrentChi >= 2 && !Me.CachedHasAura("Shuffle")),
+                Spell.Cast("Blackout Kick", ret => Me.CurrentChi >= 2 && !Me.CachedHasAura("Shuffle") || Me.CachedHasAura("Shuffle") && Me.CachedGetAuraTimeLeft("Shuffle") < 6),
                 Spell.Cast("Tiger Palm", ret => Me.CurrentChi >= 2 && !Me.CachedHasAura("Power Guard") || !Me.CachedHasAura("Tiger Power")),
                 Spell.Cast("Expel Harm", ret => Me.HealthPercent <= 35),
                 Spell.Cast("Breath of Fire", ret => Me.CurrentChi >= 3 && Me.CachedHasAura("Shuffle") && Me.CachedGetAuraTimeLeft("Shuffle") > 6.5 && Me.CurrentTarget.CachedHasAura("Dizzying Haze")),
@@ -96,8 +100,9 @@ namespace AdvancedAI.Class.Monk.PvE
                 //need to do math here and make it use 2 if im going to use it
                 Spell.Cast("Chi Wave"),
                 //Spell.Cast("Chi Wave", on => Me, ret => Me.HealthPercent <= 85),
-                Spell.Cast("Zen Sphere", on => _tanking),
-                Spell.Cast("Expel Harm", ret => Me.HealthPercent <= 90),
+                Spell.Cast("Zen Sphere", on => Tanking),
+                //Spell.Cast("Expel Harm", on => EHtar),
+                Spell.Cast("Expel Harm", ret => Me.HealthPercent <= 60),
 
                 //Healing Spheres need to work on not happy with this atm
                 //Spell.CastOnGround("Healing Sphere", on => Me.Location, ret => Me.HealthPercent <= 50 && Me.CurrentEnergy >= 60),
@@ -119,8 +124,18 @@ namespace AdvancedAI.Class.Monk.PvE
                     new ActionAlwaysSucceed())));
         }
 
+        public static Composite BrewmasterPreCombatBuffs()
+        {
+            return new PrioritySelector(
+                //new Decorator(ret => AdvancedAI.PvPRot,
+                //    ProtectionPaladinPvP.CreatePPPvPBuffs)
+                //Spell.Cast("Legacy of the Emperor", ret => !Me.HasPartyBuff(PartyBuffType.Stats))
+                PartyBuff.BuffGroup("Legacy of the Emperor")
+                    );
+        }
+
         #region Zen Heals
-        public static WoWUnit _tanking
+        public static WoWUnit Tanking
         {
             get
             {
@@ -176,6 +191,22 @@ namespace AdvancedAI.Class.Monk.PvE
         }
         #endregion
 
+        #region OxStatue
+        private static Composite OxStatue()
+        {
+            return new Decorator(ret => !Me.HasAura("Sanctuary of the Ox") && Me.IsInGroup() && AdvancedAI.UsefulStuff,
+                new Action(ret =>
+                {
+                    var tpos = Me.CurrentTarget.Location;
+                    var mpos = Me.Location;
+
+
+                    SpellManager.Cast("Summon Black Ox Statue");
+                    SpellManager.ClickRemoteLocation(mpos);
+                }));
+        }
+        #endregion
+
         #region Is Tank
         static bool IsCurrentTank()
         {
@@ -184,7 +215,7 @@ namespace AdvancedAI.Class.Monk.PvE
         #endregion
 
         #region Dispelling
-        public static WoWUnit dispeltar
+        public static WoWUnit Dispeltar
         {
             get
             {
@@ -200,7 +231,7 @@ namespace AdvancedAI.Class.Monk.PvE
         {
             return new PrioritySelector(
                 Spell.Cast("Detox", on => Me, ret => Dispelling.CanDispel(Me)),
-                Spell.Cast("Detox", on => dispeltar, ret => Dispelling.CanDispel(dispeltar)));
+                Spell.Cast("Detox", on => Dispeltar, ret => Dispelling.CanDispel(Dispeltar)));
         }
         #endregion
     }

@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Windows.Forms;
 using AdvancedAI.Class.Warrior.PvP;
 using AdvancedAI.Helpers;
 using AdvancedAI.Managers;
@@ -6,6 +7,7 @@ using CommonBehaviors.Actions;
 using Styx;
 using Styx.CommonBot;
 using Styx.TreeSharp;
+using Styx.WoWInternals;
 using Styx.WoWInternals.WoWObjects;
 
 namespace AdvancedAI.Class.Warrior.PvE
@@ -32,6 +34,9 @@ namespace AdvancedAI.Class.Warrior.PvE
                 Spell.Cast("Victory Rush", ret => Me.HealthPercent <= 90 && Me.CachedHasAura("Victorious")),
                 Spell.Cast("Die by the Sword", ret => Me.HealthPercent <= 20),
                 Item.UsePotionAndHealthstone(50),
+                DemoBanner(),
+                HeroicLeap(),
+                //MockingBanner(),
                 new Decorator(ret => Unit.UnfriendlyUnits(8).Count() >= 4,
                             CreateAoe()),
                 new Decorator(ret => AdvancedAI.Burst && Me.CurrentTarget.HasMyAura("Colossus Smash"),
@@ -100,6 +105,45 @@ namespace AdvancedAI.Class.Warrior.PvE
                 Spell.Cast("Battle Shout"),
                 Spell.Cast("Heroic Throw"),
                 Spell.Cast("Impending Victory", ret => Me.HealthPercent < 50));
+        }
+
+        private static Composite HeroicLeap()
+        {
+            return
+                new Decorator(ret => SpellManager.CanCast("Heroic Leap") &&
+                    Lua.GetReturnVal<bool>("return IsLeftAltKeyDown() and not GetCurrentKeyBoardFocus()", 0),
+                    new Action(ret =>
+                    {
+                        SpellManager.Cast("Heroic Leap");
+                        Lua.DoString("if SpellIsTargeting() then CameraOrSelectOrMoveStart() CameraOrSelectOrMoveStop() end");
+                        return;
+                    }));
+        }
+
+        private static Composite DemoBanner()
+        {
+            return
+                new Decorator(ret => SpellManager.CanCast("Demoralizing Banner") &&
+                    KeyboardPolling.IsKeyDown(Keys.Z),
+                    new Action(ret =>
+                    {
+                        SpellManager.Cast("Demoralizing Banner");
+                        Lua.DoString("if SpellIsTargeting() then CameraOrSelectOrMoveStart() CameraOrSelectOrMoveStop() end");
+                        return;
+                    }));
+        }
+
+        private static Composite MockingBanner()
+        {
+            return
+                new Decorator(ret => SpellManager.CanCast("Mocking Banner") &&
+                    KeyboardPolling.IsKeyDown(Keys.C),
+                    new Action(ret =>
+                    {
+                        SpellManager.Cast("Mocking Banner");
+                        Lua.DoString("if SpellIsTargeting() then CameraOrSelectOrMoveStart() CameraOrSelectOrMoveStop() end");
+                        return;
+                    }));
         }
 
         #region WarriorTalents
