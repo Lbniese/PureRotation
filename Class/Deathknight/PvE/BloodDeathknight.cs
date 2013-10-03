@@ -125,9 +125,10 @@ namespace AdvancedAI.Class.Deathknight.PvE
             {
                 int radius = TalentManager.HasGlyph("Pestilence") ? 15 : 10;
 
-                return !Me.CurrentTarget.HasAuraExpired("Blood Plague")
-                    && !Me.CurrentTarget.HasAuraExpired("Frost Fever")
-                    && Unit.NearbyUnfriendlyUnits.Any(u => Me.SpellDistance(u) < radius && u.HasAuraExpired("Blood Plague") && u.HasAuraExpired("Frost Fever"));
+                return Me.CurrentTarget.CachedHasAura("Blood Plague")
+                    && Me.CurrentTarget.CachedHasAura("Frost Fever")
+                    && Unit.UnfriendlyUnits(radius).Any(u => !u.CachedHasAura("Blood Plague") && !u.CachedHasAura("Frost Fever"));
+                    //&& Unit.NearbyUnfriendlyUnits.Any(u => Me.SpellDistance(u) < radius && u.HasAuraExpired("Blood Plague") && u.HasAuraExpired("Frost Fever"));
             }
         }
 

@@ -103,14 +103,14 @@ namespace AdvancedAI.Helpers
         {
             WoWItem Gloves = StyxWoW.Me.Inventory.Equipped.Hands;
 
-            if (Gloves != null && CanUseEquippedItem(Gloves))
+            if (Gloves != null && Me.Combat && CanUseEquippedItem(Gloves))
                 Gloves.Use();
         }
 
         public static void UseWaist()
         {
-            var waist = StyxWoW.Me.Inventory.Equipped.Waist;
-            if (waist != null && CanUseEquippedItem(waist))
+            WoWItem waist = StyxWoW.Me.Inventory.Equipped.Waist;
+            if (waist != null &&  Me.CurrentTarget != null && Me.Combat && CanUseEquippedItem(waist))
                 waist.Use();
             var tpos = StyxWoW.Me.CurrentTarget.Location;
             SpellManager.ClickRemoteLocation(tpos);
