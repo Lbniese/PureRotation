@@ -9,7 +9,7 @@ using Styx.CommonBot;
 using Styx.TreeSharp;
 using Styx.WoWInternals;
 using Styx.WoWInternals.WoWObjects;
-using Action = System.Action;
+using Action = Styx.TreeSharp.Action;
 
 namespace AdvancedAI.Class.Monk.PvE
 {
@@ -28,6 +28,8 @@ namespace AdvancedAI.Class.Monk.PvE
                      * need to check healing spheres 
                      * chi capping? need to do more checking
                     */
+                    new Decorator(ret => !Me.Combat,
+                        new ActionAlwaysSucceed()),
                     Spell.Cast("Spear Hand Strike", ret => StyxWoW.Me.CurrentTarget.IsCasting && StyxWoW.Me.CurrentTarget.CanInterruptCurrentSpellCast),
 
                     Spell.WaitForCastOrChannel(),
@@ -35,7 +37,10 @@ namespace AdvancedAI.Class.Monk.PvE
                     //Detox
                     CreateDispelBehavior(),
                     //Healing Spheres need to work on
-                    Spell.CastOnGround("Healing Sphere", on => Me.Location, ret => Me.HealthPercent <= 50),
+                    //Spell.CastOnGround("Healing Sphere", on => Me.Location, ret => Me.HealthPercent <= 50),
+
+                    new Action(ret => { Item.UseWaist(); return RunStatus.Failure; }),
+                    new Action(ret => { Item.UseHands(); return RunStatus.Failure; }),
 
                     //Tigerseye
                     Spell.Cast("Tigereye Brew", ret => Me.CachedHasAura("Tigereye Brew", 19)),
@@ -83,6 +88,13 @@ namespace AdvancedAI.Class.Monk.PvE
 
 
                     new ActionAlwaysSucceed());
+        }
+
+        public static Composite WindwalkerPreCombatBuffs()
+        {
+            return new PrioritySelector(
+                PartyBuff.BuffGroup("Legacy of the Emperor"),
+                PartyBuff.BuffGroup("Legacy of the White Tiger"));
         }
 
         #region Dispelling

@@ -14,8 +14,8 @@ namespace AdvancedAI.Class.Monk.PvE
     static class BrewmasterMonk
     {
         static LocalPlayer Me { get { return StyxWoW.Me; } }
-        private static double? _time_to_max;
-        private static double? _EnergyRegen;
+        private static double? _timeToMax;
+        private static double? _energyRegen;
         private static double? _energy;
         private const int KegSmash = 121253;
         private const int ElusiveBrew = 115308;
@@ -132,8 +132,8 @@ namespace AdvancedAI.Class.Monk.PvE
         {
             get
             {
-                var _tank = Group.Tanks.FirstOrDefault(u => StyxWoW.Me.CurrentTarget.ThreatInfo.TargetGuid == u.Guid && u.Distance < 40);
-                return _tank;
+                var tank = Group.Tanks.FirstOrDefault(u => StyxWoW.Me.CurrentTarget.ThreatInfo.TargetGuid == u.Guid && u.Distance < 40);
+                return tank;
             }
         }
         #endregion
@@ -144,16 +144,16 @@ namespace AdvancedAI.Class.Monk.PvE
         {
             get
             {
-                if (!_EnergyRegen.HasValue)
+                if (!_energyRegen.HasValue)
                 {
-                    _EnergyRegen = Lua.GetReturnVal<float>("return GetPowerRegen()", 1);
-                    return _EnergyRegen.Value;
+                    _energyRegen = Lua.GetReturnVal<float>("return GetPowerRegen()", 1);
+                    return _energyRegen.Value;
                 }
-                return _EnergyRegen.Value;
+                return _energyRegen.Value;
             }
         }
 
-        private static double energy
+        private static double Energy
         {
             get
             {
@@ -167,22 +167,22 @@ namespace AdvancedAI.Class.Monk.PvE
         }
         private static RunStatus ResetVariables()
         {
-            _time_to_max = null;
+            _timeToMax = null;
             _energy = null;
-            _EnergyRegen = null;
+            _energyRegen = null;
             return RunStatus.Failure;
         }
 
-        private static double time_to_max
+        private static double TimeToMax
         {
             get
             {
-                if (!_time_to_max.HasValue)
+                if (!_timeToMax.HasValue)
                 {
-                    _time_to_max = (100 - energy) * (1.0 / EnergyRegen);
-                    return _time_to_max.Value;
+                    _timeToMax = (100 - Energy) * (1.0 / EnergyRegen);
+                    return _timeToMax.Value;
                 }
-                return _time_to_max.Value;
+                return _timeToMax.Value;
             }
         }
         #endregion
@@ -258,12 +258,12 @@ namespace AdvancedAI.Class.Monk.PvE
         {
             get
             {
-                var EHheal = (from unit in ObjectManager.GetObjectsOfTypeFast<WoWPlayer>()
+                var eHheal = (from unit in ObjectManager.GetObjectsOfTypeFast<WoWPlayer>()
                                     where unit.IsAlive
                                     where unit.Distance < 40
                                     where unit.HealthPercent < 80
                                     select unit).OrderByDescending(u => u.HealthPercent).LastOrDefault();
-                return EHheal;
+                return eHheal;
             }
         }
 
