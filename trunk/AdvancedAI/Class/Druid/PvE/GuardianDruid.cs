@@ -16,14 +16,13 @@ namespace AdvancedAI.Class.Druid.PvE
         {
             return new PrioritySelector(
                 // Don't do anything if we have no target, nothing in melee range, or we're casting. (Includes vortex!)
-                new Decorator(ret => !Me.GotTarget ||  Me.IsCasting,
+                new Decorator(ret => !Me.Combat || Me.IsCasting || !Me.GotTarget, 
                     new ActionAlwaysSucceed()),
 
                 //Spell.Cast("Bear Form", ret => Me.Shapeshift != ShapeshiftForm.Bear),
                 Spell.Cast("Skull Bash", ret => Me.CurrentTarget.IsCasting && Me.CurrentTarget.CanInterruptCurrentSpellCast),
 
-                new Decorator(ret => AdvancedAI.Burst,
-                    CreateCooldowns()),
+                CreateCooldowns(),
                 // So.. the guardian rotation boils down to... 4 abilities.
                 // 5 when counting Swipe in AOE rotations
 
@@ -35,12 +34,12 @@ namespace AdvancedAI.Class.Druid.PvE
                 Spell.Cast("Maul", ret => Me.RagePercent > 90 && Me.CachedHasAura("Tooth and Claw")),
                 // Mangle on CD
                 Spell.Cast("Mangle"),
-                // Thrash on CD to keep up the debuffs + mangle procs
-                Spell.Cast("Thrash", ret => Unit.UnfriendlyUnits(8).Count() >= 1),
-                // AOE comes in before lac/ff
-                CreateAoe(),
                 // Lac for threat + mangle procs
-                Spell.Cast("Lacerate"),
+                Spell.Cast("Lacerate", ret => Unit.UnfriendlyUnits(8).Count() < 2),
+                // Thrash on CD to keep up the debuffs + mangle procs
+                Spell.Cast("Thrash", ret => Unit.UnfriendlyUnits(8).Any()),
+                // AOE comes in before ff
+                CreateAoe(),
                 // Keep up the sunders + mangle procs (not great for threat, hence lowest priority)
                 Spell.Cast("Faerie Fire"),
 
@@ -74,10 +73,10 @@ namespace AdvancedAI.Class.Druid.PvE
                 Spell.Cast("Barkskin", ret => Me.HealthPercent <= 60),
 
                 // Could be tweaked to be lower, again. 50 seems reasonable. May add a toggle for this to deal with big spike damage manually.
-                Spell.Cast("Survival Instincts", ret => Me.HealthPercent <= 50 && !Me.CachedHasAura("Might of Ursoc")),
+                Spell.Cast("Survival Instincts", ret => Me.HealthPercent <= 50 && !Me.CachedHasAura("Might of Ursoc") && AdvancedAI.Burst),
 
                 // We need health FAST. Get some.
-                Spell.Cast("Might of Ursoc", ret => Me.HealthPercent <= 30 && !Me.CachedHasAura("Survival Instincts")),
+                Spell.Cast("Might of Ursoc", ret => Me.HealthPercent <= 30 && !Me.CachedHasAura("Survival Instincts") && AdvancedAI.Burst),
 
                 // Never higher than 70 here. It heals 30% of our health. Wasted heal if we use it above 70.
                 Spell.Cast("Renewal", ret => Me.HealthPercent <= 50 || Me.CachedHasAura("Might of Ursoc")),
@@ -87,13 +86,10 @@ namespace AdvancedAI.Class.Druid.PvE
 
                 // Only use FR when we have full rage. Its probably not worth blowing it when we don't need to.
                 // Also, don't overwrite it if we're glyphed for it!
-                Spell.Cast("Frenzied Regeneration",
-                    ret =>
-                    Me.HealthPercent <= 65 && Me.CurrentRage >= 60 &&
-                    !Me.CachedHasAura("Frenzied Regeneration")),
+                Spell.Cast("Frenzied Regeneration", ret => Me.HealthPercent <= 65 && Me.CurrentRage >= 60 && !Me.CachedHasAura("Frenzied Regeneration")),
 
                 // Don't overwrite SDs. But keep it up as much as possible.
-                Spell.Cast("Savage Defense", ret => !Me.CachedHasAura("Savage Defense"))
+                Spell.Cast("Savage Defense", ret => !Me.CachedHasAura("Savage Defense") && IsCurrentTank())
                 );
         }
 
@@ -105,6 +101,12 @@ namespace AdvancedAI.Class.Druid.PvE
                    // Spell.Cast("Berserk", ret => !Me.CachedHasAura("Incarnation: Son of Ursoc")),
                     Spell.Cast("Swipe")
                     ));
+        }
+
+        public static Composite GuardianPreCombatBuffs()
+        {
+            return new PrioritySelector(
+                PartyBuff.BuffGroup("Legacy of the Emperor"));
         }
 
         static bool IsCurrentTank()
