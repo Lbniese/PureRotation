@@ -74,7 +74,7 @@ namespace AdvancedAI.Class.Deathknight.PvE
         {
             return new PrioritySelector(
                 Spell.Cast("Dancing Rune Weapon", ret => IsCurrentTank(), true),
-                Spell.Cast("Blood Tap", ret => Me.HasAura("Blood Charge", 5) && Me.HealthPercent < 90 && !SpellManager.CanCast("Death Strike")),
+                Spell.Cast("Blood Tap", ret => Me.HasAura("Blood Charge", 5) && Me.HealthPercent < 90 && !SpellManager.CanCast("Death Strike") && (BloodRuneSlotsActive == 0 || FrostRuneSlotsActive == 0 || UnholyRuneSlotsActive == 0)),
                 Spell.Cast("Bone Shield", ret => !Me.HasAura("Bone Shield"), true),
                 Spell.Cast("Conversion", ret => Me.HealthPercent < 60 && Me.RunicPowerPercent > 20 && !Me.CachedHasAura("Conversion")),
                  Spell.Cast("Conversion", ret => Me.HealthPercent > 90 && Me.CachedHasAura("Conversion")),
