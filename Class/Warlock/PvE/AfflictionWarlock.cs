@@ -17,25 +17,14 @@ namespace AdvancedAI.Class.Warlock.PvE
     static class AfflictionWarlock
     {
         private static LocalPlayer Me { get { return StyxWoW.Me; } }
-
         private static int _mobCount;
         public static Composite AfflictionPull()
         {
             return new PrioritySelector(
                 
-                Spell.WaitForCast(FaceDuring.Yes),
-
                 new Decorator(
                     ret => !Spell.IsGlobalCooldown(),
                     new PrioritySelector(
-                        new Action(ret =>
-                        {
-                            _mobCount = TargetsInCombat.Count();
-                            return RunStatus.Failure;
-                        }),
-
-
-                        Common.CreateAutoAttack(true),
                         ApplyDots(on => Me.CurrentTarget, burn => true)
                         )
                     )
@@ -46,8 +35,6 @@ namespace AdvancedAI.Class.Warlock.PvE
         {
             return new PrioritySelector(
 
-                Common.CreateAutoAttack(true),
-
                 new Action(r => { if (Me.GotTarget) Me.CurrentTarget.TimeToDeath(); return RunStatus.Failure; }),
 
                 // cancel an early drain soul if done to proc 1 soulshard
@@ -56,8 +43,7 @@ namespace AdvancedAI.Class.Warlock.PvE
                     new PrioritySelector(
                         new Decorator(
                             ret => Me.ChanneledSpell.Name == "Drain Soul"
-                                && Me.CurrentSoulShards > 0
-                                && Me.CurrentTarget.HealthPercent > 20 && SpellManager.HasSpell("Malefic Grasp"),
+                                && Me.CurrentTarget.HealthPercent > 20 || Reupdots,
                             new Sequence(
                                 new Action(ret => Logging.WriteDiagnostic("/cancel Drain Soul on {0} now we have {1} shard", Me.CurrentTarget.SafeName(), Me.CurrentSoulShards)),
                                 new Action(ret => SpellManager.StopCasting()),
@@ -68,40 +54,42 @@ namespace AdvancedAI.Class.Warlock.PvE
                         // cancel malefic grasp if target health < 20% and cast drain soul (revisit and add check for minimum # of dots)
                         new Decorator(
                             ret => Me.ChanneledSpell.Name == "Malefic Grasp"
-                                && Me.CurrentTarget.HealthPercent <= 20,
+                                && Me.CurrentTarget.HealthPercent <= 20 || Reupdots,
                             new Sequence(
                                 new Action(ret => Logging.WriteDiagnostic("/cancel Malefic Grasp on {0} @ {1:F1}%", Me.CurrentTarget.SafeName(), Me.CurrentTarget.HealthPercent)),
                                 new Action(ret => SpellManager.StopCasting()),
-                                new WaitContinue(TimeSpan.FromMilliseconds(500), ret => Me.ChanneledSpell == null, new ActionAlwaysSucceed()),
-                                Spell.Cast("Drain Soul", ret => Me.CurrentTarget.HasAnyAura("Agony", "Corruption", "Haunt", "Unstable Affliction"))
+                                new WaitContinue(TimeSpan.FromMilliseconds(500), ret => Me.ChanneledSpell == null, new ActionAlwaysSucceed())
                                 )
                             )
                         )
                     ),
                 
                 AfflictionCombatBuffs(),
-                Spell.WaitForCastOrChannel(),
 
-                new Decorator(ret => !Spell.IsGlobalCooldown(),
-
+                new Decorator(
                     new PrioritySelector(
                         Common.CreateInterruptBehavior(),
 
-                        new Action(ret =>
-                        {
-                            _mobCount = TargetsInCombat.Count();
-                            return RunStatus.Failure;
-                        }),
+                        new Action(ret => { Item.UseHands(); return RunStatus.Failure; }),
+                        new Action(ret => { Item.UseTrinkets(); return RunStatus.Failure; }),
 
-                        Aoe(),
-                        // following Drain Soul only while Solo combat to maximize Soul Shard generation
-                        Spell.Cast("Drain Soul", ret => !Me.IsInGroup() && Me.CurrentTarget.HealthPercent < 5 && !Me.CurrentTarget.IsPlayer && !Me.CurrentTarget.Elite && Me.CurrentSoulShards < 1),
-                        ApplyDots(on => Me.CurrentTarget, ret => (Me.CurrentTarget.IsPlayer || Me.CurrentTarget.HealthPercent > 20 || Me.TimeToDeath() > 15)
-                                && !Me.CurrentTarget.HasAnyOfMyAuras("Agony", "Corruption", "Unstable Affliction", "Haunt")),
-                        Spell.Cast("Malefic Grasp", ret => Me.CurrentTarget.HealthPercent > 20),
-                        Spell.Cast("Shadow Bolt", ret => !SpellManager.HasSpell("Malefic Grasp")),
-                        Spell.Cast("Drain Soul"),
-                        Spell.Cast("Fel Flame", ret => Me.IsMoving)
+                        //Aoe(),
+                        ApplyDots(on => Me.CurrentTarget, ret => !Me.CurrentTarget.HasAnyOfMyAuras("Agony", "Corruption", "Unstable Affliction", "Haunt") || Reupdots),
+                        new Decorator(ret => Unit.UnfriendlyUnitsNearTarget(10).Count() >= 4 && AdvancedAI.Aoe,
+                            new PrioritySelector(
+                                CastSoulburn(req => !Me.CurrentTarget.HasMyAura("Seed of Corruption")),
+                                Spell.Cast("Seed of Corruption", ret => !Me.CurrentTarget.HasMyAura("Seed of Corruption")))),
+                        Spell.WaitForCastOrChannel(),
+                        new Throttle(1,
+                            new PrioritySelector(
+                                //new Decorator(ret=> Me.IsMoving,
+                                //    new PrioritySelector(
+                                //        ApplyDots(on => Me.CurrentTarget, ret => !Me.CurrentTarget.HasAnyOfMyAuras("Agony", "Corruption", "Unstable Affliction", "Haunt") || Reupdots),
+                                //        Spell.Cast("Malefic Grasp", ret => SpellManager.HasSpell(137587)),
+                                //        Spell.Cast("Fel Flame", ret => !SpellManager.HasSpell(137587)))),
+                                Spell.Cast("Malefic Grasp", ret => Me.CurrentTarget.HealthPercent > 20 && !Reupdots),
+                                Spell.Cast("Drain Soul", ret => Me.CurrentTarget.HealthPercent <= 20 && !Reupdots),
+                                Spell.Cast("Fel Flame", ret => !SpellManager.HasSpell(137587) && Me.IsMoving)))
                         )
                     )
                 );
@@ -114,11 +102,10 @@ namespace AdvancedAI.Class.Warlock.PvE
             return new PrioritySelector(
                 Spell.WaitForCastOrChannel(),
                 new Decorator(
-                    ret => !Spell.IsGlobalCooldown(),
+                    ret => !Spell.IsGlobalCooldown() && !Me.Mounted,
                     new PrioritySelector(
-                        SummonPet(),
+                        //SummonPet(),
                         new Throttle(5, Spell.Cast("Create Healthstone", mov => true, on => Me, ret => !HaveHealthStone && !Unit.NearbyUnfriendlyUnits.Any(u => u.Distance < 25), cancel => false)),
-                        Spell.BuffSelf("Soulstone", ret => NeedToSoulstoneMyself()),
                         PartyBuff.BuffGroup("Dark Intent"),
                         Spell.BuffSelf("Grimoire of Sacrifice", ret => GetCurrentPet() != WarlockPet.None && GetCurrentPet() != WarlockPet.Other),
                         Spell.BuffSelf("Unending Breath", req => Me.IsSwimming))));
@@ -133,8 +120,8 @@ namespace AdvancedAI.Class.Warlock.PvE
                 Spell.Cast("Rejuvenation", on => Me, ret => Me.HasAuraExpired("Rejuvenation", 1) && Me.HealthPercent < 95),
 
                 // won't live long with no Pet, so try to summon
-                new Decorator(ret => GetCurrentPet() == WarlockPet.None && GetBestPet() != WarlockPet.None,
-                    SummonPet()),
+                //new Decorator(ret => GetCurrentPet() == WarlockPet.None && GetBestPet() != WarlockPet.None,
+                //    SummonPet()),
 
                 new Decorator(req => !Me.CurrentTarget.IsTrivial(),
                     new PrioritySelector(
@@ -145,7 +132,7 @@ namespace AdvancedAI.Class.Warlock.PvE
                         new Decorator(
                             ret => StyxWoW.Me.HealthPercent < 60 || Me.CachedHasAura("Dark Regeneration"),
                             new PrioritySelector(
-                                ctx => Item.FindFirstUsableItemBySpell("Healthstone", "Healing Potion", "Life Spirit"),
+                                ctx => Item.FindFirstUsableItemBySpell("Healthstone", "Life Spirit"),
                                 new Decorator(
                                     ret => ret != null,
                                     new Sequence(
@@ -153,37 +140,6 @@ namespace AdvancedAI.Class.Warlock.PvE
                                         new Action(ret => ((WoWItem)ret).UseContainerItem()),
                                         Common.CreateWaitForLagDuration())))),
 
-                        // remove our banish if they are our CurrentTarget 
-                        new Throttle(2, Spell.Cast("Banish", ret =>
-                        {
-                            bool isBanished = Me.CurrentTarget.HasMyAura("Banish");
-                            if (isBanished)
-                                Logging.WriteDiagnostic("Banish: attempting to remove from current target");
-                            return isBanished;
-                        })),
-
-                        // banish someone if they are not current target, attacking us, and 12 yds or more away
-                        new PrioritySelector(
-                            ctx => Unit.NearbyUnfriendlyUnits
-                                .Where(
-                                    u => (u.CreatureType == WoWCreatureType.Elemental || u.CreatureType == WoWCreatureType.Demon)
-                                        && Me.CurrentTargetGuid != u.Guid
-                                        && !u.IsBoss()
-                                        && (u.Aggro || u.PetAggro || (u.Combat && u.IsTargetingMeOrPet))
-                                        && !u.IsCrowdControlled() && !u.HasAura("Banish")
-                                        && AdvancedAI.CurrentWoWContext != WoWContext.Battlegrounds
-                                        && (!u.Elite || AdvancedAI.CurrentWoWContext == WoWContext.Instances)
-                                        && u.Distance.Between(10, 30) && Me.IsSafelyFacing(u) && u.InLineOfSpellSight && (!Me.GotTarget || u.Location.Distance(Me.CurrentTarget.Location) > 10))
-                                .OrderByDescending(u => u.Distance)
-                                .FirstOrDefault(),
-                            Spell.Cast("Banish", onUnit => (WoWUnit)onUnit)),
-
-
-                        new Decorator(ret => Unit.UnfriendlyUnits(8).Any(u => u.IsTargetingMeOrPet),
-                            new PrioritySelector(
-                                Spell.Cast("Blood Horror", ret => Me.HealthPercent > 20),
-                                Spell.Cast("Whiplash"),
-                                VoidwalkerDisarm())),
 
                         new PrioritySelector(
                 // find an add within 8 yds (not our current target)
@@ -193,20 +149,12 @@ namespace AdvancedAI.Class.Warlock.PvE
 
                             // treat as a heal, but we cast on what would be our fear target -- allow even when fear use disabled
                             Spell.Cast("Mortal Coil", on => (WoWUnit)on, ret => !((WoWUnit)ret).IsUndead && Me.HealthPercent < 50),
-                            Spell.Cast("Mortal Coil", on => Me.CurrentTarget, ret => Me.GotTarget && !Me.CurrentTarget.IsUndead && Me.HealthPercent < 50 && Me.HealthPercent < Me.CurrentTarget.HealthPercent),
 
-                            // Howl of Terror if too m any mobs attacking us that arent' controlled
-                            Spell.Cast("Howl of Terror", on => Me.CurrentTarget,
-                                ret => 5 <= Unit.UnfriendlyUnits(10).Count(u => (Battlegrounds.IsInsideBattleground || u.CurrentTargetGuid == Me.Guid) && !u.IsStunned() && u.SpellDistance() < 10f)),
-
-                            // fear if situation dictates it
-                            Spell.Cast("Fear", on => FearTarget())),
-
-                        new Decorator(ret => (Me.GotTarget && (Me.CurrentTarget.IsPlayer || Me.CurrentTarget.IsBoss() || Me.CurrentTarget.TimeToDeath() > 20)) || Unit.NearbyUnfriendlyUnits.Count(u => u.IsTargetingMeOrPet) >= 3,
+                        new Decorator(ret => (Me.GotTarget && AdvancedAI.Burst && (!Me.HasAura(113860) && SpellManager.CanCast(113860)) && (Me.CurrentTarget.IsPlayer || Me.CurrentTarget.IsBoss() || Me.CurrentTarget.TimeToDeath() > 20)) || Unit.NearbyUnfriendlyUnits.Count(u => u.IsTargetingMeOrPet) >= 3,
                             new PrioritySelector(
                                 Spell.Cast("Dark Soul: Misery"))),
 
-                        Spell.Cast("Summon Doomguard", ret => Me.CurrentTarget.IsBoss() && PartyBuff.WeHaveBloodlust),
+                        Spell.Cast("Summon Doomguard", ret => AdvancedAI.Burst && Me.CurrentTarget.IsBoss() && (PartyBuff.WeHaveBloodlust || Me.CurrentTarget.HealthPercent <= 20)),
 
                         // lower threat if tanks nearby to pickup
                         Spell.Cast("Soulshatter",
@@ -221,7 +169,7 @@ namespace AdvancedAI.Class.Warlock.PvE
                                 && GetCurrentPet() == WarlockPet.Voidwalker
                                 && Unit.UnfriendlyUnits(30).Any(u => u.CurrentTargetGuid == Me.Guid)),
 
-                        Spell.Cast("Dark Bargain", ret => Me.HealthPercent < 50),
+                        Spell.Cast("Dark Bargain", ret => Me.HealthPercent < 45),
                         Spell.Cast("Sacrificial Pact", ret => Me.HealthPercent < 60 && GetCurrentPet() != WarlockPet.None && GetCurrentPet() != WarlockPet.Other && Me.Pet.HealthPercent > 50),
 
                         new Decorator(ret => Me.HealthPercent < 40 && !Group.AnyHealerNearby,
@@ -231,17 +179,17 @@ namespace AdvancedAI.Class.Warlock.PvE
                                     new ActionAlwaysSucceed()),
                                 Spell.Cast("Drain Life"))),
 
-                        new Decorator(ret => Unit.NearbyUnfriendlyUnits.Count(u => u.IsTargetingMeOrPet) >= 3 || Me.CurrentTarget.IsBoss() || Unit.NearbyUnfriendlyUnits.Any(u => u.IsPlayer && u.IsTargetingMeOrPet),
+                        new Decorator(ret => Unit.NearbyUnfriendlyUnits.Count(u => u.IsTargetingMeOrPet) >= 3 || Unit.NearbyUnfriendlyUnits.Any(u => u.IsPlayer && u.IsTargetingMeOrPet),
                             new PrioritySelector(
                                 Spell.Cast("Dark Soul: Misery"),
                                 Spell.Cast("Unending Resolve"),
                                 new Decorator(ret => TalentManager.IsSelected((int)WarlockTalents.GrimoireOfService),
                                     new PrioritySelector(
                                         Spell.Cast("Grimoire: Felhunter", ret => AdvancedAI.CurrentWoWContext == WoWContext.Battlegrounds),
-                                        Spell.Cast("Grimoire: Voidwalker", ret => GetCurrentPet() != WarlockPet.Voidwalker),
+                                        //Spell.Cast("Grimoire: Voidwalker", ret => GetCurrentPet() != WarlockPet.Voidwalker),
                                         Spell.Cast("Grimoire: Felhunter", ret => GetCurrentPet() != WarlockPet.Felhunter))))),
-
-                        HealthFunnel(70, 95),
+                        new Decorator(ret=> !Me.IsInGroup(),
+                                HealthFunnel(40, 95)),
                         Spell.Cast("Life Tap", ret => Me.ManaPercent < 30 && Me.HealthPercent > 85),
                         PartyBuff.BuffGroup("Dark Intent"),
 
@@ -262,8 +210,18 @@ namespace AdvancedAI.Class.Warlock.PvE
                             new PrioritySelector(
                                 Spell.BuffSelf("Life Tap", ret => Me.HealthPercent > 50 && Me.HasAnyAura("Unending Resolve")),
                                 Spell.BuffSelf("Life Tap", ret => Me.HasAnyAura("Sacrificial Pact")),
-                                Spell.BuffSelf("Life Tap", ret => Me.HasAnyAura("Dark Bargain")))))));
+                                Spell.BuffSelf("Life Tap", ret => Me.HasAnyAura("Dark Bargain"))))
+                                ))));
         } 
+        #endregion
+
+        #region Dot timers
+
+        private static bool Reupdots
+        {
+            get { return Me.CurrentTarget.HasAuraExpired("Agony", 3) || Me.CurrentTarget.HasAuraExpired("Corruption", 3) || Me.CurrentTarget.HasAuraExpired("Unstable Affliction", 3); }
+        }
+
         #endregion
 
         #region VoidwalkerDisarm
@@ -341,47 +299,6 @@ namespace AdvancedAI.Class.Warlock.PvE
 
                 return Me.HasAura("Dark Bargain");
             }
-        } 
-        #endregion
-
-        #region FearTarget
-        private static WoWUnit FearTarget()
-        {
-            // use a larger range than normal 40 yds to check Fear because of mechanic causing them to run
-            if (Unit.UnfriendlyUnits(80).Any(u => !u.IsUndead && u.HasMyAura("Fear")))
-                return null;
-
-            // check if a player is attacking us and Fear them first
-            var closestTarget = Unit.NearbyUnitsInCombatWithMe
-                .Where(u => u.IsPlayer && !u.IsUndead)
-                .OrderByDescending(u => u.HealthPercent)
-                .FirstOrDefault();
-
-            if (closestTarget != null)
-            {
-                string.Format("^Fear: player {0} attacking us from {1:F1} yds", closestTarget.SafeName(), closestTarget.Distance);
-            }
-            // otherwise check if over Mob count setting
-            else if (Unit.NearbyUnitsInCombatWithMe.Count() >= 3)
-            {
-                closestTarget = Unit.NearbyUnitsInCombatWithMe
-                    .Where(u => !u.IsUndead && u.Guid != (!Me.GotAlivePet ? 0 : Me.Pet.CurrentTargetGuid))
-                    .OrderByDescending(u => u.IsPlayer)
-                    .ThenBy(u => u.DistanceSqr)
-                    .FirstOrDefault();
-
-                if (closestTarget != null)
-                {
-                    string.Format("^Sap: {0} @ {1:F1} yds from target to avoid aggro while hitting target", closestTarget.SafeName(), closestTarget.Location.Distance(Me.CurrentTarget.Location));
-                }
-            }
-
-            if (closestTarget == null)
-            {
-                Logging.WriteDiagnostic("no nearby Fear target");
-            }
-
-            return closestTarget;
         } 
         #endregion
 
@@ -466,14 +383,6 @@ new PrioritySelector(
         } 
         #endregion
 
-        #region NeedToSoulstoneMyself
-        private static bool NeedToSoulstoneMyself()
-        {
-            var cast = AdvancedAI.CurrentWoWContext != WoWContext.Instances && AdvancedAI.Movement;
-            return cast;
-        } 
-        #endregion
-
         #region Aoe
         private static Composite Aoe()
         {
@@ -481,7 +390,7 @@ new PrioritySelector(
                 ret => AdvancedAI.Aoe,
                 new PrioritySelector(
                     new Decorator(
-                        ret => _mobCount >= 4 && SpellManager.HasSpell("Seed of Corruption"),
+                        ret => Unit.UnfriendlyUnitsNearTarget(10).Count() >= 4 && SpellManager.HasSpell("Seed of Corruption"),
                         new PrioritySelector(
                 // if current target doesn't have CotE, then Soulburn+CotE
                             new Decorator(
@@ -498,7 +407,7 @@ new PrioritySelector(
                                         new ActionAlwaysSucceed()),
                                     Spell.Cast("Seed of Corruption", on => (WoWUnit)on))))),
                     new Decorator(
-                        ret => _mobCount >= 2,
+                        ret => Unit.UnfriendlyUnitsNearTarget(10).Count() >= 2,
                         new PrioritySelector(
                             ApplyDots(on => TargetsInCombat.FirstOrDefault(m => m.HasAuraExpired("Agony")), soulBurn => true),
                             ApplyDots(on => TargetsInCombat.FirstOrDefault(m => m.HasAuraExpired("Unstable Affliction")), soulBurn => true)))));
@@ -514,7 +423,7 @@ new PrioritySelector(
 
             WarlockPet bestPet;
             if (AdvancedAI.CurrentWoWContext != WoWContext.Instances)
-                bestPet = WarlockPet.Voidwalker;
+                bestPet = WarlockPet.Felhunter;
             else if (Me.Level >= 30)
                 bestPet = WarlockPet.Felhunter;
             else
@@ -600,7 +509,7 @@ new PrioritySelector(
         {
             get
             {
-                return Unit.UnfriendlyUnits(40).Where(u => u.Combat && u.IsTargetingUs() && !u.IsCrowdControlled() && StyxWoW.Me.IsSafelyFacing(u));
+                return Unit.UnfriendlyUnits(40).Where(u => u.Combat && u.IsTargetingUs() && !u.IsCrowdControlled() && Me.IsSafelyFacing(u));
             }
         }  
         #endregion
@@ -611,23 +520,24 @@ new PrioritySelector(
         {
             return new PrioritySelector(
                     new Decorator(ret => !Me.HasAura("Soulburn"),
+                        new Throttle(2,
                         new PrioritySelector(
                             // target below 20% we have a higher prior on Haunt (but skip if soulburn already up...)
-                           Spell.Cast("Haunt",
+                            Spell.Cast("Haunt",
                                 on => onUnit(on),
                                 req => Me.CurrentSoulShards > 0
                                     && Me.CurrentTarget.HealthPercent < 20
                                     && !Me.HasAura("Soulburn") && !onUnit(req).HasAura("Haunt")),
 
                             // otherwise, save 2 shards for Soulburn and instant pet rez if needed (unless Misery buff up)
-                            Spell.Cast("Haunt", on => onUnit(on), ret => Me.CurrentSoulShards > 2 || Me.HasAura("Dark Soul: Misery") && !onUnit(ret).HasAura("Haunt")))),
+                            new Throttle(2,
+                            Spell.Cast("Haunt", on => onUnit(on), ret => Me.CurrentSoulShards > 3 || Me.HasAura("Dark Soul: Misery") && !onUnit(ret).HasAura("Haunt")))))),
 
                     new Sequence(
                         CastSoulburn(
                             ret => soulBurn(ret)
                                 && onUnit != null && onUnit(ret) != null
-                                && onUnit(ret).CurrentHealth > 1
-                                && SpellManager.HasSpell("Soul Swap")
+                                //&& onUnit(ret).CurrentHealth > 1
                                 && (onUnit(ret).HasAuraExpired("Agony", 3) || onUnit(ret).HasAuraExpired("Corruption", 3) || onUnit(ret).HasAuraExpired("Unstable Affliction", 3))
                                 && onUnit(ret).InLineOfSpellSight
                                 && Me.CurrentSoulShards > 0),
@@ -647,40 +557,45 @@ new PrioritySelector(
                             if (!onUnit(ret).HasAuraExpired("Haunt", 3))
                                 ++_dotCount;
 
-                            // if mob dying very soon, skip DoTs
-                            if (onUnit(ret).TimeToDeath() < 4)
-                                _dotCount = 4;
+                             //if mob dying very soon, skip DoTs
+                            //if (onUnit(ret).TimeToDeath() < 4)
+                            //    _dotCount = 4;
                         }
                         return RunStatus.Failure;
                     }),
+                    
                     new Decorator(req => _dotCount < 4,
+                        new Throttle(1,
                         new PrioritySelector(
-                            Spell.Cast("Agony", onUnit, ret => !onUnit(ret).CachedHasAura("Agony")),
-                            Spell.Cast("Corruption", onUnit, ret => !onUnit(ret).CachedHasAura("Corruption")),
-                            Spell.Cast("Unstable Affliction", onUnit, req => !onUnit(req).HasAura("Unstable Affliction")))));
+                            CastSoulSwap(onUnit),
+                            Spell.Cast("Agony", onUnit, ret => !onUnit(ret).CachedHasAura("Agony") || onUnit(ret).HasAuraExpired("Agony", 3)),
+                            Spell.Cast("Corruption", onUnit, ret => !onUnit(ret).CachedHasAura("Corruption") || onUnit(ret).HasAuraExpired("Corruption", 3)),
+                            new Throttle(2,
+                                Spell.Cast("Unstable Affliction", onUnit, ret => !onUnit(ret).HasAura("Unstable Affliction") || onUnit(ret).HasAuraExpired("Unstable Affliction", 3)))))));
+            
         }
         #endregion
 
         #region CastSoulBurn
         private static Composite CastSoulburn(SimpleBooleanDelegate requirements)
         {
-            return new Sequence(
-                Spell.Cast("Soulburn", on => Me, ret => Me.CurrentSoulShards > 0 && requirements(ret) && !Me.CachedHasAura("Soulburn")),
-                new Wait(TimeSpan.FromMilliseconds(500), ret => Me.CachedHasAura("Soulburn"), new Styx.TreeSharp.Action(ret => RunStatus.Success))
-                );
+            return new Throttle(2,
+                new Sequence(
+                Spell.Cast("Soulburn", on => Me, ret => Me.CurrentSoulShards > 0  && requirements(ret) && (Me.CurrentTarget.Elite || Me.CurrentTarget.IsBoss()) && !Me.HasAura("Soulburn")),
+                new Wait(TimeSpan.FromMilliseconds(500), ret => Me.HasAura("Soulburn"), new Action(ret => RunStatus.Success))
+                ));
         }
         #endregion
 
         #region CastSoulSwap
         private static Composite CastSoulSwap(UnitSelectionDelegate onUnit)
         {
-            return new Throttle(
+            return new Throttle(1,
                 new Decorator(
                     ret => Me.HasAura("Soulburn")
                         && onUnit != null && onUnit(ret) != null
                         && onUnit(ret).IsAlive
-                        && (onUnit(ret).HasAuraExpired("Agony") || onUnit(ret).HasAuraExpired("Corruption") || onUnit(ret).HasAuraExpired("Unstable Affliction"))
-                        && SpellManager.HasSpell("Soul Swap")
+                        && (onUnit(ret).HasAuraExpired("Agony", 3) || onUnit(ret).HasAuraExpired("Corruption", 3) || onUnit(ret).HasAuraExpired("Unstable Affliction", 3))
                         && onUnit(ret).Distance <= 40
                         && onUnit(ret).InLineOfSpellSight,
                     new Action(ret =>
@@ -690,7 +605,7 @@ new PrioritySelector(
                     })));
         }
         #endregion
-
+        
         #region Talents
         enum WarlockTalents
         {
