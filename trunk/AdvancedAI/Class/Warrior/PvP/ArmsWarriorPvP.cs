@@ -245,7 +245,8 @@ namespace AdvancedAI.Class.Warrior.PvP
         static Composite CreateChargeBehavior()
         {
             return new Decorator(
-                    ret => StyxWoW.Me.CurrentTarget != null && !IsGlobalCooldown() && AdvancedAI.Movement/*&& PreventDoubleCharge*/,
+                    ret => StyxWoW.Me.CurrentTarget != null && !IsGlobalCooldown() && AdvancedAI.Movement/*&& Prevent
+                                                                                                          * Charge*/,
 
                     new PrioritySelector(
                         Spell.Cast("Charge",

@@ -1580,8 +1580,8 @@ namespace AdvancedAI.Helpers
                 allowMovingWhileCasting = spell.Name == "Scorch";
             else if (Me.Class == WoWClass.Hunter)
                 allowMovingWhileCasting = spell.Name == "Steady Shot" || (spell.Name == "Aimed Shot" && TalentManager.HasGlyph("Aimed Shot")) || spell.Name == "Cobra Shot";
-            //else if (Me.Class == WoWClass.Warlock)
-            //    allowMovingWhileCasting = ClassSpecific.Warlock.Common.HasTalent(ClassSpecific.Warlock.WarlockTalents.KiljadensCunning);
+            else if (Me.Class == WoWClass.Warlock)
+                allowMovingWhileCasting = spell.Name == "Malefic Grasp" && SpellManager.HasSpell(137587);
 
             //            if (!allowMovingWhileCasting && Me.ZoneId == 5723)
             //                allowMovingWhileCasting = Me.HasAura("Molten Feather");
