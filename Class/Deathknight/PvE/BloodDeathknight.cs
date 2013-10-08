@@ -6,6 +6,7 @@ using Styx.TreeSharp;
 using Styx.WoWInternals;
 using Styx.WoWInternals.WoWObjects;
 using AdvancedAI.Helpers;
+using AdvancedAI.Settings;
 using System.Linq;
 
 namespace AdvancedAI.Class.Deathknight.PvE
@@ -17,6 +18,7 @@ namespace AdvancedAI.Class.Deathknight.PvE
         private static int FrostRuneSlotsActive { get { return Me.FrostRuneCount; } }
         private static int UnholyRuneSlotsActive { get { return Me.UnholyRuneCount; } }
         private static int DeathRuneSlotsActive { get { return Me.DeathRuneCount; } }
+        private static DeathKnightSettings Settings { get { return GeneralSettings.Instance.DeathKnight(); } }
         //private static int BloodRuneSlotsActive { get { return Me.GetRuneCount(0) + Me.GetRuneCount(1); } }
         //private static int FrostRuneSlotsActive { get { return Me.GetRuneCount(2) + Me.GetRuneCount(3); } }
         //private static int UnholyRuneSlotsActive { get { return Me.GetRuneCount(4) + Me.GetRuneCount(5); } }
@@ -31,6 +33,9 @@ namespace AdvancedAI.Class.Deathknight.PvE
                 //Spell.WaitForCastOrChannel(),
                 CreateApplyDiseases(),
                 BloodCombatBuffs(),
+
+                new Decorator(ret => Settings.UseDarkCommand,
+                    Spell.Cast("Dark Command")),
 
                 new Decorator(ret => AdvancedAI.LFRMode,
                     CreateAFK()),

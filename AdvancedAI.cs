@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Windows.Forms;
+using AdvancedAI.GUI;
 using AdvancedAI.Helpers;
 using AdvancedAI.Managers;
+using AdvancedAI.Settings;
 using AdvancedAI.Utilities;
 using Styx;
 using Styx.Common;
@@ -19,6 +22,7 @@ namespace AdvancedAI
         public override WoWClass Class { get { return StyxWoW.Me.Class; } }
         static LocalPlayer Me { get { return StyxWoW.Me; } }
 
+        public override bool WantButton { get { return true; } }
         public static AdvancedAI Instance { get; set; }
         public AdvancedAI() { Instance = this; }
 
@@ -52,6 +56,21 @@ namespace AdvancedAI
         public override void ShutDown()
         {
             UnregisterHotkeys();
+        }
+
+        private AdvancedAIGUI _configForm;
+        public override void OnButtonPress()
+        {
+            if (_configForm == null || _configForm.IsDisposed || _configForm.Disposing)
+            {
+                _configForm = new AdvancedAIGUI();
+                _configForm.Height = GeneralSettings.Instance.FormHeight;
+                _configForm.Width = GeneralSettings.Instance.FormWidth;
+                TabControl tab = (TabControl)_configForm.Controls["tabControl1"];
+                tab.SelectedIndex = GeneralSettings.Instance.FormTabIndex;
+            }
+
+            _configForm.Show();
         }
 
         public override void Pulse()

@@ -72,7 +72,7 @@ namespace AdvancedAI.Class.Deathknight.PvE
                 new Action(ret => { Item.UseTrinkets(); return RunStatus.Failure; }),
                 Spell.Cast("Pillar of Frost"),
                 Spell.Cast("Raise Dead"))),
-                //new Action(ret => { Item.UseWaist(); return RunStatus.Failure; }),
+                new Action(ret => { Item.UseWaist(); return RunStatus.Failure; }),
                 new Action(ret => { Item.UseHands(); return RunStatus.Failure; }),
 
 

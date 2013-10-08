@@ -23,17 +23,17 @@ namespace AdvancedAI.Class.Monk.PvE
         public static Composite BrewmasterCombat()
         {
             return new PrioritySelector(
-                //new Throttle(1,
-                    new Action(context => ResetVariables()),
+                new Throttle(1,
+                    new Action(context => ResetVariables())),
                 /*Things to fix
                  * using glyph of expel harm to heal ppl dont want to have to page heal manger if i dont have to to keep it faster i guess
                 */
-                new Decorator(ret => !Me.Combat || Me.Mounted,
+                new Decorator(ret => !Me.Combat,
                     new ActionAlwaysSucceed()),
                 Spell.Cast("Spear Hand Strike", ret => StyxWoW.Me.CurrentTarget.IsCasting && StyxWoW.Me.CurrentTarget.CanInterruptCurrentSpellCast),
                 Spell.WaitForCastOrChannel(),
                 Item.UsePotionAndHealthstone(40),
-                //new Action(ret => { Item.UseWaist(); return RunStatus.Failure; }),
+                new Action(ret => { Item.UseWaist(); return RunStatus.Failure; }),
                 new Action(ret => { Item.UseHands(); return RunStatus.Failure; }),
 
                 // Execute if we can
@@ -59,10 +59,11 @@ namespace AdvancedAI.Class.Monk.PvE
                 Spell.Cast(KegSmash, ret => Me.CurrentChi <= 3 && Clusters.GetCluster(Me, Unit.NearbyUnfriendlyUnits, ClusterType.Radius, 8).Any(u => !u.CachedHasAura("Weakened Blows"))),
 
                 OxStatue(),
-                
+                //Spell.CastOnGround("Summon Black Ox Statue", on => Me.Location, ret => !Me.HasAura("Sanctuary of the Ox") && AdvancedAI.UsefulStuff),
+
                 //PB, EB, and Guard are off the GCD
                 //!!!!!!!Purifying Brew !!!!!!!
-                Spell.Cast("Purifying Brew", ret => /*Me.CachedHasAura("Purifier") && (Me.CachedGetAuraTimeLeft("Purifier") <= 1) ||*/ Me.CachedHasAura("Moderate Stagger") || Me.CachedHasAura("Heavy Stagger")),
+                Spell.Cast("Purifying Brew", ret => Me.CachedHasAura("Purifier") && (Me.CachedGetAuraTimeLeft("Purifier") <= 1) || Me.CachedHasAura("Moderate Stagger") || Me.CachedHasAura("Heavy Stagger")),
                 new Decorator(ret => Me.CurrentChi > 0,
                     new PrioritySelector(
                         Spell.Cast("Purifying Brew", ret => Me.CachedHasAura("Heavy Stagger")),
@@ -82,7 +83,7 @@ namespace AdvancedAI.Class.Monk.PvE
                 Spell.Cast("Blackout Kick", ret => Me.CurrentChi >= 2 && !Me.CachedHasAura("Shuffle") || Me.CachedHasAura("Shuffle") && Me.CachedGetAuraTimeLeft("Shuffle") < 6),
                 Spell.Cast("Tiger Palm", ret => Me.CurrentChi >= 2 && !Me.CachedHasAura("Power Guard") || !Me.CachedHasAura("Tiger Power")),
                 Spell.Cast("Expel Harm", ret => Me.HealthPercent <= 35),
-                Spell.Cast("Breath of Fire", ret => Me.CurrentChi >= 3 && Me.CachedHasAura("Shuffle") && Me.CachedGetAuraTimeLeft("Shuffle") > 6.5 && Me.CurrentTarget.CachedHasAura("Dizzying Haze") && AdvancedAI.Aoe),
+                Spell.Cast("Breath of Fire", ret => Me.CurrentChi >= 3 && Me.CachedHasAura("Shuffle") && Me.CachedGetAuraTimeLeft("Shuffle") > 6.5 && Me.CurrentTarget.CachedHasAura("Dizzying Haze")),
 
                 //Detox
                 CreateDispelBehavior(),
@@ -92,37 +93,30 @@ namespace AdvancedAI.Class.Monk.PvE
                 //Chi Talents
                 //need to do math here and make it use 2 if im going to use it
                 Spell.Cast("Chi Wave"),
+                //Spell.Cast("Chi Wave", on => Me, ret => Me.HealthPercent <= 85),
                 Spell.Cast("Zen Sphere", on => Tanking),
-                Spell.Cast("Chi Burst"),
                 
                 Spell.Cast("Expel Harm", on => EHtar, ret => Me.HealthPercent > 70 && TalentManager.HasGlyph("Targeted Expulsion")),
-                Spell.Cast("Expel Harm", on => Me, ret => Me.HealthPercent <= 70 && TalentManager.HasGlyph("Targeted Expulsion") || Me.HealthPercent < 85 && !TalentManager.HasGlyph("Targeted Expulsion")),
+                Spell.Cast("Expel Harm", ret => Me.HealthPercent <= 70 && TalentManager.HasGlyph("Targeted Expulsion") || Me.HealthPercent < 85 && !TalentManager.HasGlyph("Targeted Expulsion")),
 
                 //Healing Spheres need to work on not happy with this atm
-                //HealingSphere(),
-                //HealingSphereTank(),
+                HealingSphere(),
+                HealingSphereTank(),
                 //Spell.CastOnGround("Healing Sphere", on => Me.Location, ret => Me.HealthPercent <= 50 && Me.CurrentEnergy >= 60),
-                new Decorator(ret => !SpellManager.CanCast(KegSmash),
-                    new PrioritySelector(
-                        new Decorator(ret => AdvancedAI.Aoe && Spell.GetSpellCooldownInt(KegSmash).TotalSeconds >= 2,
-                            new PrioritySelector(
-                                Spell.Cast("Rushing Jade Wind", ret => Unit.UnfriendlyUnits(8).Count() >= 3),
-                                Spell.Cast("Spinning Crane Kick", ret => Unit.UnfriendlyUnits(8).Count() >= 5))),
 
-                Spell.Cast("Jab", ret => (((Energy - 40) + (Spell.GetSpellCooldownInt(KegSmash).TotalSeconds * EnergyRegen)) >= 40) || Spell.GetSpellCooldownInt(KegSmash).TotalSeconds >= 3),
-                //Spell.Cast("Jab", ret => TimeToMax > Spell.GetSpellCooldownInt(KegSmash).TotalSeconds),
-                //Spell.Cast("Jab", ret => Spell.GetSpellCooldownInt(KegSmash).TotalSeconds >= (((40 - 0) * (1.0 / EnergyRegen)) / 1.6)),
-                //Spell.Cast("Jab", ret => Me.CurrentEnergy >= 80 || Spell.GetSpellCooldownInt(KegSmash).TotalSeconds >= 3),
+                new Decorator(ret => AdvancedAI.Aoe && Spell.GetSpellCooldown("Keg Smash").TotalSeconds >= 2,
+                    new PrioritySelector(
+                        Spell.Cast("Rushing Jade Wind", ret => Unit.UnfriendlyUnits(8).Count() >= 3),
+                        Spell.Cast("Spinning Crane Kick", ret => Unit.UnfriendlyUnits(8).Count() >= 5))),
+
+                Spell.Cast("Jab", ret => ((Me.CurrentEnergy - 40) + (Spell.GetSpellCooldown("Keg Smash").TotalSeconds * EnergyRegen)) > 40),
+
+                //Spell.Cast("Jab", ret => Spell.GetSpellCooldown("Keg Smash").TotalSeconds >= (((40 - 0) * (1.0 / EnergyRegen)) / 1.6)),
+                //Spell.Cast("Jab", ret => Me.CurrentEnergy >= 80 || Spell.GetSpellCooldown("Keg Smash").TotalSeconds >= 3),
 
                 //dont like using this in auto to many probs with it
                 //Spell.Cast("Invoke Xuen, the White Tiger", ret => Me.CurrentTarget.IsBoss && IsCurrentTank()),
-                Spell.Cast("Tiger Palm", ret => 
-                    //Spell.GetSpellCooldownInt(KegSmash).TotalSeconds < (((40 - 0) * (1.0 / EnergyRegen)) / 1.6))
-                    //Energy < 40 || Spell.GetSpellCooldownInt(KegSmash).TotalSeconds <= 3)
-                    //TimeToMax < Spell.GetSpellCooldownInt(KegSmash).TotalSeconds)
-                    //((Energy - 40) + (Spell.GetSpellCooldownInt(KegSmash).TotalSeconds * EnergyRegen)) < 40)
-                    Me.CurrentChi < 3 && Me.CurrentEnergy < 80)
-                    )),
+                Spell.Cast("Tiger Palm", ret => Spell.GetSpellCooldown("Keg Smash").TotalSeconds >= 1 && Me.CurrentChi < 3 && Me.CurrentEnergy < 80),
                 new ActionAlwaysSucceed());
         }
 
