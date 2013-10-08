@@ -171,6 +171,21 @@ namespace AdvancedAI.Helpers
             return TimeSpan.FromSeconds(indetermValue);
         }
 
+        public static TimeSpan GetSpellCooldownInt(int spell)
+        {
+            SpellFindResults results;
+            if (SpellManager.FindSpell(spell, out results))
+            {
+                // Basically, if the override exists, we want to check the cooldown on that, not the original.
+                // There are some exclusions to this. I'll be adding some API to SpellManager directly for cooldowns that handle these exclusions.
+                if (results.Override != null)
+                    return results.Override.CooldownTimeLeft;
+                return results.Original.CooldownTimeLeft;
+            }
+
+            return TimeSpan.MaxValue;
+        }
+
         public static TimeSpan GetSpellCooldownAres(string spell)
         {
             SpellFindResults results;
