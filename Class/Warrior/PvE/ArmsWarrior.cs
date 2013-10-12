@@ -16,8 +16,7 @@ namespace AdvancedAI.Class.Warrior.PvE
     {
         static LocalPlayer Me { get { return StyxWoW.Me; } }
         private const int Enrage = 12880;
-        private static bool HasTalent(WarriorTalents tal) { return TalentManager.IsSelected((int)tal); }
-
+        
         public static Composite ArmsCombat()
         {
             return new PrioritySelector(
@@ -26,11 +25,11 @@ namespace AdvancedAI.Class.Warrior.PvE
                     ),
                 //new Decorator(ret => Me.CurrentTarget != null && (!Me.CurrentTarget.IsWithinMeleeRange || Me.IsCasting || SpellManager.GlobalCooldown),
                 //    new ActionAlwaysSucceed()),
-                new Decorator(ret => Me.CachedHasAura("Dire Fixation"),
-                    new PrioritySelector(
-                        BossMechs.HorridonHeroic())),
-                Common.CreateInterruptBehavior(),
-                //Spell.Cast("Taunt", ret => HasTalent(WarriorTalents.Bloodbath)),
+                //new Decorator(ret => Me.CachedHasAura("Dire Fixation"),
+                //    new PrioritySelector(
+                //        BossMechs.HorridonHeroic())),
+                new Throttle(1,1,
+                Common.CreateInterruptBehavior()),
                 Spell.Cast("Victory Rush", ret => Me.HealthPercent <= 90 && Me.CachedHasAura("Victorious")),
                 Spell.Cast("Die by the Sword", ret => Me.HealthPercent <= 20),
                 Item.UsePotionAndHealthstone(50),
