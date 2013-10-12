@@ -18,7 +18,7 @@ namespace AdvancedAI.Class.Druid.PvE
                 // Don't do anything if we have no target, nothing in melee range, or we're casting. (Includes vortex!)
                 new Decorator(ret => !Me.Combat || Me.IsCasting || !Me.GotTarget, 
                     new ActionAlwaysSucceed()),
-
+                Spell.Cast("Bear Form", ret => AdvancedAI.LFRMode && Me.Shapeshift != ShapeshiftForm.Bear),
                 //Spell.Cast("Bear Form", ret => Me.Shapeshift != ShapeshiftForm.Bear),
                 Spell.Cast("Skull Bash", ret => Me.CurrentTarget.IsCasting && Me.CurrentTarget.CanInterruptCurrentSpellCast),
 
