@@ -33,7 +33,7 @@ namespace AdvancedAI.Class.Monk.PvE
                 Spell.Cast("Spear Hand Strike", ret => StyxWoW.Me.CurrentTarget.IsCasting && StyxWoW.Me.CurrentTarget.CanInterruptCurrentSpellCast),
                 Spell.WaitForCastOrChannel(),
                 Item.UsePotionAndHealthstone(40),
-                new Action(ret => { Item.UseWaist(); return RunStatus.Failure; }),
+                //new Action(ret => { Item.UseWaist(); return RunStatus.Failure; }),
                 new Action(ret => { Item.UseHands(); return RunStatus.Failure; }),
 
                 // Execute if we can

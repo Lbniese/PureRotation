@@ -39,7 +39,7 @@ namespace AdvancedAI.Class.Monk.PvE
                     //Healing Spheres need to work on
                     //Spell.CastOnGround("Healing Sphere", on => Me.Location, ret => Me.HealthPercent <= 50),
 
-                    new Action(ret => { Item.UseWaist(); return RunStatus.Failure; }),
+                    //new Action(ret => { Item.UseWaist(); return RunStatus.Failure; }),
                     new Action(ret => { Item.UseHands(); return RunStatus.Failure; }),
 
                     //Tigerseye

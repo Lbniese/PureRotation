@@ -1,5 +1,7 @@
 ﻿using System.Linq;
 using AdvancedAI.Helpers;
+using AdvancedAI.Managers;
+using CommonBehaviors.Actions;
 using Styx;
 using Styx.CommonBot;
 using Styx.TreeSharp;
@@ -17,20 +19,22 @@ namespace AdvancedAI.Class.Paladin.PvE
                 return new PrioritySelector(
                     //new Decorator(ret => AdvancedAI.PvPRot,
                     //    ProtectionPaladinPvP.CreatePPPvPCombat),
+                    new Decorator(ret => !Me.Combat && !Me.CurrentTarget.IsAlive && Me.IsCasting,
+                        new ActionAlwaysSucceed()),
                     // Interrupt please.
                     Spell.Cast("Rebuke", ret => Me.CurrentTarget.IsCasting && Me.CurrentTarget.CanInterruptCurrentSpellCast),
                     Spell.Cast("Avenger's Shield", ret => Me.CurrentTarget.IsCasting && Me.CurrentTarget.CanInterruptCurrentSpellCast),
 
                     //Change seals if I need mana or at low health Seals need more work......  
-                    //Spell.BuffSelf("Seal of Insight", ret => Me.CurrentMana <= 10 || Me.CurrentHealth <= 23),
-                    //Spell.BuffSelf("Seal of Truth", ret => Me.CurrentMana >= 30 && Me.CurrentHealth >= 30 && UnfriendlyUnits.Count() <= 3),
-                    //Spell.BuffSelf("Seal of Righteousness", ret => Me.CurrentMana >= 30 && Me.CurrentHealth >= 30 && UnfriendlyUnits.Count() >= 4),
+                    Spell.Cast("Seal of Insight", ret => (Me.CurrentMana <= 10 || Me.CurrentHealth <= 50) && !Me.HasAura("Seal of Insight")),
+                    Spell.Cast("Seal of Truth", ret => Me.CurrentMana >= 30 && Me.CurrentHealth > 50 && Unit.UnfriendlyUnits(8).Count() <= 3 && !Me.HasAura("Seal of Truth")),
+                    Spell.Cast("Seal of Righteousness", ret => Me.CurrentMana >= 30 && Me.CurrentHealth > 50 && Unit.UnfriendlyUnits(8).Count() >= 4 && !Me.HasAura("Seal of Righteousness")),
 
                     //Staying alive
-                    Spell.Cast("Sacred Shield", ret => !Me.HasAura("Sacred Shield")),
+                    Spell.Cast("Sacred Shield",on => Me, ret => !Me.HasAura("Sacred Shield") && SpellManager.HasSpell("Sacred Shield")),
                     Spell.Cast("Lay on Hands", on => Me, ret => Me.HealthPercent <= 10 && !Me.HasAura("Forbearance")),
                     //Spell.Cast("Guardian of Ancient Kings", ret => StyxWoW.Me.HealthPercent <= 40),
-                    Spell.Cast("Ardent Defender", ret => Me.HealthPercent <= 10 && Me.HasAura("Forbearance")),
+                    Spell.Cast("Ardent Defender", ret => Me.HealthPercent <= 15 && Me.HasAura("Forbearance")),
                     //Nedd to work on this cause its only magic dmg that it stops unless glyphed
                     //Spell.Cast("Divine Protection", ret => Me.HealthPercent <= 80 && !Me.HasAura("Shield of the Righteous") && TalentManager.HasGlyph("Divine Protection")),
                     Spell.Cast("Divine Protection", ret => Me.HealthPercent <= 80 && !Me.HasAura("Shield of the Righteous")),
@@ -40,7 +44,7 @@ namespace AdvancedAI.Class.Paladin.PvE
                     Spell.Cast("Word of Glory", ret => Me.HealthPercent < 25 && (Me.CurrentHolyPower >= 2 || Me.HasAura("Divine Purpose"))),
                     Spell.Cast("Word of Glory", ret => Me.HealthPercent < 15 && (Me.CurrentHolyPower >= 1 || Me.HasAura("Divine Purpose"))),
 
-                    //Prot 2pc 
+                    //Prot T15 2pc 
                     new Decorator(ret => AdvancedAI.UsefulStuff,
                         new PrioritySelector(
                             Spell.Cast("Word of Glory", ret => Me.HealthPercent < 90 && Me.CurrentHolyPower == 1 && !Me.HasAura("Shield of Glory")),
@@ -49,7 +53,7 @@ namespace AdvancedAI.Class.Paladin.PvE
 
                     CreateDispelBehavior(),
 
-                    new Decorator(ret => Unit.NearbyUnfriendlyUnits.Count(u => u.DistanceSqr <= 8 * 8) >= 2,
+                    new Decorator(ret => Unit.UnfriendlyUnits(8).Count() >= 2,
                         CreateAoe()),
 
                     Spell.Cast("Shield of the Righteous", ret => (Me.CurrentHolyPower == 5 || Me.HasAura("Divine Purpose")) && AdvancedAI.Burst),//need hotkey 
@@ -58,15 +62,18 @@ namespace AdvancedAI.Class.Paladin.PvE
                     Spell.Cast("Avenger's Shield", ret => Me.ActiveAuras.ContainsKey("Grand Crusader")),
                     Spell.Cast("Crusader Strike"),
                     Spell.Cast("Judgment"),
-                    Spell.BuffSelf("Sacred Shield", ret => SpellManager.HasSpell("Sacred Shield")),
-                    Spell.CastOnGround("Light's Hammer", ret => Me.CurrentTarget.Location),
-                    Spell.Cast("Holy Prism"),
+                    //Spell.Cast("Sacred Shield",on => Me, ret => !Me.HasAura("Sacred Shield") && SpellManager.HasSpell("Sacred Shield")),
+                    LightsHammer(),
+                    //Spell.CastOnGround("Light's Hammer", ret => Me.CurrentTarget.Location),
+                    Spell.Cast("Holy Prism", on => Me, ret => Unit.UnfriendlyUnits(15).Count() >= 2),
+                    Spell.Cast("Holy Prism", on => Me.CurrentTarget),
                     Spell.Cast("Execution Sentence"),
                     Spell.Cast("Hammer of Wrath"),
                     Spell.Cast("Shield of the Righteous", ret => Me.CurrentHolyPower >= 3 && AdvancedAI.Burst),//need hotkey 
                     Spell.Cast("Avenger's Shield"),
-                    Spell.Cast("Consecration", ret => !Me.IsMoving && Unit.NearbyUnfriendlyUnits.Count(u => u.DistanceSqr <= 8 * 8) >= 1),
-                    Spell.Cast("Holy Wrath", ret => Unit.NearbyUnfriendlyUnits.Count(u => u.DistanceSqr <= 8 * 8) >= 1));
+                    Spell.Cast("Consecration", ret => !Me.IsMoving && Unit.UnfriendlyUnits(8).Any()),
+                    Spell.Cast("Holy Wrath", ret => Unit.UnfriendlyUnits(8).Any())
+                    );
             }
         
         private static Composite CreateAoe()
@@ -77,15 +84,17 @@ namespace AdvancedAI.Class.Paladin.PvE
                 Spell.Cast("Hammer of the Righteous"),
                 Spell.Cast("Judgment"),
                 Spell.Cast("Avenger's Shield", ret => Me.ActiveAuras.ContainsKey("Grand Crusader")),
-                Spell.BuffSelf("Sacred Shield", ret => SpellManager.HasSpell("Sacred Shield")),
-                Spell.CastOnGround("Light's Hammer", ret => Me.CurrentTarget.Location, ret => true, false),
+                //Spell.Cast("Sacred Shield", on => Me, ret => !Me.HasAura("Sacred Shield") && SpellManager.HasSpell("Sacred Shield")),
+                LightsHammer(),
+                //Spell.CastOnGround("Light's Hammer", ret => Me.CurrentTarget.Location, ret => true, false),
                 Spell.Cast("Holy Prism", on => Me, ret => Me.HealthPercent <= 90),
                 Spell.Cast("Execution Sentence"),
                 Spell.Cast("Hammer of Wrath"),
                 Spell.Cast("Shield of the Righteous", ret => Me.CurrentHolyPower >= 3 && AdvancedAI.Burst),//need hotkey 
                 Spell.Cast("Consecration", ret => !Me.IsMoving),
                 Spell.Cast("Avenger's Shield"),
-                Spell.Cast("Holy Wrath"));
+                Spell.Cast("Holy Wrath"),
+                new ActionAlwaysSucceed());
         }
 
 
@@ -114,7 +123,22 @@ namespace AdvancedAI.Class.Paladin.PvE
             return new PrioritySelector(
                 Spell.Cast("Cleanse", on => Me, ret => Dispelling.CanDispel(Me)),
                 Spell.Cast("Cleanse", on => dispeltar, ret => Dispelling.CanDispel(dispeltar)));
+            }
+
+        #region Light's Hammer
+        private static Composite LightsHammer()
+        {
+            return new Decorator(ret => SpellManager.HasSpell("Light's Hammer") && Unit.UnfriendlyUnits(10).Any(),
+                new Action(ret =>
+                {
+                    var tpos = Me.CurrentTarget.Location;
+                    var mpos = Me.Location;
+
+                    SpellManager.Cast("Light's Hammer");
+                    SpellManager.ClickRemoteLocation(mpos);
+                }));
         }
+        #endregion
 
         #region PaladinTalents
         public enum PaladinTalents
