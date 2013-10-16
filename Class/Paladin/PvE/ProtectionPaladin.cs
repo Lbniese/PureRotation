@@ -71,8 +71,8 @@ namespace AdvancedAI.Class.Paladin.PvE
                     Spell.Cast("Hammer of Wrath"),
                     Spell.Cast("Shield of the Righteous", ret => Me.CurrentHolyPower >= 3 && AdvancedAI.Burst),//need hotkey 
                     Spell.Cast("Avenger's Shield"),
-                    Spell.Cast("Consecration", ret => !Me.IsMoving && Unit.UnfriendlyUnits(8).Any()),
-                    Spell.Cast("Holy Wrath", ret => Unit.UnfriendlyUnits(8).Any())
+                    Spell.Cast("Consecration", ret => !Me.IsMoving && Me.CurrentTarget.IsWithinMeleeRange),
+                    Spell.Cast("Holy Wrath", ret => Me.CurrentTarget.IsWithinMeleeRange)
                     );
             }
         
@@ -91,9 +91,9 @@ namespace AdvancedAI.Class.Paladin.PvE
                 Spell.Cast("Execution Sentence"),
                 Spell.Cast("Hammer of Wrath"),
                 Spell.Cast("Shield of the Righteous", ret => Me.CurrentHolyPower >= 3 && AdvancedAI.Burst),//need hotkey 
-                Spell.Cast("Consecration", ret => !Me.IsMoving),
+                Spell.Cast("Consecration", ret => !Me.IsMoving && Me.CurrentTarget.IsWithinMeleeRange),
                 Spell.Cast("Avenger's Shield"),
-                Spell.Cast("Holy Wrath"),
+                Spell.Cast("Holy Wrath", ret => Me.CurrentTarget.IsWithinMeleeRange),
                 new ActionAlwaysSucceed());
         }
 
