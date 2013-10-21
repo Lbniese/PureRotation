@@ -100,8 +100,8 @@ namespace AdvancedAI.Class.Monk.PvE
                 Spell.Cast("Expel Harm", ret => Me.HealthPercent <= 70 && TalentManager.HasGlyph("Targeted Expulsion") || Me.HealthPercent < 85 && !TalentManager.HasGlyph("Targeted Expulsion")),
 
                 //Healing Spheres need to work on not happy with this atm
-                HealingSphere(),
-                HealingSphereTank(),
+                //HealingSphere(),
+                //HealingSphereTank(),
                 //Spell.CastOnGround("Healing Sphere", on => Me.Location, ret => Me.HealthPercent <= 50 && Me.CurrentEnergy >= 60),
 
                 new Decorator(ret => AdvancedAI.Aoe && Spell.GetSpellCooldown("Keg Smash").TotalSeconds >= 2,

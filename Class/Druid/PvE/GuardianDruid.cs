@@ -34,10 +34,10 @@ namespace AdvancedAI.Class.Druid.PvE
                 Spell.Cast("Maul", ret => Me.RagePercent > 90 && Me.CachedHasAura("Tooth and Claw")),
                 // Mangle on CD
                 Spell.Cast("Mangle"),
-                // Lac for threat + mangle procs
-                Spell.Cast("Lacerate", ret => Unit.UnfriendlyUnits(8).Count() < 2),
                 // Thrash on CD to keep up the debuffs + mangle procs
-                Spell.Cast("Thrash", ret => Unit.UnfriendlyUnits(8).Any()),
+                Spell.Cast("Thrash"),
+                // Lac for threat + mangle procs
+                Spell.Cast("Lacerate"),
                 // AOE comes in before ff
                 CreateAoe(),
                 // Keep up the sunders + mangle procs (not great for threat, hence lowest priority)
@@ -95,7 +95,7 @@ namespace AdvancedAI.Class.Druid.PvE
 
         private static Composite CreateAoe()
         {
-            return new Decorator(ret => Unit.UnfriendlyUnits(8).Count() >= 2,
+            return new Decorator(ret => Unit.UnfriendlyUnits(8).Count() >= 2 && AdvancedAI.Aoe,
                 new PrioritySelector(
                 // Best whenn used on 3-5 mobs. Not 30+
                    // Spell.Cast("Berserk", ret => !Me.CachedHasAura("Incarnation: Son of Ursoc")),
@@ -106,7 +106,7 @@ namespace AdvancedAI.Class.Druid.PvE
         public static Composite GuardianPreCombatBuffs()
         {
             return new PrioritySelector(
-                PartyBuff.BuffGroup("Legacy of the Emperor"));
+                PartyBuff.BuffGroup("Mark of the Wild"));
         }
 
         static bool IsCurrentTank()

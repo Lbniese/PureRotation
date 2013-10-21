@@ -26,9 +26,9 @@ namespace AdvancedAI.Class.Paladin.PvE
                     Spell.Cast("Avenger's Shield", ret => Me.CurrentTarget.IsCasting && Me.CurrentTarget.CanInterruptCurrentSpellCast),
 
                     //Change seals if I need mana or at low health Seals need more work......  
-                    Spell.Cast("Seal of Insight", ret => (Me.CurrentMana <= 10 || Me.CurrentHealth <= 50) && !Me.HasAura("Seal of Insight")),
-                    Spell.Cast("Seal of Truth", ret => Me.CurrentMana >= 30 && Me.CurrentHealth > 50 && Unit.UnfriendlyUnits(8).Count() <= 3 && !Me.HasAura("Seal of Truth")),
-                    Spell.Cast("Seal of Righteousness", ret => Me.CurrentMana >= 30 && Me.CurrentHealth > 50 && Unit.UnfriendlyUnits(8).Count() >= 4 && !Me.HasAura("Seal of Righteousness")),
+                    Spell.Cast("Seal of Insight", ret => (Me.ManaPercent <= 10 || Me.HealthPercent <= 50) && !Me.HasAura("Seal of Insight")),
+                    Spell.Cast("Seal of Truth", ret => Me.ManaPercent >= 30 && Me.HealthPercent > 50 && Unit.UnfriendlyUnits(8).Count() <= 3 && !Me.HasAura("Seal of Truth")),
+                    Spell.Cast("Seal of Righteousness", ret => Me.ManaPercent >= 30 && Me.HealthPercent > 50 && Unit.UnfriendlyUnits(8).Count() >= 4 && !Me.HasAura("Seal of Righteousness")),
 
                     //Staying alive
                     Spell.Cast("Sacred Shield",on => Me, ret => !Me.HasAura("Sacred Shield") && SpellManager.HasSpell("Sacred Shield")),
