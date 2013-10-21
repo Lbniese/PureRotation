@@ -30,7 +30,7 @@ namespace AdvancedAI.Class.Paladin.PvE
                     //Spell.Cast("Seal of Truth", ret => Me.ManaPercent >= 30 && Me.HealthPercent > 50 && Unit.UnfriendlyUnits(8).Count() <= 3 && !Me.HasAura("Seal of Truth")),
                     //Spell.Cast("Seal of Righteousness", ret => Me.ManaPercent >= 30 && Me.HealthPercent > 50 && Unit.UnfriendlyUnits(8).Count() >= 4 && !Me.HasAura("Seal of Righteousness")),
 
-                    Spell.Cast(Seal()),
+                    Spell.Cast(Seal(), ret => Me.ManaPercent >= 30 && Me.HealthPercent > 50),
 
 
                     //Staying alive
@@ -108,7 +108,7 @@ namespace AdvancedAI.Class.Paladin.PvE
                         );
          }
 
-        public static WoWUnit dispeltar
+        private static WoWUnit dispeltar
         {
             get
             {
@@ -120,7 +120,7 @@ namespace AdvancedAI.Class.Paladin.PvE
             }
         }
 
-        public static Composite CreateDispelBehavior()
+        private static Composite CreateDispelBehavior()
         {
             return new PrioritySelector(
                 Spell.Cast("Cleanse", on => Me, ret => Dispelling.CanDispel(Me)),
@@ -129,21 +129,14 @@ namespace AdvancedAI.Class.Paladin.PvE
 
         private static string Seal()
         {
-            if (Me.ManaPercent >= 30 && Me.HealthPercent > 50)
-            {
-                if (Unit.UnfriendlyUnits(8).Count() >= 5)
+            if (Unit.UnfriendlyUnits(8).Count() >= 5)
                 {
                     if (!Me.HasAura("Seal of Righteousness"))
                     {
                         return "Seal of Righteousness";
                     }
                 }
-                if (!Me.HasAura("Seal of Truth"))
-                {
-                    return "Seal of Truth";
-                }
-            }
-            return null;
+            return !Me.HasAura("Seal of Truth") ? "Seal of Truth" : "";
         }
 
         #region Light's Hammer
