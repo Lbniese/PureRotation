@@ -109,6 +109,14 @@ namespace AdvancedAI.Class.Warrior.PvP
                 Spell.BuffSelf("Battle Shout"));
         }
 
+        public static Composite ArmsPvPPull()
+        {
+            return new PrioritySelector(
+                new Decorator(ret => Me.CurrentTarget.Distance < 28,
+                    Common.CreateDismount("Pulling")),
+                CreateChargeBehavior());
+        }
+
         #region Best Banner
         public static WoWUnit BestBanner//WoWUnit
         {

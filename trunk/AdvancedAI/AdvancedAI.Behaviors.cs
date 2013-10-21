@@ -239,7 +239,7 @@ namespace AdvancedAI
                     case WoWSpec.WarriorArms:
                         if (_combat == null) { _combat = ArmsWarriorPvP.ArmsPvPCombat(); }
                         if (_pull == null) { _pull = ArmsWarriorPvP.ArmsPvPCombat(); }
-                        if (_heal == null) { _heal = ArmsWarriorPvP.ArmsPvPCombat(); }
+                        if (_heal == null) { _heal = ArmsWarriorPvP.ArmsPvPPull(); }
                         if (_preCombatBuffs == null) { _preCombatBuffs = ArmsWarriorPvP.ArmsPvPPreCombatBuffs(); }
                         break;
                     case WoWSpec.WarriorFury:
