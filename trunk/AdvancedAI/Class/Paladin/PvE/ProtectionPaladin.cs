@@ -28,7 +28,7 @@ namespace AdvancedAI.Class.Paladin.PvE
                     Spell.Cast("Avenger's Shield", ret => Me.CurrentTarget.IsCasting && Me.CurrentTarget.CanInterruptCurrentSpellCast),
 
                     //Change seals if I need mana or at low health Seals need more work......  
-                    Spell.Cast("Seal of Insight", ret => (Me.ManaPercent <= 10 || Me.HealthPercent <= 50) && !Me.HasAura("Seal of Insight")),
+                    //Spell.Cast("Seal of Insight", ret => (Me.ManaPercent <= 10 || Me.HealthPercent <= 50) && !Me.HasAura("Seal of Insight")),
                     //Spell.Cast("Seal of Truth", ret => Me.ManaPercent >= 30 && Me.HealthPercent > 50 && Unit.UnfriendlyUnits(8).Count() <= 3 && !Me.HasAura("Seal of Truth")),
                     //Spell.Cast("Seal of Righteousness", ret => Me.ManaPercent >= 30 && Me.HealthPercent > 50 && Unit.UnfriendlyUnits(8).Count() >= 4 && !Me.HasAura("Seal of Righteousness")),
 
@@ -143,12 +143,12 @@ namespace AdvancedAI.Class.Paladin.PvE
                 Spell.Cast("Cleanse", on => dispeltar, ret => Dispelling.CanDispel(dispeltar)));
         }
 
-        public static PaladinSeal GetBestSeal()
+        private static PaladinSeal GetBestSeal()
         {
             if (StyxWoW.Me.Specialization == WoWSpec.None)
                 return SpellManager.HasSpell("Seal of Command") ? PaladinSeal.Command : PaladinSeal.None;
 
-            PaladinSeal bestSeal = PaladinSeal.Truth;
+            var bestSeal = PaladinSeal.Truth;
 
             if (Me.ManaPercent < 30  && Me.HealthPercent > 50)
                 bestSeal = PaladinSeal.Insight;
@@ -167,7 +167,7 @@ namespace AdvancedAI.Class.Paladin.PvE
             return "Seal of " + s.ToString();
         }
 
-        public enum PaladinSeal
+        private enum PaladinSeal
         {
             None = 0,
             Auto = 1,
