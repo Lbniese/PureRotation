@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using AdvancedAI.Helpers;
 using AdvancedAI.Managers;
 using CommonBehaviors.Actions;
@@ -7,6 +8,7 @@ using Styx.CommonBot;
 using Styx.TreeSharp;
 using Styx.WoWInternals;
 using Styx.WoWInternals.WoWObjects;
+using Action = Styx.TreeSharp.Action;
 
 namespace AdvancedAI.Class.Paladin.PvE
 {
@@ -30,7 +32,6 @@ namespace AdvancedAI.Class.Paladin.PvE
                     //Spell.Cast("Seal of Truth", ret => Me.ManaPercent >= 30 && Me.HealthPercent > 50 && Unit.UnfriendlyUnits(8).Count() <= 3 && !Me.HasAura("Seal of Truth")),
                     //Spell.Cast("Seal of Righteousness", ret => Me.ManaPercent >= 30 && Me.HealthPercent > 50 && Unit.UnfriendlyUnits(8).Count() >= 4 && !Me.HasAura("Seal of Righteousness")),
 
-                    Spell.Cast(Seal()),
 
                     //new Decorator(ret => Me.ManaPercent >= 30 && Me.HealthPercent > 50,
                     //    new PrioritySelector(
@@ -40,6 +41,12 @@ namespace AdvancedAI.Class.Paladin.PvE
                     //                new ActionAlwaysSucceed())),
                     //        new Decorator(ret => Me.HasAura("Seal of Truth"),
                     //            Spell.Cast("Seal of Truth")))),
+
+                    new Throttle( TimeSpan.FromMilliseconds(500),
+                        new Sequence(
+                            new Action( ret => _seal = GetBestSeal()),
+                            new Decorator(ret => !Me.HasMyAura(SealSpell(_seal)) && Spell.CanCastHack(SealSpell(_seal), Me),
+                                Spell.Cast( s => SealSpell(_seal), on => Me, ret => !Me.HasAura(SealSpell(_seal)))))),
 
 
                     //Staying alive
@@ -136,16 +143,39 @@ namespace AdvancedAI.Class.Paladin.PvE
                 Spell.Cast("Cleanse", on => dispeltar, ret => Dispelling.CanDispel(dispeltar)));
         }
 
-        private static string Seal()
+        public static PaladinSeal GetBestSeal()
         {
-            var bestSeal = "";
-            if (Me.ManaPercent < 30 && Me.HealthPercent > 50)
-                bestSeal = "Seal of Insight";
-            else if (Unit.NearbyUnfriendlyUnits.Count(u => u.Distance <= 8) >= 5 && !Me.HasAura("Seal of Righteousness"))
-                bestSeal = "Seal of Righteousness";
-            else if (!Me.HasAura("Seal of Truth"))
-                bestSeal = "Seal of Truth";
+            if (StyxWoW.Me.Specialization == WoWSpec.None)
+                return SpellManager.HasSpell("Seal of Command") ? PaladinSeal.Command : PaladinSeal.None;
+
+            PaladinSeal bestSeal = PaladinSeal.Truth;
+
+            if (Me.ManaPercent < 30  && Me.HealthPercent > 50)
+                bestSeal = PaladinSeal.Insight;
+            else if (Unit.NearbyUnfriendlyUnits.Count(u => u.Distance <= 8) >= 4)
+                bestSeal = PaladinSeal.Righteousness;
+            else if (bestSeal == PaladinSeal.Command && SpellManager.HasSpell("Seal of Truth"))
+                bestSeal = PaladinSeal.Truth;
+
             return bestSeal;
+        }
+
+        static PaladinSeal _seal;
+
+        static string SealSpell(PaladinSeal s)
+        {
+            return "Seal of " + s.ToString();
+        }
+
+        public enum PaladinSeal
+        {
+            None = 0,
+            Auto = 1,
+            Command,
+            Truth,
+            Insight,
+            Righteousness,
+            Justice
         }
 
         #region Light's Hammer
