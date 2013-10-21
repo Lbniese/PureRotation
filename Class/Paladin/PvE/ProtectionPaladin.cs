@@ -68,8 +68,7 @@ namespace AdvancedAI.Class.Paladin.PvE
                     //Spell.Cast("Sacred Shield",on => Me, ret => !Me.HasAura("Sacred Shield") && SpellManager.HasSpell("Sacred Shield")),
                     LightsHammer(),
                     //Spell.CastOnGround("Light's Hammer", ret => Me.CurrentTarget.Location),
-                    Spell.Cast("Holy Prism", on => Me, ret => Unit.UnfriendlyUnits(15).Count() >= 2),
-                    Spell.Cast("Holy Prism", on => Me.CurrentTarget),
+                    Spell.Cast("Holy Prism", on => Unit.UnfriendlyUnits(15).Count() >= 2 ? Me : Me.CurrentTarget),
                     Spell.Cast("Execution Sentence"),
                     Spell.Cast("Hammer of Wrath"),
                     Spell.Cast("Shield of the Righteous", ret => Me.CurrentHolyPower >= 3 && AdvancedAI.Burst),//need hotkey 
