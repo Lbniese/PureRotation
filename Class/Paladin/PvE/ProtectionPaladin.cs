@@ -144,6 +144,7 @@ namespace AdvancedAI.Class.Paladin.PvE
                     return "Seal of Truth";
                 }
             }
+            return null;
         }
 
         #region Light's Hammer
