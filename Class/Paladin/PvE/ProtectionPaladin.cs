@@ -30,14 +30,16 @@ namespace AdvancedAI.Class.Paladin.PvE
                     //Spell.Cast("Seal of Truth", ret => Me.ManaPercent >= 30 && Me.HealthPercent > 50 && Unit.UnfriendlyUnits(8).Count() <= 3 && !Me.HasAura("Seal of Truth")),
                     //Spell.Cast("Seal of Righteousness", ret => Me.ManaPercent >= 30 && Me.HealthPercent > 50 && Unit.UnfriendlyUnits(8).Count() >= 4 && !Me.HasAura("Seal of Righteousness")),
 
-                    new Decorator(ret => Me.ManaPercent >= 30 && Me.HealthPercent > 50,
-                        new PrioritySelector(
-                            new Decorator(ret => Unit.UnfriendlyUnits(8).Count() >= 5 && !Me.HasAura("Seal of Righteousness"),
-                                new PrioritySelector(
-                                    Spell.Cast("Seal of Righteousness"),
-                                    new ActionAlwaysSucceed())),
-                            new Decorator(ret => Me.HasAura("Seal of Truth"),
-                                Spell.Cast("Seal of Truth")))),
+                    Spell.Cast(Seal()),
+
+                    //new Decorator(ret => Me.ManaPercent >= 30 && Me.HealthPercent > 50,
+                    //    new PrioritySelector(
+                    //        new Decorator(ret => Unit.UnfriendlyUnits(8).Count() >= 5 && !Me.HasAura("Seal of Righteousness"),
+                    //            new PrioritySelector(
+                    //                Spell.Cast("Seal of Righteousness"),
+                    //                new ActionAlwaysSucceed())),
+                    //        new Decorator(ret => Me.HasAura("Seal of Truth"),
+                    //            Spell.Cast("Seal of Truth")))),
 
 
                     //Staying alive
@@ -136,14 +138,14 @@ namespace AdvancedAI.Class.Paladin.PvE
 
         private static string Seal()
         {
-            if (Unit.UnfriendlyUnits(8).Count() >= 5)
-                {
-                    if (!Me.HasAura("Seal of Righteousness"))
-                    {
-                        return "Seal of Righteousness";
-                    }
-                }
-            return !Me.HasAura("Seal of Truth") ? "Seal of Truth" : "";
+            var bestSeal = "";
+            if (Me.ManaPercent < 30 && Me.HealthPercent > 50)
+                bestSeal = "Seal of Insight";
+            else if (Unit.NearbyUnfriendlyUnits.Count(u => u.Distance <= 8) >= 5 && !Me.HasAura("Seal of Righteousness"))
+                bestSeal = "Seal of Righteousness";
+            else if (!Me.HasAura("Seal of Truth"))
+                bestSeal = "Seal of Truth";
+            return bestSeal;
         }
 
         #region Light's Hammer
