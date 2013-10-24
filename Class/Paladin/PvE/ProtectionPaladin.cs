@@ -33,13 +33,14 @@ namespace AdvancedAI.Class.Paladin.PvE
                     //Spell.Cast("Seal of Righteousness", ret => Me.ManaPercent >= 30 && Me.HealthPercent > 50 && Unit.UnfriendlyUnits(8).Count() >= 4 && !Me.HasAura("Seal of Righteousness")),
 
 
+
                     //new Decorator(ret => Me.ManaPercent >= 30 && Me.HealthPercent > 50,
                     //    new PrioritySelector(
                     //        new Decorator(ret => Unit.UnfriendlyUnits(8).Count() >= 5 && !Me.HasAura("Seal of Righteousness"),
                     //            new PrioritySelector(
                     //                Spell.Cast("Seal of Righteousness"),
                     //                new ActionAlwaysSucceed())),
-                    //        new Decorator(ret => Me.HasAura("Seal of Truth"),
+                    //        new Decorator(ret => !Me.HasAura("Seal of Truth"),
                     //            Spell.Cast("Seal of Truth")))),
 
                     new Throttle( TimeSpan.FromMilliseconds(500),

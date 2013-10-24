@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Windows.Forms;
 using AdvancedAI.Helpers;
 using AdvancedAI.Managers;
@@ -22,10 +23,10 @@ namespace AdvancedAI.Class.Warrior.PvE
             return new PrioritySelector(
                     new Decorator(ret => Me.CurrentTarget != null && !Me.CurrentTarget.IsAlive && Me.IsCasting,
                     new ActionAlwaysSucceed()),
-                    new Decorator(ret => Me.HasAura("Dire Fixation"),
-                        new PrioritySelector(
-                            BossMechs.HorridonHeroic())),
-                    new Throttle(1, 1,
+                    //new Decorator(ret => Me.HasAura("Dire Fixation"),
+                    //    new PrioritySelector(
+                    //        BossMechs.HorridonHeroic())),
+                    new Throttle(TimeSpan.FromMilliseconds(1500),
                         new PrioritySelector(
                             Common.CreateInterruptBehavior())),
                     new Decorator(ret => AdvancedAI.Burst && Me.CurrentTarget.IsWithinMeleeRange,
@@ -56,10 +57,11 @@ namespace AdvancedAI.Class.Warrior.PvE
                     Spell.Cast("Shield Wall", ret => Me.HealthPercent <= 30 && !Me.CachedHasAura("Last Stand")),
 
                     //Might need some testing
-                    new Throttle(1, 1,
-                        new PrioritySelector(
-                    Spell.Cast("Rallying Cry", ret => HealerManager.GetCountWithHealth(55) > 4),
-                    Spell.Cast("Demoralizing Shout", ret => Unit.UnfriendlyUnits(10).Any() && IsCurrentTank()))),
+                    //new Throttle(1, 1,
+                    //    new PrioritySelector(
+                    //Spell.Cast("Rallying Cry", ret => HealerManager.GetCountWithHealth(55) > 4),
+                    //Spell.Cast("Demoralizing Shout", ret => Unit.UnfriendlyUnits(10).Any() && IsCurrentTank()))),
+                    Spell.Cast("Demoralizing Shout", ret => Me.CurrentTarget.Distance <= 10 && IsCurrentTank()),
 
                     Spell.Cast("Shield Block", ret => !Me.CachedHasAura("Shield Block") && IsCurrentTank() && AdvancedAI.Weave),
                     Spell.Cast("Shield Barrier", ret => Me.CurrentRage > 60 && !Me.CachedHasAura("Shield Barrier") && IsCurrentTank() && !AdvancedAI.Weave),
@@ -75,8 +77,8 @@ namespace AdvancedAI.Class.Warrior.PvE
                     Spell.Cast("Storm Bolt"),
                     Spell.Cast("Dragon Roar", ret => Me.CurrentTarget.Distance <= 8),
                     Spell.Cast("Execute"),
-                    Spell.Cast("Thunder Clap", ret => !Me.CurrentTarget.CachedHasAura("Weakened Blows") && Me.CurrentTarget.Distance <= 8),
-
+                    Spell.Cast("Thunder Clap", ret => Clusters.GetCluster(Me, Unit.NearbyUnfriendlyUnits, ClusterType.Radius, 8).Any(u => !u.CachedHasAura("Weakened Blows"))),
+ 
                     new Decorator(ret => Unit.UnfriendlyUnits(8).Count() >=2 && AdvancedAI.Aoe,
                         CreateAoe()),
 
@@ -100,8 +102,8 @@ namespace AdvancedAI.Class.Warrior.PvE
         {
             return new PrioritySelector(
                 Spell.Cast("Shockwave", ret => Clusters.GetClusterCount(Me, Unit.NearbyUnfriendlyUnits, ClusterType.Cone, 9) >= 3),
-                Spell.Cast("Bladestorm"),
-                Spell.Cast("Thunder Clap"),
+                Spell.Cast("Bladestorm", ret => Me.CurrentTarget.Distance <= 8),
+                Spell.Cast("Thunder Clap", ret => Me.CurrentTarget.Distance <= 8),
                 Spell.Cast("Cleave", ret => (Me.CurrentRage > 85 || Me.CachedHasAura(122510) || Me.CachedHasAura(122016)) && Clusters.GetClusterCount(Me, Unit.NearbyUnfriendlyUnits, ClusterType.Cone, 5) >= 2)
                 );
         }
